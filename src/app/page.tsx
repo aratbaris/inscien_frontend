@@ -179,7 +179,7 @@ function AgentCard({ agent }: { agent: Agent }) {
 }
 
 function UserNav() {
-  const { user, isAuthenticated, isLoading, login } = useAuth();
+  const { user, isAuthenticated, isLoading, tier, login } = useAuth();
 
   if (isLoading) {
     return <div className={styles.navCtaPlaceholder} />;
@@ -198,18 +198,21 @@ function UserNav() {
     user.email[0].toUpperCase();
 
   return (
-    <a href="/settings" className={styles.navUser}>
-      {user.picture_url ? (
-        <img
-          src={user.picture_url}
-          alt={initials}
-          className={styles.navAvatar}
-          referrerPolicy="no-referrer"
-        />
-      ) : (
-        <div className={styles.navAvatarFallback}>{initials}</div>
-      )}
-    </a>
+    <div className={styles.navUserGroup}>
+      {tier === "pro" && <span className={styles.navProBadge}>Pro</span>}
+      <a href="/settings" className={styles.navUser}>
+        {user.picture_url ? (
+          <img
+            src={user.picture_url}
+            alt={initials}
+            className={styles.navAvatar}
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <div className={styles.navAvatarFallback}>{initials}</div>
+        )}
+      </a>
+    </div>
   );
 }
 
@@ -228,23 +231,11 @@ export default function Home() {
       {/* Navigation */}
       <nav className={styles.nav}>
         <div className={styles.navLeft}>
-          <a href="/" className={styles.navLogo}>
-            <svg
-              className={styles.navLogoIcon}
-              viewBox="0 0 64 64"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle className={styles.navLogoDot1} cx="20" cy="42" r="9" fill="currentColor" />
-              <circle className={styles.navLogoDot2} cx="42" cy="38" r="7" fill="currentColor" opacity="0.6" />
-              <circle className={styles.navLogoDot3} cx="34" cy="22" r="5" fill="currentColor" opacity="0.3" />
-            </svg>
-            InScien
-          </a>
+          <div className={styles.navLogo}>InScien</div>
           <div className={styles.navLinks}>
             <a href="#agents">Agents</a>
             <a href="#how">How it works</a>
-            <a href="#pricing">Pricing</a>
+            <a href="/pricing">Pricing</a>
           </div>
         </div>
         <UserNav />
@@ -436,22 +427,25 @@ export default function Home() {
             </div>
             <div className={styles.priceList}>
               <div className={styles.priceItem}>Full artifact history and search</div>
-              <div className={styles.priceItem}>Alerts and custom thresholds</div>
-              <div className={styles.priceItem}>Configurable delivery channels</div>
+              <div className={styles.priceItem}>All tickers and company tracking</div>
+              <div className={styles.priceItem}>14-day timelines on topic maps</div>
               <div className={styles.priceItem}>Exports and API access</div>
               <div className={styles.priceItem}>Priority support</div>
             </div>
+            <a href="/pricing" className={styles.priceCardCta}>
+              View plans →
+            </a>
           </div>
         </div>
       </section>
 
       {/* Footer */}
       <footer className={styles.footer}>
-        <div className={styles.footerCopy}>© 2026 InScien</div>
+        <div className={styles.footerCopy}>© 2026 InScien · Finance Lab Teknoloji A.Ş.</div>
         <div className={styles.footerLinks}>
-          <a href="#">X</a>
-          <a href="#">LinkedIn</a>
-          <a href="#">GitHub</a>
+          <a href="/terms">Terms</a>
+          <a href="/privacy">Privacy</a>
+          <span>info@inscien.com</span>
         </div>
       </footer>
     </>

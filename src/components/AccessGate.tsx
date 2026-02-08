@@ -56,7 +56,6 @@ export function AccessGate({
       <div style={styles.card}>
         {needsAuth && (
           <>
-            <div style={styles.icon}>🔒</div>
             <div style={styles.title}>Sign in to continue</div>
             <div style={styles.desc}>
               Sign in with Google to access {label}. It's free.

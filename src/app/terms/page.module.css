@@ -1,0 +1,143 @@
+.page {
+  min-height: 100vh;
+  background: #f7f7f9;
+  font-family: var(--font-sans), "DM Sans", -apple-system, sans-serif;
+  color: #1a1a1f;
+  padding-bottom: 80px;
+}
+
+/* HEADER */
+.header {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 100px 40px 0;
+}
+
+.headerTop {
+  margin-bottom: 32px;
+}
+
+.backLink {
+  font-size: 13px;
+  color: #8a8a98;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.backLink:hover {
+  color: #1a1a1f;
+}
+
+.headerMain {
+  padding-bottom: 32px;
+  border-bottom: 1px solid #dddde3;
+}
+
+.pageDomain {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a8a98;
+  margin-bottom: 8px;
+}
+
+.pageTitle {
+  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  color: #1a1a1f;
+  margin-bottom: 8px;
+}
+
+.lastUpdated {
+  font-size: 13px;
+  color: #8a8a98;
+  font-weight: 500;
+}
+
+/* CONTENT */
+.content {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.intro {
+  font-size: 15px;
+  color: #4a4a56;
+  line-height: 1.7;
+  padding: 32px 0;
+  border-bottom: 1px solid #ebebf0;
+}
+
+/* SECTIONS */
+.section {
+  padding: 32px 0 0;
+}
+
+.sectionTitle {
+  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: #1a1a1f;
+  margin-bottom: 12px;
+}
+
+.subsectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1f;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.section p {
+  font-size: 14px;
+  color: #4a4a56;
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+
+.companyBlock {
+  background: #ffffff;
+  border: 1px solid #dddde3;
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin: 12px 0 16px;
+}
+
+.companyBlock p {
+  font-size: 13.5px;
+  color: #4a4a56;
+  line-height: 1.6;
+  margin-bottom: 4px;
+}
+
+.companyBlock p:last-child {
+  margin-bottom: 0;
+}
+
+.link {
+  color: #1e4fd8;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .header {
+    padding: 80px 24px 0;
+  }
+
+  .content {
+    padding: 0 24px;
+  }
+}

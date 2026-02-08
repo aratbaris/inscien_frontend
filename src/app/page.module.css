@@ -48,29 +48,7 @@
   font-size: 18px;
   letter-spacing: -0.03em;
   color: var(--text);
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
-
-.navLogoIcon {
-  width: 20px;
-  height: 20px;
-  color: var(--text);
-  flex-shrink: 0;
-}
-
-/* Logo dot scatter animation */
-.navLogoDot1,
-.navLogoDot2,
-.navLogoDot3 {
-  transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.navLogo:hover .navLogoDot1 { transform: translate(-2px, 2px); }
-.navLogo:hover .navLogoDot2 { transform: translate(2.5px, 0.5px); }
-.navLogo:hover .navLogoDot3 { transform: translate(0px, -2.5px); }
 
 .navLinks {
   display: flex;
@@ -111,6 +89,24 @@
 .navCtaPlaceholder {
   width: 36px;
   height: 36px;
+}
+
+.navUserGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navProBadge {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  background: var(--bg-tag);
+  padding: 2px 7px;
+  border-radius: 3px;
+  line-height: 1;
 }
 
 .navUser {
@@ -552,6 +548,21 @@
   border-color: var(--text);
 }
 
+.priceCardCta {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.priceCardCta:hover {
+  opacity: 0.7;
+}
+
 .priceLabel {
   font-size: 12px;
   font-weight: 600;
@@ -620,7 +631,8 @@
   gap: 24px;
 }
 
-.footerLinks a {
+.footerLinks a,
+.footerLinks span {
   font-size: 12px;
   color: var(--text-3);
   text-decoration: none;
