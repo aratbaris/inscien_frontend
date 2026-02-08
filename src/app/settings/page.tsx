@@ -90,6 +90,41 @@ export default function SettingsPage() {
         </section>
 
         <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Subscription</h2>
+          <div className={styles.subscriptionCard}>
+            <div className={styles.subscriptionInfo}>
+              <div className={styles.subscriptionPlan}>
+                <span className={styles.subscriptionPlanName}>
+                  {user.tier === "pro" ? "Pro" : "Free"}
+                </span>
+                {user.tier === "pro" && (
+                  <span className={styles.proBadge}>Active</span>
+                )}
+              </div>
+              <p className={styles.subscriptionDesc}>
+                {user.tier === "pro"
+                  ? "You have full access to all tickers, companies, timelines, and extended history."
+                  : "You're on the free tier. Upgrade to Pro for full access to all features."}
+              </p>
+            </div>
+            {user.tier === "pro" ? (
+              <a
+                href="https://app.gumroad.com/library"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.manageBtn}
+              >
+                Manage subscription
+              </a>
+            ) : (
+              <a href="/pricing" className={styles.upgradeBtn}>
+                Upgrade to Pro
+              </a>
+            )}
+          </div>
+        </section>
+
+        <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Session</h2>
           <div className={styles.sessionCard}>
             <p className={styles.sessionDesc}>

@@ -159,6 +159,97 @@
   font-weight: 500;
 }
 
+/* SUBSCRIPTION CARD */
+.subscriptionCard {
+  background: #ffffff;
+  border: 1px solid #dddde3;
+  border-radius: 8px;
+  padding: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.subscriptionInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.subscriptionPlan {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.subscriptionPlanName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1f;
+}
+
+.proBadge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #0f7b3f;
+  background: rgba(15, 123, 63, 0.08);
+  padding: 2px 10px;
+  border-radius: 12px;
+}
+
+.subscriptionDesc {
+  font-size: 13.5px;
+  color: #4a4a56;
+  line-height: 1.5;
+}
+
+.manageBtn {
+  height: 36px;
+  padding: 0 20px;
+  background: #ffffff;
+  color: #1a1a1f;
+  border: 1px solid #dddde3;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: var(--font-sans), "DM Sans", -apple-system, sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.manageBtn:hover {
+  border-color: #1a1a1f;
+}
+
+.upgradeBtn {
+  height: 36px;
+  padding: 0 20px;
+  background: #1a1a1f;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: var(--font-sans), "DM Sans", -apple-system, sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.upgradeBtn:hover {
+  opacity: 0.85;
+}
+
 /* SESSION CARD */
 .sessionCard {
   background: #ffffff;

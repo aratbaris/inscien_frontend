@@ -228,7 +228,19 @@ export default function Home() {
       {/* Navigation */}
       <nav className={styles.nav}>
         <div className={styles.navLeft}>
-          <div className={styles.navLogo}>InScien</div>
+          <a href="/" className={styles.navLogo}>
+            <svg
+              className={styles.navLogoIcon}
+              viewBox="0 0 64 64"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle className={styles.navLogoDot1} cx="20" cy="42" r="9" fill="currentColor" />
+              <circle className={styles.navLogoDot2} cx="42" cy="38" r="7" fill="currentColor" opacity="0.6" />
+              <circle className={styles.navLogoDot3} cx="34" cy="22" r="5" fill="currentColor" opacity="0.3" />
+            </svg>
+            InScien
+          </a>
           <div className={styles.navLinks}>
             <a href="#agents">Agents</a>
             <a href="#how">How it works</a>

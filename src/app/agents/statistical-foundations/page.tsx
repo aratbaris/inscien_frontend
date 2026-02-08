@@ -3,6 +3,8 @@
 import { useState, useRef, useCallback, ReactNode } from "react"
 import styles from "./page.module.css"
 import { topics } from "@/components/learn/topicData"
+import { AccessGate } from "@/components/AccessGate"
+import { useAuth } from "@/lib/auth"
 
 /* ─── Visualization imports ─── */
 import {
@@ -73,6 +75,10 @@ function resolveViz(key: string, active: boolean, props: Record<string, unknown>
   }
 }
 
+/* ─── Constants ─── */
+
+const FREE_STEPS = 4 // Steps 1-4 are free, 5+ require auth
+
 /* ─── Page ─── */
 
 export default function StatFoundationsPage() {
@@ -80,6 +86,7 @@ export default function StatFoundationsPage() {
   const [currentStep, setCurrentStep] = useState(0)
   const stepRefs = useRef<(HTMLDivElement | null)[]>([])
   const flowRef = useRef<HTMLDivElement | null>(null)
+  const { canAccess } = useAuth()
 
   const topic = topics.find((t) => t.id === activeTopic)
   const totalSteps = topic?.steps.length || 0
@@ -178,7 +185,11 @@ export default function StatFoundationsPage() {
               >
                 <div className={styles.topicTop}>
                   <span className={styles.topicTag}>{t.tag}</span>
-                  <span className={styles.topicSteps}>{t.steps.length} steps</span>
+                  <span className={styles.topicSteps}>
+                    {canAccess("auth")
+                      ? `${t.steps.length} steps`
+                      : `${Math.min(FREE_STEPS, t.steps.length)} of ${t.steps.length} free`}
+                  </span>
                 </div>
                 <div className={styles.topicTitle}>{t.title}</div>
                 <p className={styles.topicDesc}>{t.desc}</p>
@@ -214,6 +225,17 @@ export default function StatFoundationsPage() {
           {topic.steps.map((step, idx) => {
             if (idx > currentStep) return null
             const isCurrent = idx === currentStep
+
+            // If this step is gated and user has no access, show AccessGate
+            if (idx >= FREE_STEPS && !canAccess("auth")) {
+              return (
+                <div key={idx} ref={(el) => { stepRefs.current[idx] = el }}>
+                  <AccessGate requires="auth" featureLabel={`steps ${FREE_STEPS + 1}–${totalSteps}`}>
+                    <div />
+                  </AccessGate>
+                </div>
+              )
+            }
 
             return (
               <div key={idx}>

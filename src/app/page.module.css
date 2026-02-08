@@ -48,7 +48,29 @@
   font-size: 18px;
   letter-spacing: -0.03em;
   color: var(--text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+
+.navLogoIcon {
+  width: 20px;
+  height: 20px;
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+/* Logo dot scatter animation */
+.navLogoDot1,
+.navLogoDot2,
+.navLogoDot3 {
+  transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.navLogo:hover .navLogoDot1 { transform: translate(-2px, 2px); }
+.navLogo:hover .navLogoDot2 { transform: translate(2.5px, 0.5px); }
+.navLogo:hover .navLogoDot3 { transform: translate(0px, -2.5px); }
 
 .navLinks {
   display: flex;

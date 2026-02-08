@@ -670,3 +670,171 @@
     max-width: 100%;
   }
 }
+
+
+/* ─── Add to topic map agent page.module.css files ─── */
+/* (micro-saas-map, big-tech-evolution) */
+
+.viewTabLockedWrap {
+  position: relative;
+}
+
+.viewTabLocked {
+  color: #c5c5ce;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.viewTabLocked:hover {
+  color: #8a8a98;
+}
+
+.viewTabTooltip {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 500;
+  color: #ffffff;
+  background: #1a1a1f;
+  padding: 6px 12px;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.viewTabTooltip::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-bottom-color: #1a1a1f;
+}
+
+.viewTabLockedWrap:hover .viewTabTooltip {
+  display: block;
+}
+
+/* ─── VOLATILITY LAB — Add to volatility-lab/page.module.css ─── */
+
+.tickerChipWrap {
+  position: relative;
+}
+
+.tickerChipLocked {
+  color: #c5c5ce;
+  border-color: #ebebf0;
+}
+
+.tickerChipLocked:hover {
+  color: #8a8a98;
+  border-color: #dddde3;
+}
+
+.tickerChipTooltip {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 500;
+  color: #ffffff;
+  background: #1a1a1f;
+  padding: 4px 10px;
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.tickerChipTooltip::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-bottom-color: #1a1a1f;
+}
+
+.tickerChipWrap:hover .tickerChipTooltip {
+  display: block;
+}
+
+.tickerProHint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.tickerProLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #1e4fd8;
+  background: rgba(30, 79, 216, 0.08);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.tickerProText {
+  font-size: 12.5px;
+  color: #8a8a98;
+  font-weight: 500;
+}
+
+
+/* ─── BIG TECH EVOLUTION — Add to big-tech-evolution/page.module.css ─── */
+
+.companyChipWrap {
+  position: relative;
+}
+
+.companyChipLocked {
+  color: #c5c5ce;
+  border-color: #ebebf0;
+}
+
+.companyChipLocked:hover {
+  color: #8a8a98;
+  border-color: #dddde3;
+}
+
+.companyChipTooltip {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 500;
+  color: #ffffff;
+  background: #1a1a1f;
+  padding: 4px 10px;
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.companyChipTooltip::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-bottom-color: #1a1a1f;
+}
+
+.companyChipWrap:hover .companyChipTooltip {
+  display: block;
+}

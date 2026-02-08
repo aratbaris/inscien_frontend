@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import styles from "./page.module.css";
+import { AccessGate } from "@/components/AccessGate";
+import { useAuth } from "@/lib/auth";
 import {
   LineChart,
   Line,
@@ -31,6 +33,7 @@ const COLORS = [
 ];
 
 const PRESET_TICKERS = ["SPY", "QQQ", "AAPL", "MSFT", "GOOGL", "TSLA", "AMZN", "NVDA", "META", "JPM"];
+const FREE_TICKER = "SPY";
 
 // ─── Types ───
 
@@ -360,6 +363,8 @@ export default function VolatilityLabPage() {
   const [inputVal, setInputVal] = useState("SPY");
   const [activeSection, setActiveSection] = useState("");
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const { canAccess, login } = useAuth();
+  const hasPro = canAccess("pro");
 
   const loadReport = useCallback(async (t: string) => {
     setLoading(true);
@@ -412,6 +417,9 @@ export default function VolatilityLabPage() {
     }
   };
 
+  // Free section count: anonymous users see the first section only
+  const FREE_SECTIONS = 1;
+
   return (
     <div className={styles.page}>
       {/* Header */}
@@ -454,33 +462,50 @@ export default function VolatilityLabPage() {
       <div className={styles.tickerBar}>
         <div className={styles.tickerBarInner}>
           <div className={styles.tickerPresets}>
-            {PRESET_TICKERS.map((t) => (
-              <button
-                key={t}
-                className={`${styles.tickerChip} ${ticker === t ? styles.tickerChipActive : ""}`}
-                onClick={() => {
-                  setTicker(t);
-                  setInputVal(t);
-                }}
-              >
-                {t}
+            {PRESET_TICKERS.map((t) => {
+              const isFree = t === FREE_TICKER;
+              const locked = !isFree && !hasPro;
+              return (
+                <div key={t} className={styles.tickerChipWrap}>
+                  <button
+                    className={`${styles.tickerChip} ${ticker === t ? styles.tickerChipActive : ""} ${locked ? styles.tickerChipLocked : ""}`}
+                    onClick={() => {
+                      if (locked) {
+                        window.location.href = "/pricing";
+                        return;
+                      }
+                      setTicker(t);
+                      setInputVal(t);
+                    }}
+                  >
+                    {t}
+                  </button>
+                  {locked && <div className={styles.tickerChipTooltip}>Pro feature</div>}
+                </div>
+              );
+            })}
+          </div>
+          {hasPro ? (
+            <div className={styles.tickerInputGroup}>
+              <input
+                className={styles.tickerInput}
+                type="text"
+                value={inputVal}
+                onChange={(e) => setInputVal(e.target.value.toUpperCase())}
+                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                placeholder="Ticker..."
+                maxLength={12}
+              />
+              <button className={styles.tickerGo} onClick={handleSubmit}>
+                Go
               </button>
-            ))}
-          </div>
-          <div className={styles.tickerInputGroup}>
-            <input
-              className={styles.tickerInput}
-              type="text"
-              value={inputVal}
-              onChange={(e) => setInputVal(e.target.value.toUpperCase())}
-              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-              placeholder="Ticker..."
-              maxLength={12}
-            />
-            <button className={styles.tickerGo} onClick={handleSubmit}>
-              Go
-            </button>
-          </div>
+            </div>
+          ) : (
+            <div className={styles.tickerProHint}>
+              <span className={styles.tickerProLabel}>Pro</span>
+              <span className={styles.tickerProText}>Unlock all tickers</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -518,9 +543,19 @@ export default function VolatilityLabPage() {
 
         {!loading && !error && report && (
           <div className={styles.sections}>
-            {report.sections.map((section) => (
+            {/* Free sections — always visible */}
+            {report.sections.slice(0, FREE_SECTIONS).map((section) => (
               <SectionRenderer key={section.id} section={section} />
             ))}
+
+            {/* Gated sections — require auth */}
+            {report.sections.length > FREE_SECTIONS && (
+              <AccessGate requires="auth" featureLabel="the full analysis">
+                {report.sections.slice(FREE_SECTIONS).map((section) => (
+                  <SectionRenderer key={section.id} section={section} />
+                ))}
+              </AccessGate>
+            )}
           </div>
         )}
 

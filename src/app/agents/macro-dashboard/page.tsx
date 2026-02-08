@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import styles from "./page.module.css";
+import { AccessGate } from "@/components/AccessGate";
 import {
   LineChart,
   Line,
@@ -224,6 +225,8 @@ export default function MacroDashboardPage() {
   const [activeSection, setActiveSection] = useState("");
   const observerRef = useRef<IntersectionObserver | null>(null);
 
+  const FREE_SECTIONS = 1;
+
   const loadReport = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -298,7 +301,19 @@ export default function MacroDashboardPage() {
         {error && <div className={styles.error}><p>{error}</p><button onClick={loadReport} className={styles.retry}>Retry</button></div>}
         {!loading && !error && report && (
           <div className={styles.sections}>
-            {report.sections.map((section) => <SectionRenderer key={section.id} section={section} />)}
+            {/* Free sections — always visible */}
+            {report.sections.slice(0, FREE_SECTIONS).map((section) => (
+              <SectionRenderer key={section.id} section={section} />
+            ))}
+
+            {/* Gated sections — require auth */}
+            {report.sections.length > FREE_SECTIONS && (
+              <AccessGate requires="auth" featureLabel="the full dashboard">
+                {report.sections.slice(FREE_SECTIONS).map((section) => (
+                  <SectionRenderer key={section.id} section={section} />
+                ))}
+              </AccessGate>
+            )}
           </div>
         )}
         {!loading && !error && report && (

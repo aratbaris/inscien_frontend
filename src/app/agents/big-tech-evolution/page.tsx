@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import styles from "./page.module.css";
+import { AccessGate } from "@/components/AccessGate";
+import { useAuth } from "@/lib/auth";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -118,24 +120,40 @@ function CompanySelector({
   activeId,
   onChange,
   loading,
+  hasPro,
+  onLocked,
 }: {
   companies: CompanyDef[];
   activeId: string;
   onChange: (id: string) => void;
   loading: boolean;
+  hasPro: boolean;
+  onLocked: () => void;
 }) {
   return (
     <div className={styles.companySelector}>
-      {companies.map((c) => (
-        <button
-          key={c.id}
-          className={`${styles.companyChip} ${activeId === c.id ? styles.companyChipActive : ""}`}
-          onClick={() => onChange(c.id)}
-          disabled={loading}
-        >
-          {c.label}
-        </button>
-      ))}
+      {companies.map((c, idx) => {
+        const isFree = idx === 0;
+        const locked = !isFree && !hasPro;
+        return (
+          <div key={c.id} className={styles.companyChipWrap}>
+            <button
+              className={`${styles.companyChip} ${activeId === c.id ? styles.companyChipActive : ""} ${locked ? styles.companyChipLocked : ""}`}
+              onClick={() => {
+                if (locked) {
+                  onLocked();
+                  return;
+                }
+                onChange(c.id);
+              }}
+              disabled={loading}
+            >
+              {c.label}
+            </button>
+            {locked && <div className={styles.companyChipTooltip}>Pro feature</div>}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -279,6 +297,7 @@ export default function BigTechEvolutionPage() {
   const [timelineData, setTimelineData] = useState<TimelineResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { canAccess, login } = useAuth();
 
   const loadData = useCallback(async (company: CompanyDef) => {
     setLoading(true);
@@ -316,6 +335,9 @@ export default function BigTechEvolutionPage() {
   const evidenceCount = mapData
     ? Object.values(mapData.nodeDetailsById || {}).reduce((sum, d) => sum + (d.evidence?.length || 0), 0)
     : 0;
+
+  const hasTimeline = canAccess("auth");
+  const hasPro = canAccess("pro");
 
   return (
     <div className={styles.page}>
@@ -359,10 +381,29 @@ export default function BigTechEvolutionPage() {
           activeId={activeCompany.id}
           onChange={handleCompanyChange}
           loading={loading}
+          hasPro={hasPro}
+          onLocked={() => { window.location.href = "/pricing"; }}
         />
         <div className={styles.viewToggle}>
           <button className={`${styles.viewTab} ${view === "map" ? styles.viewTabActive : ""}`} onClick={() => setView("map")}>Map</button>
-          <button className={`${styles.viewTab} ${view === "timeline" ? styles.viewTabActive : ""}`} onClick={() => setView("timeline")}>Timeline</button>
+          {hasTimeline ? (
+            <button
+              className={`${styles.viewTab} ${view === "timeline" ? styles.viewTabActive : ""}`}
+              onClick={() => setView("timeline")}
+            >
+              Timeline
+            </button>
+          ) : (
+            <div className={styles.viewTabLockedWrap}>
+              <button
+                className={`${styles.viewTab} ${styles.viewTabLocked}`}
+                onClick={() => login(window.location.pathname)}
+              >
+                Timeline
+              </button>
+              <div className={styles.viewTabTooltip}>Sign in to access timeline</div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -383,7 +424,12 @@ export default function BigTechEvolutionPage() {
           </div>
         )}
         {!loading && !error && view === "map" && mapData && <MapView data={mapData} />}
-        {!loading && !error && view === "timeline" && timelineData && <TimelineView data={timelineData} />}
+        {!loading && !error && view === "timeline" && hasTimeline && timelineData && <TimelineView data={timelineData} />}
+        {!loading && !error && view === "timeline" && !hasTimeline && (
+          <AccessGate requires="auth" featureLabel="the 14-day timeline">
+            <div />
+          </AccessGate>
+        )}
       </main>
     </div>
   );

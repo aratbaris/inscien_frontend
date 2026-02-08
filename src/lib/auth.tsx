@@ -17,22 +17,31 @@ interface User {
   last_name: string;
   email: string;
   picture_url: string | null;
+  tier: string;
   created_at: string | null;
 }
+
+export type AccessLevel = "anon" | "auth" | "pro";
 
 interface AuthContextValue {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  tier: AccessLevel;
+  canAccess: (requires: AccessLevel) => boolean;
   login: (next?: string) => void;
   logout: () => void;
   setTokens: (access: string, refresh: string) => void;
 }
 
+const TIER_RANK: Record<AccessLevel, number> = { anon: 0, auth: 1, pro: 2 };
+
 const AuthContext = createContext<AuthContextValue>({
   user: null,
   isLoading: true,
   isAuthenticated: false,
+  tier: "anon",
+  canAccess: () => false,
   login: () => {},
   logout: () => {},
   setTokens: () => {},
@@ -141,12 +150,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.location.href = `${API_BASE}/api/oauth/google/start${params}`;
   }, []);
 
+  const currentTier: AccessLevel = user
+    ? user.tier === "pro"
+      ? "pro"
+      : "auth"
+    : "anon";
+
+  const canAccess = useCallback(
+    (requires: AccessLevel) => TIER_RANK[currentTier] >= TIER_RANK[requires],
+    [currentTier]
+  );
+
   return (
     <AuthContext.Provider
       value={{
         user,
         isLoading,
         isAuthenticated: !!user,
+        tier: currentTier,
+        canAccess,
         login,
         logout,
         setTokens: setTokensAndLoad,

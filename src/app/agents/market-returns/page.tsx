@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import styles from "./page.module.css";
+import { AccessGate } from "@/components/AccessGate";
 import {
   LineChart,
   Line,
@@ -97,11 +98,6 @@ interface Report {
 
 // ─── Helpers ───
 
-/**
- * Extract year-aligned tick values from date-keyed data.
- * Finds the first data point for each unique year, then picks every Nth year
- * so we get at most `maxTicks` labels on the axis.
- */
 function getYearTicks(
   data: Record<string, unknown>[],
   dateKey: string,
@@ -530,6 +526,9 @@ export default function MarketReturnsPage() {
   const [activeSection, setActiveSection] = useState<string>("");
   const observerRef = useRef<IntersectionObserver | null>(null);
 
+  // Free section count: anonymous users see the first section only
+  const FREE_SECTIONS = 1;
+
   const loadReport = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -654,9 +653,19 @@ export default function MarketReturnsPage() {
 
         {!loading && !error && report && (
           <div className={styles.sections}>
-            {report.sections.map((section) => (
+            {/* Free sections — always visible */}
+            {report.sections.slice(0, FREE_SECTIONS).map((section) => (
               <SectionRenderer key={section.id} section={section} />
             ))}
+
+            {/* Gated sections — require auth */}
+            {report.sections.length > FREE_SECTIONS && (
+              <AccessGate requires="auth" featureLabel="the full analysis">
+                {report.sections.slice(FREE_SECTIONS).map((section) => (
+                  <SectionRenderer key={section.id} section={section} />
+                ))}
+              </AccessGate>
+            )}
           </div>
         )}
 

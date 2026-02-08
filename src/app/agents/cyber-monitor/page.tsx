@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { fetchAgentBrief } from "@/lib/api";
 import type { BriefResponse, BriefItem, AvailableDate } from "@/lib/types";
+import { AccessGate } from "@/components/AccessGate";
+import { useAuth } from "@/lib/auth";
 import styles from "./page.module.css";
 
 function formatSource(source: string): string {
@@ -11,7 +13,6 @@ function formatSource(source: string): string {
 
 function formatTimestamp(ts: string): string {
   if (!ts) return "";
-  // Show date and time portion only
   const clean = ts.replace("T", " ").replace("Z", "").substring(0, 16);
   return clean;
 }
@@ -52,6 +53,7 @@ export default function CyberMonitorPage() {
   const [selectedDay, setSelectedDay] = useState("latest");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { canAccess, login } = useAuth();
 
   const loadBrief = useCallback(async (day: string) => {
     setLoading(true);
@@ -73,6 +75,8 @@ export default function CyberMonitorPage() {
   const handleDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedDay(e.target.value);
   };
+
+  const hasHistory = canAccess("auth");
 
   return (
     <div className={styles.page}>
@@ -119,22 +123,33 @@ export default function CyberMonitorPage() {
           )}
         </div>
         <div className={styles.controlsRight}>
-          <label className={styles.dayLabel} htmlFor="day-select">
-            Date
-          </label>
-          <select
-            id="day-select"
-            className={styles.daySelect}
-            value={selectedDay}
-            onChange={handleDayChange}
-          >
-            <option value="latest">Latest</option>
-            {data?.available_dates.map((d: AvailableDate) => (
-              <option key={d.key} value={d.key}>
-                {d.label}
-              </option>
-            ))}
-          </select>
+          {hasHistory ? (
+            <>
+              <label className={styles.dayLabel} htmlFor="day-select">
+                Date
+              </label>
+              <select
+                id="day-select"
+                className={styles.daySelect}
+                value={selectedDay}
+                onChange={handleDayChange}
+              >
+                <option value="latest">Latest</option>
+                {data?.available_dates.map((d: AvailableDate) => (
+                  <option key={d.key} value={d.key}>
+                    {d.label}
+                  </option>
+                ))}
+              </select>
+            </>
+          ) : (
+            <button
+              className={styles.signInHint}
+              onClick={() => login(window.location.pathname)}
+            >
+              Sign in for history →
+            </button>
+          )}
         </div>
       </div>
 

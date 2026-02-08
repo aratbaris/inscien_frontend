@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import styles from "./page.module.css";
+import { AccessGate } from "@/components/AccessGate";
+import { useAuth } from "@/lib/auth";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const TOPIC_ID = "micro_saas_environment";
@@ -267,6 +269,7 @@ export default function TechMapsPage() {
   const [timelineData, setTimelineData] = useState<TimelineResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { canAccess, login } = useAuth();
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -303,6 +306,8 @@ export default function TechMapsPage() {
         0
       )
     : 0;
+
+  const hasTimeline = canAccess("auth");
 
   return (
     <div className={styles.page}>
@@ -354,12 +359,24 @@ export default function TechMapsPage() {
           >
             Map
           </button>
-          <button
-            className={`${styles.viewTab} ${view === "timeline" ? styles.viewTabActive : ""}`}
-            onClick={() => setView("timeline")}
-          >
-            Timeline
-          </button>
+          {hasTimeline ? (
+            <button
+              className={`${styles.viewTab} ${view === "timeline" ? styles.viewTabActive : ""}`}
+              onClick={() => setView("timeline")}
+            >
+              Timeline
+            </button>
+          ) : (
+            <div className={styles.viewTabLockedWrap}>
+              <button
+                className={`${styles.viewTab} ${styles.viewTabLocked}`}
+                onClick={() => login(window.location.pathname)}
+              >
+                Timeline
+              </button>
+              <div className={styles.viewTabTooltip}>Sign in to access timeline</div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -380,8 +397,14 @@ export default function TechMapsPage() {
           <MapView data={mapData} />
         )}
 
-        {!loading && !error && view === "timeline" && timelineData && (
+        {!loading && !error && view === "timeline" && hasTimeline && timelineData && (
           <TimelineView data={timelineData} />
+        )}
+
+        {!loading && !error && view === "timeline" && !hasTimeline && (
+          <AccessGate requires="auth" featureLabel="the 14-day timeline">
+            <div />
+          </AccessGate>
         )}
       </main>
     </div>

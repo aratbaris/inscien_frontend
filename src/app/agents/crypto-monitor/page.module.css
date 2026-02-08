@@ -320,3 +320,19 @@
     padding: 20px;
   }
 }
+.signInHint {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1e4fd8;
+  background: none;
+  border: 1px solid #dddde3;
+  border-radius: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.signInHint:hover {
+  border-color: #1e4fd8;
+  background: rgba(30, 79, 216, 0.04);
+}

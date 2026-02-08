@@ -1,0 +1,307 @@
+.page {
+  min-height: 100vh;
+  background: #f7f7f9;
+  font-family: var(--font-sans), "DM Sans", -apple-system, sans-serif;
+  color: #1a1a1f;
+  padding-bottom: 80px;
+}
+
+/* HEADER */
+.header {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 100px 40px 0;
+}
+
+.headerTop {
+  margin-bottom: 32px;
+}
+
+.backLink {
+  font-size: 13px;
+  color: #8a8a98;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.backLink:hover {
+  color: #1a1a1f;
+}
+
+.headerMain {
+  padding-bottom: 32px;
+  border-bottom: 1px solid #dddde3;
+}
+
+.headerCenter {
+  text-align: center;
+}
+
+.pageDomain {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a8a98;
+  margin-bottom: 8px;
+}
+
+.pageTitle {
+  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  color: #1a1a1f;
+  margin-bottom: 10px;
+}
+
+.pageDesc {
+  font-size: 15px;
+  color: #4a4a56;
+  line-height: 1.6;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+/* CONTENT */
+.content {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* PLANS GRID */
+.plansGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.planCard {
+  background: #ffffff;
+  border: 1px solid #dddde3;
+  border-radius: 10px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.planCardPro {
+  border-color: #1a1a1f;
+  border-width: 2px;
+}
+
+.proBadge {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  background: #1a1a1f;
+  padding: 3px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* PLAN HEADER */
+.planHeader {
+  margin-bottom: 24px;
+}
+
+.planName {
+  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: #1a1a1f;
+  margin-bottom: 12px;
+}
+
+.planPriceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.planPrice {
+  font-size: 36px;
+  font-weight: 600;
+  color: #1a1a1f;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.planPeriod {
+  font-size: 14px;
+  color: #8a8a98;
+  font-weight: 500;
+}
+
+.planDesc {
+  font-size: 13.5px;
+  color: #4a4a56;
+  line-height: 1.55;
+}
+
+/* CTA */
+.planCta {
+  margin-bottom: 28px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid #ebebf0;
+}
+
+.ctaPrimary {
+  width: 100%;
+  height: 42px;
+  background: #1a1a1f;
+  color: #ffffff;
+  border: none;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.ctaPrimary:hover {
+  opacity: 0.85;
+}
+
+.ctaPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ctaSecondary {
+  width: 100%;
+  height: 42px;
+  background: #ffffff;
+  color: #1a1a1f;
+  border: 1px solid #dddde3;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ctaSecondary:hover {
+  border-color: #1a1a1f;
+}
+
+.ctaCurrent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 42px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #8a8a98;
+  border: 1px solid #ebebf0;
+  border-radius: 7px;
+  background: #f7f7f9;
+}
+
+/* FEATURE LIST */
+.featureList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.featureRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.featureLabel {
+  font-size: 13px;
+  color: #8a8a98;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.featureDetail {
+  font-size: 13px;
+  color: #4a4a56;
+  font-weight: 500;
+  text-align: right;
+}
+
+.featureDetailPro {
+  color: #1a1a1f;
+  font-weight: 600;
+}
+
+/* FAQ */
+.faqSection {
+  margin-top: 60px;
+}
+
+.faqTitle {
+  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: #1a1a1f;
+  margin-bottom: 24px;
+}
+
+.faqGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.faqItem {
+  background: #ffffff;
+  border: 1px solid #dddde3;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.faqQ {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1f;
+  margin-bottom: 8px;
+  line-height: 1.35;
+}
+
+.faqA {
+  font-size: 13px;
+  color: #4a4a56;
+  line-height: 1.6;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .header {
+    padding: 80px 24px 0;
+  }
+
+  .content {
+    padding: 0 24px;
+  }
+
+  .plansGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .faqGrid {
+    grid-template-columns: 1fr;
+  }
+}

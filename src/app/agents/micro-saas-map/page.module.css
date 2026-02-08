@@ -592,3 +592,52 @@
     max-width: 100%;
   }
 }
+
+
+/* ─── Add to topic map agent page.module.css files ─── */
+/* (micro-saas-map, big-tech-evolution) */
+
+.viewTabLockedWrap {
+  position: relative;
+}
+
+.viewTabLocked {
+  color: #c5c5ce;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.viewTabLocked:hover {
+  color: #8a8a98;
+}
+
+.viewTabTooltip {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 500;
+  color: #ffffff;
+  background: #1a1a1f;
+  padding: 6px 12px;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.viewTabTooltip::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-bottom-color: #1a1a1f;
+}
+
+.viewTabLockedWrap:hover .viewTabTooltip {
+  display: block;
+}
