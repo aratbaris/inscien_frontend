@@ -218,10 +218,10 @@ function MultiLineChart({
             width={60}
           />
           <Tooltip
-            formatter={(value: number | string) =>
-              `${typeof value === "number" ? value.toFixed(2) : value}${ySuffix || ""}`
-            }
-            labelFormatter={formatDateDetailed}
+            formatter={(value) => [
+              `${typeof value === "number" ? value.toFixed(2) : value}${ySuffix || ""}`,
+            ]}
+            labelFormatter={(label) => formatDateDetailed(String(label))}
           />
           <Legend />
           {series.map((s, i) => (
@@ -274,9 +274,9 @@ function SimpleBarChart({
             width={50}
           />
           <Tooltip
-            formatter={(value: number | string) =>
-              `${typeof value === "number" ? value.toFixed(0) : value}`
-            }
+            formatter={(value) => [
+              `${typeof value === "number" ? value.toFixed(0) : value}`,
+            ]}
           />
           <Bar dataKey={yKey} fill={COLORS[0]} radius={[2, 2, 0, 0]} />
         </BarChart>

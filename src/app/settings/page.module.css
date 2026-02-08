@@ -1,0 +1,215 @@
+.page {
+  min-height: 100vh;
+  background: #f7f7f9;
+  font-family: var(--font-sans), "DM Sans", -apple-system, sans-serif;
+  color: #1a1a1f;
+  padding-bottom: 80px;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-size: 14px;
+  color: #8a8a98;
+}
+
+/* HEADER */
+.header {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 100px 40px 0;
+}
+
+.headerTop {
+  margin-bottom: 32px;
+}
+
+.backLink {
+  font-size: 13px;
+  color: #8a8a98;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.backLink:hover {
+  color: #1a1a1f;
+}
+
+.headerMain {
+  padding-bottom: 24px;
+  border-bottom: 1px solid #dddde3;
+}
+
+.pageDomain {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a8a98;
+  margin-bottom: 8px;
+}
+
+.pageTitle {
+  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  color: #1a1a1f;
+}
+
+/* CONTENT */
+.content {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.section {
+  padding: 40px 0 0;
+}
+
+.sectionTitle {
+  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: #1a1a1f;
+  margin-bottom: 16px;
+}
+
+/* PROFILE CARD */
+.profileCard {
+  background: #ffffff;
+  border: 1px solid #dddde3;
+  border-radius: 8px;
+  padding: 28px 28px;
+}
+
+.avatarRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #ebebf0;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.avatarFallback {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #ebebf0;
+  color: #4a4a56;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profileInfo {
+  min-width: 0;
+}
+
+.profileName {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1f;
+  margin-bottom: 2px;
+}
+
+.profileEmail {
+  font-size: 13px;
+  color: #8a8a98;
+}
+
+.profileMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.metaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metaLabel {
+  font-size: 13px;
+  color: #8a8a98;
+  font-weight: 500;
+}
+
+.metaValue {
+  font-size: 13px;
+  color: #1a1a1f;
+  font-weight: 500;
+}
+
+/* SESSION CARD */
+.sessionCard {
+  background: #ffffff;
+  border: 1px solid #dddde3;
+  border-radius: 8px;
+  padding: 28px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.sessionDesc {
+  font-size: 13.5px;
+  color: #4a4a56;
+  line-height: 1.5;
+}
+
+.signOutBtn {
+  height: 36px;
+  padding: 0 20px;
+  background: #ffffff;
+  color: #b91c1c;
+  border: 1px solid #dddde3;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: var(--font-sans), "DM Sans", -apple-system, sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.signOutBtn:hover {
+  border-color: #b91c1c;
+  background: #fef2f2;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .header {
+    padding: 80px 24px 0;
+  }
+
+  .content {
+    padding: 0 24px;
+  }
+
+  .sessionCard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

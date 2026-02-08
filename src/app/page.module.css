@@ -85,6 +85,50 @@
   opacity: 0.8;
 }
 
+/* Nav user (logged in) */
+.navCtaPlaceholder {
+  width: 36px;
+  height: 36px;
+}
+
+.navUser {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.navAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  transition: border-color 0.15s;
+}
+
+.navAvatar:hover {
+  border-color: var(--border-hover);
+}
+
+.navAvatarFallback {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-tag);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  transition: border-color 0.15s;
+}
+
+.navAvatarFallback:hover {
+  border-color: var(--border-hover);
+}
+
 /* HERO */
 .hero {
   max-width: 960px;
@@ -285,11 +329,35 @@
   border-top: 1px solid var(--border);
 }
 
+/* CATEGORY BLOCKS */
+.categoryBlock {
+  margin-bottom: 40px;
+}
+
+.categoryBlock:last-child {
+  margin-bottom: 0;
+}
+
+.categoryLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 14px;
+  letter-spacing: -0.01em;
+}
+
 /* AGENT CARDS */
 .agentsGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
+}
+
+.agentsGridWide {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  max-width: calc((100% - 28px) / 3);
 }
 
 .agentCard {
@@ -458,6 +526,10 @@
   padding: 36px 32px;
 }
 
+.priceCardFeatured {
+  border-color: var(--text);
+}
+
 .priceLabel {
   font-size: 12px;
   font-weight: 600;
@@ -503,58 +575,6 @@
   color: var(--border-hover);
   font-size: 12px;
   flex-shrink: 0;
-}
-
-/* CTA */
-.cta {
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 112px 48px;
-  text-align: center;
-}
-
-.cta h2 {
-  font-family: var(--serif);
-  font-size: clamp(26px, 3vw, 36px);
-  font-weight: 400;
-  letter-spacing: -0.025em;
-  margin-bottom: 12px;
-  color: var(--text);
-}
-
-.cta p {
-  font-size: 15.5px;
-  color: var(--text-2);
-  margin-bottom: 36px;
-}
-
-.ctaInput {
-  display: flex;
-  max-width: 400px;
-  margin: 0 auto;
-  gap: 8px;
-}
-
-.ctaInput input {
-  flex: 1;
-  height: 48px;
-  padding: 0 18px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-family: var(--sans);
-  font-size: 14px;
-  color: var(--text);
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.ctaInput input::placeholder {
-  color: var(--text-3);
-}
-
-.ctaInput input:focus {
-  border-color: var(--accent);
 }
 
 /* FOOTER */
@@ -639,6 +659,9 @@
   .agentsGrid {
     grid-template-columns: 1fr;
   }
+  .agentsGridWide {
+    max-width: 100%;
+  }
   .howGrid {
     grid-template-columns: 1fr;
   }
@@ -649,12 +672,6 @@
     flex-wrap: wrap;
     gap: 36px;
     justify-content: center;
-  }
-  .cta {
-    padding: 80px 24px;
-  }
-  .ctaInput {
-    flex-direction: column;
   }
   .divider {
     padding: 0 24px;

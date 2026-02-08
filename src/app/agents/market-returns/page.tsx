@@ -241,10 +241,10 @@ function MultiLineChart({
             width={60}
           />
           <Tooltip
-            formatter={(value: number | string) =>
-              `${typeof value === "number" ? value.toFixed(2) : value}${ySuffix || ""}`
-            }
-            labelFormatter={formatDateDetailed}
+            formatter={(value) => [
+              `${typeof value === "number" ? value.toFixed(2) : value}${ySuffix || ""}`,
+            ]}
+            labelFormatter={(label) => formatDateDetailed(String(label))}
           />
           <Legend />
           {series.map((s, i) => (
@@ -306,9 +306,9 @@ function SimpleBarChart({
             width={50}
           />
           <Tooltip
-            formatter={(value: number | string) =>
-              `${typeof value === "number" ? value.toFixed(2) : value}${ySuffix || ""}`
-            }
+            formatter={(value) => [
+              `${typeof value === "number" ? value.toFixed(2) : value}${ySuffix || ""}`,
+            ]}
           />
           <ReferenceLine y={0} stroke="#8a8a98" strokeDasharray="3 3" />
           <Bar dataKey={yKey} radius={[2, 2, 0, 0]}>
@@ -376,10 +376,10 @@ function SimulationChart({ block }: { block: Block }) {
             width={70}
           />
           <Tooltip
-            labelFormatter={formatDateDetailed}
-            formatter={(v: number | string) =>
-              typeof v === "number" ? v.toLocaleString() : String(v)
-            }
+            labelFormatter={(label) => formatDateDetailed(String(label))}
+            formatter={(value) => [
+              typeof value === "number" ? value.toLocaleString() : String(value),
+            ]}
           />
           <Legend />
           <Line type="monotone" dataKey="History" stroke="#1a1a1f" dot={false} strokeWidth={1.5} connectNulls />
@@ -430,10 +430,10 @@ function AreaChartWithBands({ block }: { block: Block }) {
             width={60}
           />
           <Tooltip
-            formatter={(value: number | string) =>
-              `${typeof value === "number" ? value.toFixed(2) : value}${block.y_suffix || ""}`
-            }
-            labelFormatter={formatDateDetailed}
+            formatter={(value) => [
+              `${typeof value === "number" ? value.toFixed(2) : value}${block.y_suffix || ""}`,
+            ]}
+            labelFormatter={(label) => formatDateDetailed(String(label))}
           />
           <Area
             type="monotone"

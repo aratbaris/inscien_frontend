@@ -1,79 +1,45 @@
+"use client";
+
+import { useAuth } from "@/lib/auth";
 import styles from "./page.module.css";
 
-const agents = [
+/* ─── Agent Catalog ─── */
+
+interface Agent {
+  domain: string;
+  status: "live" | "soon";
+  name: string;
+  href: string;
+  desc: string;
+  cadence: string;
+  artifact: string;
+  tier: string;
+}
+
+const analysisAgents: Agent[] = [
   {
-    domain: "Technology",
-    status: "live" as const,
-    name: "Micro-SaaS Map",
-    href: "/agents/micro-saas-map",
-    desc: "Tracks developments across the micro-SaaS landscape, organized into structured topic maps updated daily.",
-    cadence: "Daily",
-    artifact: "Topic map",
-    tier: "Free",
-  },
-  {
-    domain: "Technology",
-    status: "live" as const,
-    name: "Big Tech Evolution",
-    href: "/agents/big-tech-evolution",
-    desc: "Structured topic maps tracking product launches, strategy shifts, and ecosystem developments across major tech companies.",
-    cadence: "Daily",
-    artifact: "Topic map",
-    tier: "Free",
-  },
-  {
-    domain: "Security",
-    status: "live" as const,
-    name: "Cyber Monitor",
-    href: "/agents/cyber-monitor",
-    desc: "Delivers a daily brief covering confirmed breaches, ransomware incidents, outages, and exploited vulnerabilities.",
-    cadence: "Daily",
-    artifact: "Brief",
-    tier: "Free",
-  },
-{
-    domain: "Research",
-    status: "live" as const,
-    name: "Paper Briefs",
-    href: "/agents/paper-briefs",
-    desc: "Weekly audio narratives of influential ML papers. Each episode distills a key research paper into a concise audio brief.",
-    cadence: "Weekly",
-    artifact: "Audio + Summary",
-    tier: "Free",
-},
-{
     domain: "Markets",
-    status: "live" as const,
+    status: "live",
     name: "Market Returns",
     href: "/agents/market-returns",
     desc: "Comprehensive S&P 500 analysis covering risk-return snapshots, volatility regimes, Sharpe ratios, and bootstrap simulations.",
     cadence: "Daily",
     artifact: "Analysis report",
     tier: "Free",
-},
-{
+  },
+  {
     domain: "Markets",
-    status: "live" as const,
+    status: "live",
     name: "Volatility Lab",
     href: "/agents/volatility-lab",
     desc: "Analyzes realized volatility across multiple windows with distributional statistics and short-term forecasts for any ticker.",
     cadence: "Daily",
     artifact: "Analysis report",
     tier: "Free",
-},
-  {
-    domain: "Energy",
-    status: "live" as const,
-    name: "Energy Monitor",
-    href: "/agents/energy-monitor",
-    desc: "Tracks policy shifts, infrastructure events, and commodity signals across global energy markets.",
-    cadence: "Daily",
-    artifact: "Brief + Dashboard",
-    tier: "Pro",
   },
   {
     domain: "Economy",
-    status: "live" as const,
+    status: "live",
     name: "U.S. Macro Dashboard",
     href: "/agents/macro-dashboard",
     desc: "Unified view of rates, inflation, GDP, and federal debt with FRED data.",
@@ -81,9 +47,32 @@ const agents = [
     artifact: "Analysis report",
     tier: "Free",
   },
+];
+
+const monitorAgents: Agent[] = [
+  {
+    domain: "Security",
+    status: "live",
+    name: "Cyber Monitor",
+    href: "/agents/cyber-monitor",
+    desc: "Delivers a daily brief covering confirmed breaches, ransomware incidents, outages, and exploited vulnerabilities.",
+    cadence: "Daily",
+    artifact: "Brief",
+    tier: "Free",
+  },
+  {
+    domain: "Energy",
+    status: "live",
+    name: "Energy Monitor",
+    href: "/agents/energy-monitor",
+    desc: "Tracks policy shifts, infrastructure events, and commodity signals across global energy markets.",
+    cadence: "Daily",
+    artifact: "Brief",
+    tier: "Free",
+  },
   {
     domain: "Regulation",
-    status: "live" as const,
+    status: "live",
     name: "Regulatory Watch",
     href: "/agents/regulatory-watch",
     desc: "Monitors regulatory changes, enforcement actions, and policy developments across financial jurisdictions.",
@@ -93,7 +82,7 @@ const agents = [
   },
   {
     domain: "Crypto",
-    status: "live" as const,
+    status: "live",
     name: "Crypto Monitor",
     href: "/agents/crypto-monitor",
     desc: "Tracks market-moving developments, protocol updates, and regulatory actions across cryptocurrency markets.",
@@ -103,7 +92,137 @@ const agents = [
   },
 ];
 
+const trackingAgents: Agent[] = [
+  {
+    domain: "Technology",
+    status: "live",
+    name: "Micro-SaaS Map",
+    href: "/agents/micro-saas-map",
+    desc: "Tracks developments across the micro-SaaS landscape, organized into structured topic maps updated daily.",
+    cadence: "Daily",
+    artifact: "Topic map",
+    tier: "Free",
+  },
+  {
+    domain: "Technology",
+    status: "live",
+    name: "Big Tech Evolution",
+    href: "/agents/big-tech-evolution",
+    desc: "Structured topic maps tracking product launches, strategy shifts, and ecosystem developments across major tech companies.",
+    cadence: "Daily",
+    artifact: "Topic map",
+    tier: "Free",
+  },
+];
+
+const audioAgents: Agent[] = [
+  {
+    domain: "Research",
+    status: "live",
+    name: "Paper Briefs",
+    href: "/agents/paper-briefs",
+    desc: "Weekly audio narratives of influential ML papers. Each episode distills a key research paper into a concise audio brief.",
+    cadence: "Weekly",
+    artifact: "Audio + Summary",
+    tier: "Free",
+  },
+];
+
+const learningAgents: Agent[] = [
+  {
+    domain: "Education",
+    status: "live",
+    name: "Statistical Foundations",
+    href: "/agents/statistical-foundations",
+    desc: "Interactive walk-throughs for variance, standard deviation, and bootstrap resampling with live visualizations.",
+    cadence: "Self-paced",
+    artifact: "Interactive flow",
+    tier: "Free",
+  },
+];
+
+/* ─── Components ─── */
+
+function AgentCard({ agent }: { agent: Agent }) {
+  const isDisabled = agent.status === "soon";
+  return (
+    <a
+      href={isDisabled ? undefined : agent.href}
+      className={`${styles.agentCard} ${isDisabled ? styles.agentCardDisabled : ""}`}
+    >
+      <div className={styles.agentTop}>
+        <div className={styles.agentDomain}>{agent.domain}</div>
+        {agent.status === "live" ? (
+          <div className={styles.agentStatus}>Live</div>
+        ) : (
+          <div className={styles.agentStatusSoon}>Coming soon</div>
+        )}
+      </div>
+      <div className={styles.agentName}>{agent.name}</div>
+      <p className={styles.agentDesc}>{agent.desc}</p>
+      <div className={styles.agentFooter}>
+        <div>
+          <div className={styles.agentMetaVal}>{agent.cadence}</div>
+          <div className={styles.agentMetaKey}>Cadence</div>
+        </div>
+        <div>
+          <div className={styles.agentMetaVal}>{agent.artifact}</div>
+          <div className={styles.agentMetaKey}>Artifact</div>
+        </div>
+        <div>
+          <div className={styles.agentMetaVal}>{agent.tier}</div>
+          <div className={styles.agentMetaKey}>Tier</div>
+        </div>
+      </div>
+    </a>
+  );
+}
+
+function UserNav() {
+  const { user, isAuthenticated, isLoading, login } = useAuth();
+
+  if (isLoading) {
+    return <div className={styles.navCtaPlaceholder} />;
+  }
+
+  if (!isAuthenticated || !user) {
+    return (
+      <button className={styles.navCta} onClick={() => login("/")}>
+        Sign in
+      </button>
+    );
+  }
+
+  const initials =
+    ((user.first_name?.[0] || "") + (user.last_name?.[0] || "")).toUpperCase() ||
+    user.email[0].toUpperCase();
+
+  return (
+    <a href="/settings" className={styles.navUser}>
+      {user.picture_url ? (
+        <img
+          src={user.picture_url}
+          alt={initials}
+          className={styles.navAvatar}
+          referrerPolicy="no-referrer"
+        />
+      ) : (
+        <div className={styles.navAvatarFallback}>{initials}</div>
+      )}
+    </a>
+  );
+}
+
+/* ─── Page ─── */
+
 export default function Home() {
+  const totalAgents =
+    analysisAgents.length +
+    monitorAgents.length +
+    trackingAgents.length +
+    audioAgents.length +
+    learningAgents.length;
+
   return (
     <>
       {/* Navigation */}
@@ -116,7 +235,7 @@ export default function Home() {
             <a href="#pricing">Pricing</a>
           </div>
         </div>
-        <button className={styles.navCta}>Get early access</button>
+        <UserNav />
       </nav>
 
       {/* Hero */}
@@ -149,7 +268,7 @@ export default function Home() {
         </div>
         <div className={styles.stats}>
           <div className={styles.stat}>
-            <div className={styles.statVal}>5</div>
+            <div className={styles.statVal}>{totalAgents}</div>
             <div className={styles.statKey}>Active agents</div>
           </div>
           <div className={styles.stat}>
@@ -179,39 +298,54 @@ export default function Home() {
           </p>
         </div>
 
-        <div className={styles.agentsGrid}>
-          {agents.map((agent) => (
-            <a
-              key={agent.name}
-              href={agent.status === "live" ? agent.href : undefined}
-              className={`${styles.agentCard} ${agent.status === "soon" ? styles.agentCardDisabled : ""}`}
-            >
-              <div className={styles.agentTop}>
-                <div className={styles.agentDomain}>{agent.domain}</div>
-                {agent.status === "live" ? (
-                  <div className={styles.agentStatus}>Live</div>
-                ) : (
-                  <div className={styles.agentStatusSoon}>Coming soon</div>
-                )}
-              </div>
-              <div className={styles.agentName}>{agent.name}</div>
-              <p className={styles.agentDesc}>{agent.desc}</p>
-              <div className={styles.agentFooter}>
-                <div>
-                  <div className={styles.agentMetaVal}>{agent.cadence}</div>
-                  <div className={styles.agentMetaKey}>Cadence</div>
-                </div>
-                <div>
-                  <div className={styles.agentMetaVal}>{agent.artifact}</div>
-                  <div className={styles.agentMetaKey}>Artifact</div>
-                </div>
-                <div>
-                  <div className={styles.agentMetaVal}>{agent.tier}</div>
-                  <div className={styles.agentMetaKey}>Tier</div>
-                </div>
-              </div>
-            </a>
-          ))}
+        {/* Analysis Providers */}
+        <div className={styles.categoryBlock}>
+          <div className={styles.categoryLabel}>Analysis Providers</div>
+          <div className={styles.agentsGrid}>
+            {analysisAgents.map((a) => (
+              <AgentCard key={a.name} agent={a} />
+            ))}
+          </div>
+        </div>
+
+        {/* Material Event Monitors */}
+        <div className={styles.categoryBlock}>
+          <div className={styles.categoryLabel}>Material Event Monitors</div>
+          <div className={styles.agentsGrid}>
+            {monitorAgents.map((a) => (
+              <AgentCard key={a.name} agent={a} />
+            ))}
+          </div>
+        </div>
+
+        {/* In-Depth Tracking */}
+        <div className={styles.categoryBlock}>
+          <div className={styles.categoryLabel}>In-Depth Development Tracking</div>
+          <div className={styles.agentsGrid}>
+            {trackingAgents.map((a) => (
+              <AgentCard key={a.name} agent={a} />
+            ))}
+          </div>
+        </div>
+
+        {/* Audio Briefs */}
+        <div className={styles.categoryBlock}>
+          <div className={styles.categoryLabel}>Audio Briefs</div>
+          <div className={styles.agentsGridWide}>
+            {audioAgents.map((a) => (
+              <AgentCard key={a.name} agent={a} />
+            ))}
+          </div>
+        </div>
+
+        {/* Interactive Learning */}
+        <div className={styles.categoryBlock}>
+          <div className={styles.categoryLabel}>Interactive Learning</div>
+          <div className={styles.agentsGridWide}>
+            {learningAgents.map((a) => (
+              <AgentCard key={a.name} agent={a} />
+            ))}
+          </div>
         </div>
       </section>
 
@@ -267,10 +401,9 @@ export default function Home() {
       <section className={styles.section} id="pricing">
         <div className={styles.sectionHeader}>
           <div className={styles.sectionEyebrow}>Pricing</div>
-          <div className={styles.sectionTitle}>Pay for control, not content.</div>
+          <div className={styles.sectionTitle}>Simple, transparent pricing.</div>
           <p className={styles.sectionDesc}>
-            The free tier gets you started. Pro gives you the tools to depend on
-            it.
+            Start free. Upgrade when you need full access.
           </p>
         </div>
 
@@ -281,38 +414,22 @@ export default function Home() {
             <div className={styles.priceList}>
               <div className={styles.priceItem}>Access to all public agents</div>
               <div className={styles.priceItem}>Latest artifact from each agent</div>
-              <div className={styles.priceItem}>Email delivery</div>
               <div className={styles.priceItem}>Limited history</div>
             </div>
           </div>
-          <div className={styles.priceCard}>
-            <div className={styles.priceLabel}>Pro</div>
+          <div className={`${styles.priceCard} ${styles.priceCardFeatured}`}>
+            <div className={styles.priceLabel}>Early Access</div>
             <div className={styles.priceAmount}>
-              TBD <span>/ month</span>
+              $12 <span>/ month</span>
             </div>
             <div className={styles.priceList}>
               <div className={styles.priceItem}>Full artifact history and search</div>
               <div className={styles.priceItem}>Alerts and custom thresholds</div>
               <div className={styles.priceItem}>Configurable delivery channels</div>
               <div className={styles.priceItem}>Exports and API access</div>
+              <div className={styles.priceItem}>Priority support</div>
             </div>
           </div>
-        </div>
-      </section>
-
-      <div className={styles.divider}>
-        <hr />
-      </div>
-
-      {/* CTA */}
-      <section className={styles.cta}>
-        <h2>Early access is opening soon.</h2>
-        <p>
-          Leave your email and we will notify you when new agents go live.
-        </p>
-        <div className={styles.ctaInput}>
-          <input type="email" placeholder="you@company.com" />
-          <button className={styles.btnPrimary}>Join waitlist</button>
         </div>
       </section>
 

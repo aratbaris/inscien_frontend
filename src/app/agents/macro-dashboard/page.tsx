@@ -150,8 +150,8 @@ function MultiLineChart({ series, title, ySuffix, isCategory }: { series: Series
           />
           <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => `${v}${ySuffix || ""}`} width={65} />
           <Tooltip
-            formatter={(value: number | string) => `${typeof value === "number" ? value.toFixed(2) : value}${ySuffix || ""}`}
-            labelFormatter={isCategory ? undefined : formatDateDetailed}
+            formatter={(value) => [`${typeof value === "number" ? value.toFixed(2) : value}${ySuffix || ""}`]}
+            labelFormatter={isCategory ? undefined : (label) => formatDateDetailed(String(label))}
           />
           <Legend />
           {series.map((s, i) => (
@@ -174,7 +174,7 @@ function SimpleBarChart({ data, xKey, yKey, ySuffix, xSuffix, title }: {
           <CartesianGrid strokeDasharray="3 3" stroke="#ebebf0" />
           <XAxis dataKey={xKey} tick={{ fontSize: 11 }} tickFormatter={(v: string | number) => `${v}${xSuffix || ""}`} minTickGap={40} />
           <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => `${v}${ySuffix || ""}`} width={50} />
-          <Tooltip formatter={(value: number | string) => `${typeof value === "number" ? value.toFixed(0) : value}`} />
+          <Tooltip formatter={(value) => [`${typeof value === "number" ? value.toFixed(0) : value}`]} />
           <Bar dataKey={yKey} fill={COLORS[0]} radius={[2, 2, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
