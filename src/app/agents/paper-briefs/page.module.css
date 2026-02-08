@@ -1,0 +1,508 @@
+.page {
+  min-height: 100vh;
+  background: #f7f7f9;
+  font-family: var(--font-sans), "DM Sans", -apple-system, sans-serif;
+  color: #1a1a1f;
+  padding-bottom: 80px;
+}
+
+/* HEADER */
+.header {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 100px 40px 0;
+}
+
+.headerTop {
+  margin-bottom: 32px;
+}
+
+.backLink {
+  font-size: 13px;
+  color: #8a8a98;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.backLink:hover {
+  color: #1a1a1f;
+}
+
+.headerMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #dddde3;
+}
+
+.agentDomain {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a8a98;
+  margin-bottom: 8px;
+}
+
+.agentTitle {
+  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  margin-bottom: 10px;
+  color: #1a1a1f;
+}
+
+.agentDesc {
+  font-size: 15px;
+  color: #4a4a56;
+  line-height: 1.6;
+  max-width: 560px;
+}
+
+.agentMeta {
+  display: flex;
+  gap: 28px;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metaVal {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1f;
+}
+
+.metaKey {
+  font-size: 11px;
+  color: #8a8a98;
+  font-weight: 500;
+}
+
+.statusLive {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f7b3f;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.statusLive::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0f7b3f;
+}
+
+/* CONTENT */
+.content {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* LATEST EPISODE */
+.latestSection {
+  padding: 48px 0 40px;
+}
+
+.latestLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a8a98;
+  margin-bottom: 16px;
+}
+
+.latestCard {
+  background: #ffffff;
+  border: 1px solid #dddde3;
+  border-radius: 12px;
+  padding: 36px 32px;
+}
+
+.latestLeft {
+  max-width: 700px;
+}
+
+.epNumber {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1e4fd8;
+  margin-bottom: 12px;
+}
+
+.latestTitle {
+  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: #1a1a1f;
+  line-height: 1.35;
+  margin-bottom: 10px;
+}
+
+.latestAuthors {
+  font-size: 14px;
+  color: #4a4a56;
+  margin-bottom: 12px;
+}
+
+.latestMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #8a8a98;
+  margin-bottom: 24px;
+}
+
+.dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #c4c4d0;
+}
+
+.latestActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.playBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background: #1a1a1f;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.playBtn:hover {
+  opacity: 0.85;
+}
+
+.paperLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: transparent;
+  color: #4a4a56;
+  border: 1px solid #dddde3;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.paperLink:hover {
+  border-color: #1a1a1f;
+  color: #1a1a1f;
+}
+
+/* ARCHIVE */
+.archiveSection {
+  padding: 0 0 60px;
+}
+
+.archiveTitle {
+  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: #1a1a1f;
+  margin-bottom: 20px;
+  letter-spacing: -0.015em;
+}
+
+.episodeList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: #ffffff;
+  border: 1px solid #dddde3;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.episodeRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #ebebf0;
+  transition: background 0.1s;
+}
+
+.episodeRow:last-child {
+  border-bottom: none;
+}
+
+.episodeRow:hover {
+  background: #fafafc;
+}
+
+.episodeRowActive {
+  background: #f0f4ff;
+}
+
+.episodeRowActive:hover {
+  background: #e8eeff;
+}
+
+.episodePlayBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid #dddde3;
+  background: #ffffff;
+  color: #1a1a1f;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.episodePlayBtn:hover {
+  background: #1a1a1f;
+  color: #ffffff;
+  border-color: #1a1a1f;
+}
+
+.episodeRowActive .episodePlayBtn {
+  background: #1e4fd8;
+  color: #ffffff;
+  border-color: #1e4fd8;
+}
+
+.episodeNum {
+  font-size: 12px;
+  font-weight: 700;
+  color: #8a8a98;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.episodeInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.episodeTitle {
+  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a1a1f;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.episodeAuthors {
+  font-size: 12px;
+  color: #8a8a98;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.episodeMeta {
+  display: flex;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.episodeCitations {
+  font-size: 12px;
+  color: #8a8a98;
+  font-weight: 500;
+}
+
+.episodeDuration {
+  font-size: 12px;
+  color: #4a4a56;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.episodePaperLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  color: #8a8a98;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.episodePaperLink:hover {
+  color: #1e4fd8;
+  background: #f0f4ff;
+}
+
+/* PERSISTENT PLAYER */
+.player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #1a1a1f;
+  color: #ffffff;
+  z-index: 100;
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.15);
+}
+
+.playerInner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 12px 40px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.playerPlayBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.15s;
+}
+
+.playerPlayBtn:hover {
+  border-color: #ffffff;
+}
+
+.playerInfo {
+  flex-shrink: 0;
+  min-width: 0;
+  max-width: 320px;
+}
+
+.playerTitle {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playerTime {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+}
+
+.playerBar {
+  flex: 1;
+  cursor: pointer;
+  padding: 8px 0;
+}
+
+.playerBarTrack {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.playerBarFill {
+  height: 100%;
+  background: #1e4fd8;
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .header {
+    padding: 80px 24px 0;
+  }
+
+  .headerMain {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .content {
+    padding: 0 24px;
+  }
+
+  .latestCard {
+    padding: 24px 20px;
+  }
+
+  .latestTitle {
+    font-size: 20px;
+  }
+
+  .episodeRow {
+    padding: 12px 16px;
+  }
+
+  .episodeMeta {
+    display: none;
+  }
+
+  .playerInner {
+    padding: 10px 24px;
+  }
+
+  .playerInfo {
+    max-width: 180px;
+  }
+}
+
+@media (max-width: 600px) {
+  .episodeTitle {
+    font-size: 13px;
+  }
+
+  .episodeNum {
+    display: none;
+  }
+
+  .episodePaperLink {
+    display: none;
+  }
+}

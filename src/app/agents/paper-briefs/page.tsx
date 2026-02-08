@@ -1,0 +1,447 @@
+"use client";
+
+import { useState, useRef, useEffect, useCallback } from "react";
+import styles from "./page.module.css";
+
+// ─── Episode Data ───
+// Audio files go in: public/audio/paper-briefs/episodeXX.mp3
+const AUDIO_BASE = "/audio/paper-briefs";
+
+interface Episode {
+  id: number;
+  title: string;
+  authors: string;
+  venue: string;
+  year: number;
+  citations: number;
+  link: string;
+  durationSeconds: number;
+  audioFile: string;
+}
+
+const EPISODES: Episode[] = [
+  {
+    id: 12,
+    title: "The Information Bottleneck Method",
+    authors: "Naftali Tishby, Fernando C. Pereira, William Bialek",
+    venue: "arXiv preprint",
+    year: 2000,
+    citations: 5045,
+    link: "https://arxiv.org/abs/physics/0004057",
+    durationSeconds: 517,
+    audioFile: "episode12.mp3",
+  },
+  {
+    id: 11,
+    title: "Learning Transferable Visual Models From Natural Language Supervision",
+    authors: "A Radford, JW Kim, C Hallacy",
+    venue: "ICML",
+    year: 2021,
+    citations: 50764,
+    link: "http://proceedings.mlr.press/v139/radford21a",
+    durationSeconds: 506,
+    audioFile: "episode11.mp3",
+  },
+  {
+    id: 10,
+    title: "Masked Autoencoders Are Scalable Vision Learners",
+    authors: "K He, X Chen, S Xie, Y Li, P Dollár, R Girshick",
+    venue: "CVPR",
+    year: 2022,
+    citations: 13046,
+    link: "https://openaccess.thecvf.com/content/CVPR2022/html/He_Masked_Autoencoders_paper.html",
+    durationSeconds: 562,
+    audioFile: "episode10.mp3",
+  },
+  {
+    id: 9,
+    title: "Bootstrap Your Own Latent: A New Approach to Self-Supervised Learning",
+    authors: "JB Grill, F Strub, F Altché, C Tallec",
+    venue: "NeurIPS",
+    year: 2020,
+    citations: 9760,
+    link: "https://proceedings.neurips.cc/paper/2020/hash/f3ada80d5c4ee70142b17b8192b2958e-Abstract.html",
+    durationSeconds: 555,
+    audioFile: "episode09.mp3",
+  },
+  {
+    id: 8,
+    title: "Momentum Contrast for Unsupervised Visual Representation Learning",
+    authors: "K He, H Fan, Y Wu, S Xie",
+    venue: "CVPR",
+    year: 2020,
+    citations: 18281,
+    link: "https://openaccess.thecvf.com/content_CVPR_2020/html/He_Momentum_Contrast_paper.html",
+    durationSeconds: 531,
+    audioFile: "episode08.mp3",
+  },
+  {
+    id: 7,
+    title: "A Simple Framework for Contrastive Learning of Visual Representations",
+    authors: "T Chen, S Kornblith, M Norouzi, G Hinton",
+    venue: "ICML",
+    year: 2020,
+    citations: 28782,
+    link: "http://proceedings.mlr.press/v119/chen20j.html",
+    durationSeconds: 454,
+    audioFile: "episode07.mp3",
+  },
+  {
+    id: 6,
+    title: "Representation Learning with Contrastive Predictive Coding",
+    authors: "A Oord, Y Li, O Vinyals",
+    venue: "arXiv preprint",
+    year: 2018,
+    citations: 13726,
+    link: "https://arxiv.org/abs/1807.03748",
+    durationSeconds: 558,
+    audioFile: "episode06.mp3",
+  },
+  {
+    id: 5,
+    title: "Representation Learning: A Review and New Perspectives",
+    authors: "Y Bengio, A Courville, P Vincent",
+    venue: "IEEE TPAMI",
+    year: 2013,
+    citations: 19327,
+    link: "https://ieeexplore.ieee.org/document/6472238",
+    durationSeconds: 522,
+    audioFile: "episode05.mp3",
+  },
+  {
+    id: 4,
+    title: "Auto-Encoding Variational Bayes",
+    authors: "DP Kingma, M Welling",
+    venue: "arXiv preprint",
+    year: 2013,
+    citations: 51663,
+    link: "https://arxiv.org/abs/1312.6114",
+    durationSeconds: 579,
+    audioFile: "episode04.mp3",
+  },
+  {
+    id: 3,
+    title: "Reducing the Dimensionality of Data with Neural Networks",
+    authors: "G Hinton, R Salakhutdinov",
+    venue: "Science",
+    year: 2006,
+    citations: 26567,
+    link: "https://www.science.org/doi/abs/10.1126/science.1127647",
+    durationSeconds: 669,
+    audioFile: "episode03.mp3",
+  },
+  {
+    id: 2,
+    title: "GloVe: Global Vectors for Word Representation",
+    authors: "J Pennington, R Socher",
+    venue: "EMNLP",
+    year: 2014,
+    citations: 48627,
+    link: "https://aclanthology.org/D14-1162.pdf",
+    durationSeconds: 809,
+    audioFile: "episode02.mp3",
+  },
+  {
+    id: 1,
+    title: "Efficient Estimation of Word Representations in Vector Space",
+    authors: "T Mikolov, K Chen, G Corrado, J Dean",
+    venue: "arXiv preprint",
+    year: 2013,
+    citations: 51355,
+    link: "https://arxiv.org/abs/1301.3781",
+    durationSeconds: 797,
+    audioFile: "episode01.mp3",
+  },
+];
+
+// ─── Helpers ───
+
+function fmtDuration(sec: number) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
+function fmtTime(sec: number) {
+  if (!sec || !isFinite(sec)) return "0:00";
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
+function fmtCitations(n: number) {
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
+  return String(n);
+}
+
+// ─── Components ───
+
+function PlayIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M8 5v14l11-7z" />
+    </svg>
+  );
+}
+
+function PauseIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+    </svg>
+  );
+}
+
+function PaperIcon() {
+  return (
+    <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+    </svg>
+  );
+}
+
+// ─── Main Page ───
+
+export default function PaperBriefsPage() {
+  const [currentEp, setCurrentEp] = useState<Episode | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const loadedIdRef = useRef<number | null>(null);
+
+  const latest = EPISODES[0];
+
+  const playEpisode = useCallback((ep: Episode) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    // Same episode: toggle play/pause
+    if (loadedIdRef.current === ep.id) {
+      if (audio.paused) {
+        audio.play().catch(() => {});
+        setIsPlaying(true);
+      } else {
+        audio.pause();
+        setIsPlaying(false);
+      }
+      return;
+    }
+
+    // New episode: load and play
+    loadedIdRef.current = ep.id;
+    setCurrentEp(ep);
+    setProgress(0);
+    setCurrentTime(0);
+    audio.src = `${AUDIO_BASE}/${ep.audioFile}`;
+    audio.load();
+    audio.play().catch(() => {});
+    setIsPlaying(true);
+  }, []);
+
+  // Attach event listeners once
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const onTime = () => {
+      setCurrentTime(audio.currentTime);
+      if (audio.duration) setProgress((audio.currentTime / audio.duration) * 100);
+    };
+    const onLoaded = () => setDuration(audio.duration);
+    const onEnded = () => {
+      setIsPlaying(false);
+      // Auto-play next
+      if (loadedIdRef.current !== null) {
+        const idx = EPISODES.findIndex((e) => e.id === loadedIdRef.current);
+        if (idx >= 0 && idx < EPISODES.length - 1) {
+          const next = EPISODES[idx + 1];
+          loadedIdRef.current = next.id;
+          setCurrentEp(next);
+          setProgress(0);
+          setCurrentTime(0);
+          audio.src = `${AUDIO_BASE}/${next.audioFile}`;
+          audio.load();
+          audio.play().catch(() => {});
+          setIsPlaying(true);
+        }
+      }
+    };
+
+    audio.addEventListener("timeupdate", onTime);
+    audio.addEventListener("loadedmetadata", onLoaded);
+    audio.addEventListener("ended", onEnded);
+
+    return () => {
+      audio.removeEventListener("timeupdate", onTime);
+      audio.removeEventListener("loadedmetadata", onLoaded);
+      audio.removeEventListener("ended", onEnded);
+    };
+  }, []);
+
+  const seekTo = (e: React.MouseEvent<HTMLDivElement>) => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    audio.currentTime = pct * audio.duration;
+  };
+
+  return (
+    <div className={styles.page}>
+      <audio ref={audioRef} preload="metadata" />
+
+      {/* Header */}
+      <header className={styles.header}>
+        <div className={styles.headerTop}>
+          <a href="/" className={styles.backLink}>← InScien</a>
+        </div>
+        <div className={styles.headerMain}>
+          <div>
+            <div className={styles.agentDomain}>Research</div>
+            <h1 className={styles.agentTitle}>ML Paper Briefs</h1>
+            <p className={styles.agentDesc}>
+              Weekly audio narratives of influential machine learning papers. Each episode distills a key paper into a concise audio brief.
+            </p>
+          </div>
+          <div className={styles.agentMeta}>
+            <div className={styles.metaItem}>
+              <div className={styles.metaVal}>{EPISODES.length}</div>
+              <div className={styles.metaKey}>Episodes</div>
+            </div>
+            <div className={styles.metaItem}>
+              <div className={styles.metaVal}>Weekly</div>
+              <div className={styles.metaKey}>Cadence</div>
+            </div>
+            <div className={styles.metaItem}>
+              <div className={styles.statusLive}>Live</div>
+              <div className={styles.metaKey}>Status</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className={styles.content}>
+        {/* Latest Episode Hero */}
+        <section className={styles.latestSection}>
+          <div className={styles.latestLabel}>Latest Episode</div>
+          <div className={styles.latestCard}>
+            <div className={styles.latestLeft}>
+              <div className={styles.epNumber}>EP {latest.id}</div>
+              <h2 className={styles.latestTitle}>{latest.title}</h2>
+              <p className={styles.latestAuthors}>{latest.authors}</p>
+              <div className={styles.latestMeta}>
+                <span>{latest.venue} {latest.year}</span>
+                <span className={styles.dot} />
+                <span>{fmtDuration(latest.durationSeconds)}</span>
+                <span className={styles.dot} />
+                <span>{fmtCitations(latest.citations)} citations</span>
+              </div>
+              <div className={styles.latestActions}>
+                <button
+                  className={styles.playBtn}
+                  onClick={() => playEpisode(latest)}
+                >
+                  {currentEp?.id === latest.id && isPlaying ? (
+                    <><PauseIcon size={20} /> Pause</>
+                  ) : (
+                    <><PlayIcon size={20} /> Play Episode</>
+                  )}
+                </button>
+                <a
+                  href={latest.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.paperLink}
+                >
+                  <PaperIcon /> Read Paper
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Archive */}
+        <section className={styles.archiveSection}>
+          <h3 className={styles.archiveTitle}>All Episodes</h3>
+          <div className={styles.episodeList}>
+            {EPISODES.map((ep) => (
+              <div
+                key={ep.id}
+                className={`${styles.episodeRow} ${currentEp?.id === ep.id ? styles.episodeRowActive : ""}`}
+              >
+                <button
+                  className={styles.episodePlayBtn}
+                  onClick={() => playEpisode(ep)}
+                  aria-label={`Play episode ${ep.id}`}
+                >
+                  {currentEp?.id === ep.id && isPlaying ? (
+                    <PauseIcon size={16} />
+                  ) : (
+                    <PlayIcon size={16} />
+                  )}
+                </button>
+                <div className={styles.episodeNum}>{ep.id}</div>
+                <div className={styles.episodeInfo}>
+                  <div className={styles.episodeTitle}>{ep.title}</div>
+                  <div className={styles.episodeAuthors}>
+                    {ep.authors} · {ep.venue} {ep.year}
+                  </div>
+                </div>
+                <div className={styles.episodeMeta}>
+                  <span className={styles.episodeCitations}>
+                    {fmtCitations(ep.citations)} cit.
+                  </span>
+                  <span className={styles.episodeDuration}>
+                    {fmtDuration(ep.durationSeconds)}
+                  </span>
+                </div>
+                <a
+                  href={ep.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.episodePaperLink}
+                  aria-label="Read paper"
+                >
+                  <PaperIcon />
+                </a>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      {/* Persistent Audio Player */}
+      {currentEp && (
+        <div className={styles.player}>
+          <div className={styles.playerInner}>
+            <button
+              className={styles.playerPlayBtn}
+              onClick={() => currentEp && playEpisode(currentEp)}
+            >
+              {isPlaying ? <PauseIcon size={20} /> : <PlayIcon size={20} />}
+            </button>
+            <div className={styles.playerInfo}>
+              <div className={styles.playerTitle}>
+                EP {currentEp.id}: {currentEp.title}
+              </div>
+              <div className={styles.playerTime}>
+                {fmtTime(currentTime)} / {fmtTime(duration)}
+              </div>
+            </div>
+            <div className={styles.playerBar} onClick={seekTo}>
+              <div className={styles.playerBarTrack}>
+                <div
+                  className={styles.playerBarFill}
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
