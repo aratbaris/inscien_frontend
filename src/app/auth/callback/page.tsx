@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 
-export default function AuthCallbackPage() {
+function CallbackHandler() {
   const { setTokens } = useAuth();
   const processed = useRef(false);
   const searchParams = useSearchParams();
@@ -35,6 +35,10 @@ export default function AuthCallbackPage() {
     }
   }, [setTokens, searchParams]);
 
+  return <>Signing you in…</>;
+}
+
+export default function AuthCallbackPage() {
   return (
     <div
       style={{
@@ -48,7 +52,9 @@ export default function AuthCallbackPage() {
         fontSize: "14px",
       }}
     >
-      Signing you in…
+      <Suspense fallback="Signing you in…">
+        <CallbackHandler />
+      </Suspense>
     </div>
   );
 }
