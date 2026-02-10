@@ -6,47 +6,49 @@ import { AccessGate } from "@/components/AccessGate";
 import { useAuth } from "@/lib/auth";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 const TOPIC_ID = "micro_saas_environment";
 
 // ─── Types ───
 
 interface EvidenceItem {
   title: string;
+  timestamp: string;
   source: string;
   url: string;
-  use_dt_utc: string;
 }
 
-interface NodeDetail {
+interface Cluster {
   label: string;
-  lane: string;
-  mentions: number;
-  bullets: string[];
+  takeaways: string[];
   evidence: EvidenceItem[];
 }
 
-interface MapNode {
-  id: string;
-  label: string;
-  lane: string;
-}
-
-interface MapDataset {
+interface WeeklyBrief {
   topicId: string;
-  headerTitle: string;
-  headerSubtitle: string;
-  mapNodes: MapNode[];
-  nodeDetailsById: Record<string, NodeDetail>;
+  company: string;
+  weekStartUtc: string;
+  weekEndUtc: string;
+  weekKey: string;
+  generatedAtUtc: string;
+  counts: {
+    weeklyPoolRows: number;
+    weeklyTopRows: number;
+    clustersFinal: number;
+  };
+  clusters: Cluster[];
 }
 
-interface TimelineDay {
-  day: string;
-  nodes: {
-    id: string;
+interface TimelineWeek {
+  weekKey: string;
+  weekStartUtc: string;
+  weekEndUtc: string;
+  generatedAtUtc: string;
+  clusterCount: number;
+  clusters: {
     label: string;
-    lane: string;
-    mentions: number;
-    bullets: string[];
+    takeaways: string[];
+    evidenceCount: number;
     evidence: EvidenceItem[];
   }[];
 }
@@ -54,26 +56,38 @@ interface TimelineDay {
 interface TimelineResponse {
   status: string;
   topicId: string;
-  lastUpdatedUtc: string;
-  days: TimelineDay[];
+  label: string;
+  weeks: TimelineWeek[];
 }
 
 // ─── Helpers ───
 
-function formatDate(dateStr: string): string {
-  if (!dateStr) return "";
-  const parts = dateStr.split("-");
-  if (parts.length !== 3) return dateStr;
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const m = parseInt(parts[1], 10) - 1;
-  const d = parseInt(parts[2], 10);
-  return `${months[m]} ${d}`;
+function formatWeekRange(start: string, end: string): string {
+  if (!start || !end) return "";
+  const months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  ];
+  const fmt = (d: string) => {
+    const parts = d.split("-");
+    if (parts.length !== 3) return d;
+    const m = parseInt(parts[1], 10) - 1;
+    return `${months[m]} ${parseInt(parts[2], 10)}`;
+  };
+  return `${fmt(start)} – ${fmt(end)}`;
 }
 
 function formatEvidenceDate(ts: string): string {
   if (!ts) return "";
-  const dateStr = ts.substring(0, 10);
-  return formatDate(dateStr);
+  const d = ts.substring(0, 10);
+  const months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  ];
+  const parts = d.split("-");
+  if (parts.length !== 3) return d;
+  const m = parseInt(parts[1], 10) - 1;
+  return `${months[m]} ${parseInt(parts[2], 10)}`;
 }
 
 // ─── Components ───
@@ -89,10 +103,10 @@ function EvidenceCard({ item }: { item: EvidenceItem }) {
       <div className={styles.evidenceTitle}>{item.title}</div>
       <div className={styles.evidenceMeta}>
         <span className={styles.evidenceSource}>{item.source}</span>
-        {item.use_dt_utc && (
+        {item.timestamp && (
           <>
             <span className={styles.evidenceDot}>·</span>
-            <span>{formatEvidenceDate(item.use_dt_utc)}</span>
+            <span>{formatEvidenceDate(item.timestamp)}</span>
           </>
         )}
       </div>
@@ -100,92 +114,76 @@ function EvidenceCard({ item }: { item: EvidenceItem }) {
   );
 }
 
-// ─── Map View ───
-
-function MapView({ data }: { data: MapDataset }) {
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-
-  // Group nodes by lane
-  const lanes: Record<string, MapNode[]> = {};
-  for (const node of data.mapNodes) {
-    const lane = node.lane || "Other";
-    if (!lanes[lane]) lanes[lane] = [];
-    lanes[lane].push(node);
-  }
-
-  const selectedDetail = selectedNodeId ? data.nodeDetailsById[selectedNodeId] : null;
+function ClusterCard({
+  cluster,
+  defaultOpen,
+}: {
+  cluster: Cluster;
+  defaultOpen?: boolean;
+}) {
+  const [expanded, setExpanded] = useState(defaultOpen || false);
 
   return (
-    <div className={styles.mapLayout}>
-      <div className={styles.mapPanel}>
-        {Object.entries(lanes).map(([lane, nodes]) => (
-          <div key={lane} className={styles.laneGroup}>
-            <div className={styles.laneName}>{lane}</div>
-            <div className={styles.laneNodes}>
-              {nodes.map((node) => {
-                const detail = data.nodeDetailsById[node.id];
-                const count = detail?.evidence?.length || 0;
-                const isSelected = selectedNodeId === node.id;
-                return (
-                  <button
-                    key={node.id}
-                    className={`${styles.mapNode} ${isSelected ? styles.mapNodeSelected : ""}`}
-                    onClick={() => setSelectedNodeId(isSelected ? null : node.id)}
-                  >
-                    <span className={styles.mapNodeLabel}>{node.label}</span>
-                    {count > 0 && (
-                      <span className={styles.mapNodeCount}>{count}</span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+    <div className={styles.clusterCard}>
+      <button
+        className={styles.clusterHeader}
+        onClick={() => setExpanded(!expanded)}
+      >
+        <div className={styles.clusterInfo}>
+          <h3 className={styles.clusterLabel}>{cluster.label}</h3>
+          <div className={styles.clusterStats}>
+            <span className={styles.clusterCount}>
+              {cluster.evidence.length} sources
+            </span>
+          </div>
+        </div>
+        <span className={styles.clusterToggle}>{expanded ? "−" : "+"}</span>
+      </button>
+
+      <div className={styles.clusterTakeaways}>
+        {cluster.takeaways.map((t, i) => (
+          <div key={i} className={styles.takeaway}>
+            {t}
           </div>
         ))}
       </div>
 
-      <div className={styles.detailPanel}>
-        {!selectedDetail && (
-          <div className={styles.detailEmpty}>
-            <p className={styles.detailEmptyTitle}>Select a topic</p>
-            <p className={styles.detailEmptyHint}>
-              Click a node on the map to see material headlines and sources.
-            </p>
-          </div>
-        )}
+      {expanded && cluster.evidence.length > 0 && (
+        <div className={styles.clusterEvidence}>
+          {cluster.evidence.map((ev, idx) => (
+            <EvidenceCard key={`${ev.url}-${idx}`} item={ev} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
-        {selectedDetail && (
-          <div className={styles.detailContent}>
-            <div className={styles.detailHeader}>
-              <h3 className={styles.detailTitle}>{selectedDetail.label}</h3>
-              <div className={styles.detailHeaderMeta}>
-                <span className={styles.detailCount}>
-                  {selectedDetail.evidence?.length || 0} sources
-                </span>
-                <button
-                  className={styles.detailClose}
-                  onClick={() => setSelectedNodeId(null)}
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
+// ─── Week View ───
 
-            {selectedDetail.lane && (
-              <div className={styles.detailLane}>{selectedDetail.lane}</div>
-            )}
-
-            <div className={styles.detailEvidence}>
-              {selectedDetail.evidence?.map((ev, idx) => (
-                <EvidenceCard key={`${ev.url}-${idx}`} item={ev} />
-              ))}
-              {(!selectedDetail.evidence || selectedDetail.evidence.length === 0) && (
-                <p className={styles.detailNoEvidence}>No sources available.</p>
-              )}
-            </div>
-          </div>
-        )}
+function WeekView({ data }: { data: WeeklyBrief }) {
+  return (
+    <div className={styles.weekView}>
+      <div className={styles.weekMeta}>
+        <span className={styles.weekRange}>
+          {formatWeekRange(data.weekStartUtc, data.weekEndUtc)}
+        </span>
+        <span className={styles.weekClusterCount}>
+          {data.clusters.length} topic{data.clusters.length !== 1 ? "s" : ""}
+        </span>
       </div>
+      <div className={styles.clusterList}>
+        {data.clusters.map((cluster, idx) => (
+          <ClusterCard
+            key={cluster.label}
+            cluster={cluster}
+            defaultOpen={idx === 0}
+          />
+        ))}
+      </div>
+      {data.clusters.length === 0 && (
+        <div className={styles.emptyState}>No clusters for this week.</div>
+      )}
     </div>
   );
 }
@@ -193,69 +191,71 @@ function MapView({ data }: { data: MapDataset }) {
 // ─── Timeline View ───
 
 function TimelineView({ data }: { data: TimelineResponse }) {
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
-
-  const toggleNode = (key: string) => {
-    setExpandedNodes((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) {
-        next.delete(key);
-      } else {
-        next.add(key);
-      }
-      return next;
-    });
-  };
+  const [expandedWeek, setExpandedWeek] = useState<string | null>(
+    data.weeks.length > 0 ? data.weeks[0].weekKey : null
+  );
 
   return (
     <div className={styles.timeline}>
-      {data.days.map((day) => (
-        <div key={day.day} className={styles.timelineDay}>
-          <div className={styles.timelineDayHeader}>
-            <div className={styles.timelineDot} />
-            <span className={styles.timelineDayLabel}>{day.day}</span>
-          </div>
+      {data.weeks.map((week) => {
+        const isExpanded = expandedWeek === week.weekKey;
+        return (
+          <div key={week.weekKey} className={styles.timelineWeek}>
+            <button
+              className={styles.timelineWeekHeader}
+              onClick={() =>
+                setExpandedWeek(isExpanded ? null : week.weekKey)
+              }
+            >
+              <div className={styles.timelineDot} />
+              <div className={styles.timelineWeekInfo}>
+                <span className={styles.timelineWeekLabel}>
+                  {formatWeekRange(week.weekStartUtc, week.weekEndUtc)}
+                </span>
+                <span className={styles.timelineWeekStats}>
+                  {week.clusterCount} topic{week.clusterCount !== 1 ? "s" : ""}
+                </span>
+              </div>
+              <span className={styles.timelineWeekToggle}>
+                {isExpanded ? "−" : "+"}
+              </span>
+            </button>
 
-          <div className={styles.timelineNodes}>
-            {day.nodes.map((node) => {
-              const nodeKey = `${day.day}-${node.id}`;
-              const isExpanded = expandedNodes.has(nodeKey);
-              return (
-                <div key={nodeKey} className={styles.timelineNode}>
-                  <div className={styles.timelineNodeHeader}>
-                    <div className={styles.timelineNodeInfo}>
-                      <div className={styles.timelineNodeLabel}>{node.label}</div>
-                      <div className={styles.timelineNodeLane}>{node.lane}</div>
-                    </div>
-                    <div className={styles.timelineNodeRight}>
-                      <span className={styles.timelineNodeCount}>
-                        {node.evidence?.length || 0}
+            {isExpanded && (
+              <div className={styles.timelineWeekBody}>
+                {week.clusters.map((cluster) => (
+                  <div key={cluster.label} className={styles.timelineCluster}>
+                    <div className={styles.timelineClusterHeader}>
+                      <span className={styles.timelineClusterLabel}>
+                        {cluster.label}
                       </span>
-                      <button
-                        className={styles.timelineToggle}
-                        onClick={() => toggleNode(nodeKey)}
-                      >
-                        {isExpanded ? "Hide" : "Show"}
-                      </button>
+                      <span className={styles.timelineClusterCount}>
+                        {cluster.evidenceCount} sources
+                      </span>
                     </div>
-                  </div>
-
-                  {isExpanded && node.evidence && node.evidence.length > 0 && (
-                    <div className={styles.timelineEvidence}>
-                      {node.evidence.map((ev, idx) => (
-                        <EvidenceCard key={`${ev.url}-${idx}`} item={ev} />
+                    <div className={styles.timelineClusterTakeaways}>
+                      {cluster.takeaways.map((t, i) => (
+                        <div key={i} className={styles.takeaway}>
+                          {t}
+                        </div>
                       ))}
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                    {cluster.evidence && cluster.evidence.length > 0 && (
+                      <div className={styles.timelineClusterEvidence}>
+                        {cluster.evidence.map((ev, idx) => (
+                          <EvidenceCard key={`${ev.url}-${idx}`} item={ev} />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        </div>
-      ))}
-
-      {data.days.length === 0 && (
-        <div className={styles.timelineEmpty}>No timeline data available.</div>
+        );
+      })}
+      {data.weeks.length === 0 && (
+        <div className={styles.emptyState}>No timeline data available.</div>
       )}
     </div>
   );
@@ -263,10 +263,12 @@ function TimelineView({ data }: { data: TimelineResponse }) {
 
 // ─── Main Page ───
 
-export default function TechMapsPage() {
-  const [view, setView] = useState<"map" | "timeline">("map");
-  const [mapData, setMapData] = useState<MapDataset | null>(null);
-  const [timelineData, setTimelineData] = useState<TimelineResponse | null>(null);
+export default function MicroSaasMapPage() {
+  const [view, setView] = useState<"week" | "timeline">("week");
+  const [weekData, setWeekData] = useState<WeeklyBrief | null>(null);
+  const [timelineData, setTimelineData] = useState<TimelineResponse | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { canAccess, login } = useAuth();
@@ -274,20 +276,23 @@ export default function TechMapsPage() {
   const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
+    setWeekData(null);
+    setTimelineData(null);
     try {
-      const [mapRes, timelineRes] = await Promise.all([
-        fetch(`${API_BASE}/api/v1/techmap/topic/${TOPIC_ID}`, { cache: "no-store" }),
-        fetch(`${API_BASE}/api/v1/techmap/topic/${TOPIC_ID}/daily?days=14`, { cache: "no-store" }),
+      const [weekRes, timelineRes] = await Promise.all([
+        fetch(`${API_BASE}/api/v1/techmap/topic/${TOPIC_ID}`, {
+          cache: "no-store",
+        }),
+        fetch(
+          `${API_BASE}/api/v1/techmap/topic/${TOPIC_ID}/timeline?weeks=8`,
+          { cache: "no-store" }
+        ),
       ]);
-
-      if (!mapRes.ok) throw new Error(`Map API error: ${mapRes.status}`);
-      if (!timelineRes.ok) throw new Error(`Timeline API error: ${timelineRes.status}`);
-
-      const map = await mapRes.json();
-      const timeline = await timelineRes.json();
-
-      setMapData(map);
-      setTimelineData(timeline);
+      if (!weekRes.ok) throw new Error(`API error: ${weekRes.status}`);
+      if (!timelineRes.ok)
+        throw new Error(`Timeline API error: ${timelineRes.status}`);
+      setWeekData(await weekRes.json());
+      setTimelineData(await timelineRes.json());
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to load data");
     } finally {
@@ -299,10 +304,10 @@ export default function TechMapsPage() {
     loadData();
   }, [loadData]);
 
-  const nodeCount = mapData?.mapNodes?.length || 0;
-  const evidenceCount = mapData
-    ? Object.values(mapData.nodeDetailsById || {}).reduce(
-        (sum, d) => sum + (d.evidence?.length || 0),
+  const clusterCount = weekData?.clusters?.length || 0;
+  const evidenceCount = weekData
+    ? weekData.clusters.reduce(
+        (sum, c) => sum + (c.evidence?.length || 0),
         0
       )
     : 0;
@@ -311,7 +316,6 @@ export default function TechMapsPage() {
 
   return (
     <div className={styles.page}>
-      {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerTop}>
           <a href="/" className={styles.backLink}>
@@ -321,22 +325,17 @@ export default function TechMapsPage() {
         <div className={styles.headerMain}>
           <div>
             <div className={styles.agentDomain}>Technology</div>
-            <h1 className={styles.agentTitle}>
-              {mapData?.headerTitle || "Micro-SaaS Environment"}
-            </h1>
+            <h1 className={styles.agentTitle}>Micro-SaaS Map</h1>
             <p className={styles.agentDesc}>
-              {mapData?.headerSubtitle ||
-                "Structured topic map tracking developments across the micro-SaaS landscape, updated daily."}
+              Weekly wrap-up of the micro-SaaS landscape covering new product
+              launches, pricing changes, acquisition activity, developer
+              tooling trends, and niche market movements.
             </p>
           </div>
           <div className={styles.agentMeta}>
             <div className={styles.metaItem}>
-              <div className={styles.metaVal}>Daily</div>
-              <div className={styles.metaKey}>Cadence</div>
-            </div>
-            <div className={styles.metaItem}>
-              <div className={styles.metaVal}>{nodeCount}</div>
-              <div className={styles.metaKey}>Topics</div>
+              <div className={styles.metaVal}>{clusterCount}</div>
+              <div className={styles.metaKey}>Topics this week</div>
             </div>
             <div className={styles.metaItem}>
               <div className={styles.metaVal}>{evidenceCount}</div>
@@ -350,14 +349,14 @@ export default function TechMapsPage() {
         </div>
       </header>
 
-      {/* View Toggle */}
-      <div className={styles.viewControls}>
+      <div className={styles.controlsBar}>
+        <div />
         <div className={styles.viewToggle}>
           <button
-            className={`${styles.viewTab} ${view === "map" ? styles.viewTabActive : ""}`}
-            onClick={() => setView("map")}
+            className={`${styles.viewTab} ${view === "week" ? styles.viewTabActive : ""}`}
+            onClick={() => setView("week")}
           >
-            Map
+            This week
           </button>
           {hasTimeline ? (
             <button
@@ -374,38 +373,51 @@ export default function TechMapsPage() {
               >
                 Timeline
               </button>
-              <div className={styles.viewTabTooltip}>Sign in to access timeline</div>
+              <div className={styles.viewTabTooltip}>
+                Sign in to access timeline
+              </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Content */}
-      <main className={styles.content}>
-        {loading && <div className={styles.loading}>Loading topic map...</div>}
+      {weekData && !loading && (
+        <div className={styles.companyHeader}>
+          <p className={styles.companySubtitle}>
+            Week of{" "}
+            {formatWeekRange(weekData.weekStartUtc, weekData.weekEndUtc)}
+          </p>
+        </div>
+      )}
 
+      <main className={styles.content}>
+        {loading && (
+          <div className={styles.loading}>Loading weekly brief...</div>
+        )}
         {error && (
           <div className={styles.error}>
             <p>{error}</p>
-            <button onClick={loadData} className={styles.retry}>
+            <button onClick={() => loadData()} className={styles.retry}>
               Retry
             </button>
           </div>
         )}
-
-        {!loading && !error && view === "map" && mapData && (
-          <MapView data={mapData} />
+        {!loading && !error && view === "week" && weekData && (
+          <WeekView data={weekData} />
         )}
-
-        {!loading && !error && view === "timeline" && hasTimeline && timelineData && (
-          <TimelineView data={timelineData} />
-        )}
-
-        {!loading && !error && view === "timeline" && !hasTimeline && (
-          <AccessGate requires="auth" featureLabel="the 14-day timeline">
-            <div />
-          </AccessGate>
-        )}
+        {!loading &&
+          !error &&
+          view === "timeline" &&
+          hasTimeline &&
+          timelineData && <TimelineView data={timelineData} />}
+        {!loading &&
+          !error &&
+          view === "timeline" &&
+          !hasTimeline && (
+            <AccessGate requires="auth" featureLabel="the weekly timeline">
+              <div />
+            </AccessGate>
+          )}
       </main>
     </div>
   );

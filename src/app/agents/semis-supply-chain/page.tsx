@@ -7,23 +7,7 @@ import { useAuth } from "@/lib/auth";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-// ─── Company Registry ───
-
-interface CompanyDef {
-  id: string;
-  label: string;
-}
-
-const COMPANIES: CompanyDef[] = [
-  { id: "openai", label: "OpenAI" },
-  { id: "google", label: "Google" },
-  { id: "microsoft", label: "Microsoft" },
-  { id: "apple", label: "Apple" },
-  { id: "nvidia", label: "NVIDIA" },
-  { id: "meta", label: "Meta" },
-];
-
-const DEFAULT_COMPANY = COMPANIES[0];
+const TOPIC_ID = "semis_supply_chain";
 
 // ─── Types ───
 
@@ -80,7 +64,10 @@ interface TimelineResponse {
 
 function formatWeekRange(start: string, end: string): string {
   if (!start || !end) return "";
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  ];
   const fmt = (d: string) => {
     const parts = d.split("-");
     if (parts.length !== 3) return d;
@@ -93,7 +80,10 @@ function formatWeekRange(start: string, end: string): string {
 function formatEvidenceDate(ts: string): string {
   if (!ts) return "";
   const d = ts.substring(0, 10);
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  ];
   const parts = d.split("-");
   if (parts.length !== 3) return d;
   const m = parseInt(parts[1], 10) - 1;
@@ -104,7 +94,12 @@ function formatEvidenceDate(ts: string): string {
 
 function EvidenceCard({ item }: { item: EvidenceItem }) {
   return (
-    <a href={item.url || "#"} target="_blank" rel="noopener noreferrer" className={styles.evidenceCard}>
+    <a
+      href={item.url || "#"}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={styles.evidenceCard}
+    >
       <div className={styles.evidenceTitle}>{item.title}</div>
       <div className={styles.evidenceMeta}>
         <span className={styles.evidenceSource}>{item.source}</span>
@@ -119,16 +114,27 @@ function EvidenceCard({ item }: { item: EvidenceItem }) {
   );
 }
 
-function ClusterCard({ cluster, defaultOpen }: { cluster: Cluster; defaultOpen?: boolean }) {
+function ClusterCard({
+  cluster,
+  defaultOpen,
+}: {
+  cluster: Cluster;
+  defaultOpen?: boolean;
+}) {
   const [expanded, setExpanded] = useState(defaultOpen || false);
 
   return (
     <div className={styles.clusterCard}>
-      <button className={styles.clusterHeader} onClick={() => setExpanded(!expanded)}>
+      <button
+        className={styles.clusterHeader}
+        onClick={() => setExpanded(!expanded)}
+      >
         <div className={styles.clusterInfo}>
           <h3 className={styles.clusterLabel}>{cluster.label}</h3>
           <div className={styles.clusterStats}>
-            <span className={styles.clusterCount}>{cluster.evidence.length} sources</span>
+            <span className={styles.clusterCount}>
+              {cluster.evidence.length} sources
+            </span>
           </div>
         </div>
         <span className={styles.clusterToggle}>{expanded ? "−" : "+"}</span>
@@ -136,7 +142,9 @@ function ClusterCard({ cluster, defaultOpen }: { cluster: Cluster; defaultOpen?:
 
       <div className={styles.clusterTakeaways}>
         {cluster.takeaways.map((t, i) => (
-          <div key={i} className={styles.takeaway}>{t}</div>
+          <div key={i} className={styles.takeaway}>
+            {t}
+          </div>
         ))}
       </div>
 
@@ -151,50 +159,7 @@ function ClusterCard({ cluster, defaultOpen }: { cluster: Cluster; defaultOpen?:
   );
 }
 
-function CompanySelector({
-  companies,
-  activeId,
-  onChange,
-  loading,
-  hasPro,
-  onLocked,
-}: {
-  companies: CompanyDef[];
-  activeId: string;
-  onChange: (id: string) => void;
-  loading: boolean;
-  hasPro: boolean;
-  onLocked: () => void;
-}) {
-  return (
-    <div className={styles.companySelector}>
-      {companies.map((c, idx) => {
-        const isFree = idx === 0;
-        const locked = !isFree && !hasPro;
-        return (
-          <div key={c.id} className={styles.companyChipWrap}>
-            <button
-              className={`${styles.companyChip} ${activeId === c.id ? styles.companyChipActive : ""} ${locked ? styles.companyChipLocked : ""}`}
-              onClick={() => {
-                if (locked) {
-                  onLocked();
-                  return;
-                }
-                onChange(c.id);
-              }}
-              disabled={loading}
-            >
-              {c.label}
-            </button>
-            {locked && <div className={styles.companyChipTooltip}>Pro feature</div>}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ─── Current Week View ───
+// ─── Week View ───
 
 function WeekView({ data }: { data: WeeklyBrief }) {
   return (
@@ -209,7 +174,11 @@ function WeekView({ data }: { data: WeeklyBrief }) {
       </div>
       <div className={styles.clusterList}>
         {data.clusters.map((cluster, idx) => (
-          <ClusterCard key={cluster.label} cluster={cluster} defaultOpen={idx === 0} />
+          <ClusterCard
+            key={cluster.label}
+            cluster={cluster}
+            defaultOpen={idx === 0}
+          />
         ))}
       </div>
       {data.clusters.length === 0 && (
@@ -234,7 +203,9 @@ function TimelineView({ data }: { data: TimelineResponse }) {
           <div key={week.weekKey} className={styles.timelineWeek}>
             <button
               className={styles.timelineWeekHeader}
-              onClick={() => setExpandedWeek(isExpanded ? null : week.weekKey)}
+              onClick={() =>
+                setExpandedWeek(isExpanded ? null : week.weekKey)
+              }
             >
               <div className={styles.timelineDot} />
               <div className={styles.timelineWeekInfo}>
@@ -245,7 +216,9 @@ function TimelineView({ data }: { data: TimelineResponse }) {
                   {week.clusterCount} topic{week.clusterCount !== 1 ? "s" : ""}
                 </span>
               </div>
-              <span className={styles.timelineWeekToggle}>{isExpanded ? "−" : "+"}</span>
+              <span className={styles.timelineWeekToggle}>
+                {isExpanded ? "−" : "+"}
+              </span>
             </button>
 
             {isExpanded && (
@@ -253,14 +226,18 @@ function TimelineView({ data }: { data: TimelineResponse }) {
                 {week.clusters.map((cluster) => (
                   <div key={cluster.label} className={styles.timelineCluster}>
                     <div className={styles.timelineClusterHeader}>
-                      <span className={styles.timelineClusterLabel}>{cluster.label}</span>
+                      <span className={styles.timelineClusterLabel}>
+                        {cluster.label}
+                      </span>
                       <span className={styles.timelineClusterCount}>
                         {cluster.evidenceCount} sources
                       </span>
                     </div>
                     <div className={styles.timelineClusterTakeaways}>
                       {cluster.takeaways.map((t, i) => (
-                        <div key={i} className={styles.takeaway}>{t}</div>
+                        <div key={i} className={styles.takeaway}>
+                          {t}
+                        </div>
                       ))}
                     </div>
                     {cluster.evidence && cluster.evidence.length > 0 && (
@@ -286,27 +263,34 @@ function TimelineView({ data }: { data: TimelineResponse }) {
 
 // ─── Main Page ───
 
-export default function BigTechEvolutionPage() {
-  const [activeCompany, setActiveCompany] = useState<CompanyDef>(DEFAULT_COMPANY);
+export default function SemisSupplyChainPage() {
   const [view, setView] = useState<"week" | "timeline">("week");
   const [weekData, setWeekData] = useState<WeeklyBrief | null>(null);
-  const [timelineData, setTimelineData] = useState<TimelineResponse | null>(null);
+  const [timelineData, setTimelineData] = useState<TimelineResponse | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { canAccess, login } = useAuth();
 
-  const loadData = useCallback(async (company: CompanyDef) => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     setWeekData(null);
     setTimelineData(null);
     try {
       const [weekRes, timelineRes] = await Promise.all([
-        fetch(`${API_BASE}/api/v1/techmap/topic/${company.id}`, { cache: "no-store" }),
-        fetch(`${API_BASE}/api/v1/techmap/topic/${company.id}/timeline?weeks=8`, { cache: "no-store" }),
+        fetch(`${API_BASE}/api/v1/techmap/topic/${TOPIC_ID}`, {
+          cache: "no-store",
+        }),
+        fetch(
+          `${API_BASE}/api/v1/techmap/topic/${TOPIC_ID}/timeline?weeks=8`,
+          { cache: "no-store" }
+        ),
       ]);
       if (!weekRes.ok) throw new Error(`API error: ${weekRes.status}`);
-      if (!timelineRes.ok) throw new Error(`Timeline API error: ${timelineRes.status}`);
+      if (!timelineRes.ok)
+        throw new Error(`Timeline API error: ${timelineRes.status}`);
       setWeekData(await weekRes.json());
       setTimelineData(await timelineRes.json());
     } catch (e: unknown) {
@@ -317,44 +301,41 @@ export default function BigTechEvolutionPage() {
   }, []);
 
   useEffect(() => {
-    loadData(activeCompany);
-  }, [activeCompany, loadData]);
-
-  const handleCompanyChange = (id: string) => {
-    const found = COMPANIES.find((c) => c.id === id);
-    if (found && found.id !== activeCompany.id) {
-      setActiveCompany(found);
-    }
-  };
+    loadData();
+  }, [loadData]);
 
   const clusterCount = weekData?.clusters?.length || 0;
   const evidenceCount = weekData
-    ? weekData.clusters.reduce((sum, c) => sum + (c.evidence?.length || 0), 0)
+    ? weekData.clusters.reduce(
+        (sum, c) => sum + (c.evidence?.length || 0),
+        0
+      )
     : 0;
 
   const hasTimeline = canAccess("auth");
-  const hasPro = canAccess("pro");
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <div className={styles.headerTop}>
-          <a href="/" className={styles.backLink}>← FinanceLab</a>
+          <a href="/" className={styles.backLink}>
+            ← FinanceLab
+          </a>
         </div>
         <div className={styles.headerMain}>
           <div>
-            <div className={styles.agentDomain}>Technology</div>
-            <h1 className={styles.agentTitle}>Big Tech Evolution</h1>
+            <div className={styles.agentDomain}>Industry</div>
+            <h1 className={styles.agentTitle}>
+              Semiconductors &amp; Supply Chain
+            </h1>
             <p className={styles.agentDesc}>
-              Weekly analysis of product launches, strategy shifts, and ecosystem
-              developments across major technology companies.
+              Weekly wrap-up of chip industry developments including fab
+              investments, export controls, supply constraints, packaging
+              advances, and major design wins across the semiconductor
+              ecosystem.
             </p>
           </div>
           <div className={styles.agentMeta}>
-            <div className={styles.metaItem}>
-              <div className={styles.metaVal}>{COMPANIES.length}</div>
-              <div className={styles.metaKey}>Companies</div>
-            </div>
             <div className={styles.metaItem}>
               <div className={styles.metaVal}>{clusterCount}</div>
               <div className={styles.metaKey}>Topics this week</div>
@@ -372,14 +353,8 @@ export default function BigTechEvolutionPage() {
       </header>
 
       <div className={styles.controlsBar}>
-        <CompanySelector
-          companies={COMPANIES}
-          activeId={activeCompany.id}
-          onChange={handleCompanyChange}
-          loading={loading}
-          hasPro={hasPro}
-          onLocked={() => { window.location.href = "/pricing"; }}
-        />
+        {/* No company selector — single-topic page */}
+        <div />
         <div className={styles.viewToggle}>
           <button
             className={`${styles.viewTab} ${view === "week" ? styles.viewTabActive : ""}`}
@@ -402,39 +377,52 @@ export default function BigTechEvolutionPage() {
               >
                 Timeline
               </button>
-              <div className={styles.viewTabTooltip}>Sign in to access timeline</div>
+              <div className={styles.viewTabTooltip}>
+                Sign in to access timeline
+              </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Week header */}
+      {/* Week subheader */}
       {weekData && !loading && (
         <div className={styles.companyHeader}>
-          <h2 className={styles.companyTitle}>
-            {weekData.company || activeCompany.label}
-          </h2>
           <p className={styles.companySubtitle}>
-            Week of {formatWeekRange(weekData.weekStartUtc, weekData.weekEndUtc)}
+            Week of{" "}
+            {formatWeekRange(weekData.weekStartUtc, weekData.weekEndUtc)}
           </p>
         </div>
       )}
 
       <main className={styles.content}>
-        {loading && <div className={styles.loading}>Loading {activeCompany.label} weekly brief...</div>}
+        {loading && (
+          <div className={styles.loading}>Loading weekly brief...</div>
+        )}
         {error && (
           <div className={styles.error}>
             <p>{error}</p>
-            <button onClick={() => loadData(activeCompany)} className={styles.retry}>Retry</button>
+            <button onClick={() => loadData()} className={styles.retry}>
+              Retry
+            </button>
           </div>
         )}
-        {!loading && !error && view === "week" && weekData && <WeekView data={weekData} />}
-        {!loading && !error && view === "timeline" && hasTimeline && timelineData && <TimelineView data={timelineData} />}
-        {!loading && !error && view === "timeline" && !hasTimeline && (
-          <AccessGate requires="auth" featureLabel="the weekly timeline">
-            <div />
-          </AccessGate>
+        {!loading && !error && view === "week" && weekData && (
+          <WeekView data={weekData} />
         )}
+        {!loading &&
+          !error &&
+          view === "timeline" &&
+          hasTimeline &&
+          timelineData && <TimelineView data={timelineData} />}
+        {!loading &&
+          !error &&
+          view === "timeline" &&
+          !hasTimeline && (
+            <AccessGate requires="auth" featureLabel="the weekly timeline">
+              <div />
+            </AccessGate>
+          )}
       </main>
     </div>
   );

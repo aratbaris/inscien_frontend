@@ -111,6 +111,16 @@ const weeklyWrapUpAgents: Agent[] = [
     tier: "Free",
   },
   {
+    domain: "Industry",
+    status: "live",
+    name: "Semiconductors & Supply Chain",
+    href: "/agents/semis-supply-chain",
+    desc: "Fab investments, export controls, supply constraints, packaging advances, and major design wins across the semiconductor ecosystem.",
+    cadence: "Weekly",
+    artifact: "Weekly brief",
+    tier: "Free",
+  },
+  {
     domain: "Technology",
     status: "live",
     name: "Micro-SaaS Map",
@@ -260,11 +270,11 @@ export default function Home() {
           <br />
           <span className={styles.rotatingWrapper}>
             <span className={styles.rotatingWords}>
-              <span>Monitor daily events.</span>
-              <span>Track industry developments.</span>
-              <span>Analyze asset risk.</span>
+              <span>Monitor events.</span>
+              <span>Deep dive on developments.</span>
+              <span>Analyze risk.</span>
               <span>Explore new research.</span>
-              <span>Monitor daily events.</span>
+              <span>Monitor events.</span>
             </span>
           </span>
         </h1>
@@ -312,6 +322,16 @@ export default function Home() {
           </p>
         </div>
 
+        {/* Monthly Market Reviews */}
+        <div className={styles.categoryBlock}>
+          <div className={styles.categoryLabel}>Monthly Market Reviews</div>
+          <div className={styles.agentsGrid}>
+            {monthlyReviewAgents.map((a) => (
+              <AgentCard key={a.name} agent={a} />
+            ))}
+          </div>
+        </div>
+
         {/* Daily Analysis */}
         <div className={styles.categoryBlock}>
           <div className={styles.categoryLabel}>Daily Analysis</div>
@@ -324,7 +344,7 @@ export default function Home() {
 
         {/* Daily Material Event Updates */}
         <div className={styles.categoryBlock}>
-          <div className={styles.categoryLabel}>Daily Event-Driven Updates</div>
+          <div className={styles.categoryLabel}>Daily Material Event Updates</div>
           <div className={styles.agentsGrid}>
             {dailyMonitorAgents.map((a) => (
               <AgentCard key={a.name} agent={a} />
@@ -342,16 +362,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Monthly Market Reviews */}
-        <div className={styles.categoryBlock}>
-          <div className={styles.categoryLabel}>Monthly Market Reviews</div>
-          <div className={styles.agentsGrid}>
-            {monthlyReviewAgents.map((a) => (
-              <AgentCard key={a.name} agent={a} />
-            ))}
-          </div>
-        </div>
-        
         {/* Audio Briefs */}
         <div className={styles.categoryBlock}>
           <div className={styles.categoryLabel}>Research on the Go</div>
