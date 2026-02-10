@@ -270,11 +270,11 @@ export default function Home() {
           <br />
           <span className={styles.rotatingWrapper}>
             <span className={styles.rotatingWords}>
-              <span>Monitor events.</span>
-              <span>Deep dive on developments.</span>
-              <span>Analyze risk.</span>
+              <span>Monitor daily events.</span>
+              <span>Track industry change.</span>
+              <span>Analyze asset risk.</span>
               <span>Explore new research.</span>
-              <span>Monitor events.</span>
+              <span>Monitor daily events.</span>
             </span>
           </span>
         </h1>
