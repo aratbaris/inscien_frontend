@@ -21,7 +21,7 @@ function EmptyState() {
     <div className={styles.empty}>
       <p>No items for this date.</p>
       <p className={styles.emptyHint}>
-        This can happen on days with no significant crypto developments.
+        This can happen on days with no material crypto regulatory actions or incidents.
       </p>
     </div>
   );
@@ -47,7 +47,7 @@ function BriefItemCard({ item }: { item: BriefItem }) {
   );
 }
 
-export default function CryptoMonitorPage() {
+export default function CryptoRegulationMonitorPage() {
   const [data, setData] = useState<BriefResponse | null>(null);
   const [selectedDay, setSelectedDay] = useState("latest");
   const [loading, setLoading] = useState(true);
@@ -82,16 +82,17 @@ export default function CryptoMonitorPage() {
       <header className={styles.header}>
         <div className={styles.headerTop}>
           <a href="/" className={styles.backLink}>
-            ← InScien
+            ← FinanceLab
           </a>
         </div>
         <div className={styles.headerMain}>
           <div>
             <div className={styles.agentDomain}>Crypto</div>
-            <h1 className={styles.agentTitle}>Crypto Monitor</h1>
+            <h1 className={styles.agentTitle}>Crypto Regulation & Incidents</h1>
             <p className={styles.agentDesc}>
-              Tracks market-moving developments, protocol updates, exchange
-              events, and regulatory actions across cryptocurrency markets.
+              Regulatory enforcement, exchange hacks, stablecoin and custody
+              events, and licensing actions affecting crypto markets and
+              infrastructure. No price commentary or market speculation.
             </p>
           </div>
           <div className={styles.agentMeta}>
@@ -100,7 +101,7 @@ export default function CryptoMonitorPage() {
               <div className={styles.metaKey}>Cadence</div>
             </div>
             <div className={styles.metaItem}>
-              <div className={styles.metaVal}>3–10</div>
+              <div className={styles.metaVal}>3-8</div>
               <div className={styles.metaKey}>Items per day</div>
             </div>
             <div className={styles.metaItem}>

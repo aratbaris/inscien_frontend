@@ -16,17 +16,32 @@ interface Agent {
   tier: string;
 }
 
-const analysisAgents: Agent[] = [
+/* Monthly Market Reviews */
+const monthlyReviewAgents: Agent[] = [
   {
     domain: "Markets",
     status: "live",
-    name: "Market Returns",
+    name: "S&P Long-Term Performance",
     href: "/agents/market-returns",
     desc: "Comprehensive S&P 500 analysis covering risk-return snapshots, volatility regimes, Sharpe ratios, and bootstrap simulations.",
-    cadence: "Daily",
+    cadence: "Monthly",
     artifact: "Analysis report",
     tier: "Free",
   },
+  {
+    domain: "Economy",
+    status: "live",
+    name: "U.S. Macro Dashboard",
+    href: "/agents/macro-dashboard",
+    desc: "Unified view of rates, inflation, GDP, and federal debt with FRED data.",
+    cadence: "Monthly",
+    artifact: "Analysis report",
+    tier: "Free",
+  },
+];
+
+/* Daily Analysis */
+const dailyAnalysisAgents: Agent[] = [
   {
     domain: "Markets",
     status: "live",
@@ -37,25 +52,16 @@ const analysisAgents: Agent[] = [
     artifact: "Analysis report",
     tier: "Free",
   },
-  {
-    domain: "Economy",
-    status: "live",
-    name: "U.S. Macro Dashboard",
-    href: "/agents/macro-dashboard",
-    desc: "Unified view of rates, inflation, GDP, and federal debt with FRED data.",
-    cadence: "Daily",
-    artifact: "Analysis report",
-    tier: "Free",
-  },
 ];
 
-const monitorAgents: Agent[] = [
+/* Daily Material Event Updates */
+const dailyMonitorAgents: Agent[] = [
   {
     domain: "Security",
     status: "live",
-    name: "Cyber Monitor",
+    name: "Cyber Risk Monitor",
     href: "/agents/cyber-monitor",
-    desc: "Delivers a daily brief covering confirmed breaches, ransomware incidents, outages, and exploited vulnerabilities.",
+    desc: "Confirmed breaches, ransomware incidents, actively exploited vulnerabilities, and major infrastructure outages requiring operational attention.",
     cadence: "Daily",
     artifact: "Brief",
     tier: "Free",
@@ -63,9 +69,9 @@ const monitorAgents: Agent[] = [
   {
     domain: "Energy",
     status: "live",
-    name: "Energy Monitor",
+    name: "Oil Supply Monitor",
     href: "/agents/energy-monitor",
-    desc: "Tracks policy shifts, infrastructure events, and commodity signals across global energy markets.",
+    desc: "Tracks crude supply disruptions, OPEC actions, sanctions enforcement, and chokepoint incidents that can materially affect oil flows.",
     cadence: "Daily",
     artifact: "Brief",
     tier: "Free",
@@ -73,9 +79,9 @@ const monitorAgents: Agent[] = [
   {
     domain: "Regulation",
     status: "live",
-    name: "Regulatory Watch",
+    name: "Financial Regulation Monitor",
     href: "/agents/regulatory-watch",
-    desc: "Monitors regulatory changes, enforcement actions, and policy developments across financial jurisdictions.",
+    desc: "Tracks enforcement actions, rulemaking, and supervisory changes from SEC, CFTC, FCA, ESMA, and other financial regulators.",
     cadence: "Daily",
     artifact: "Brief",
     tier: "Free",
@@ -83,33 +89,34 @@ const monitorAgents: Agent[] = [
   {
     domain: "Crypto",
     status: "live",
-    name: "Crypto Monitor",
+    name: "Crypto Regulation & Incidents",
     href: "/agents/crypto-monitor",
-    desc: "Tracks market-moving developments, protocol updates, and regulatory actions across cryptocurrency markets.",
+    desc: "Regulatory enforcement, exchange hacks, stablecoin events, and licensing actions affecting crypto markets and infrastructure.",
     cadence: "Daily",
     artifact: "Brief",
     tier: "Free",
   },
 ];
 
-const trackingAgents: Agent[] = [
-  {
-    domain: "Technology",
-    status: "live",
-    name: "Micro-SaaS Map",
-    href: "/agents/micro-saas-map",
-    desc: "Tracks developments across the micro-SaaS landscape, organized into structured topic maps updated daily.",
-    cadence: "Daily",
-    artifact: "Topic map",
-    tier: "Free",
-  },
+/* Company & Industry Weekly Wrap-Ups */
+const weeklyWrapUpAgents: Agent[] = [
   {
     domain: "Technology",
     status: "live",
     name: "Big Tech Evolution",
     href: "/agents/big-tech-evolution",
-    desc: "Structured topic maps tracking product launches, strategy shifts, and ecosystem developments across major tech companies.",
-    cadence: "Daily",
+    desc: "Weekly analysis of product launches, strategy shifts, and ecosystem developments across major tech companies.",
+    cadence: "Weekly",
+    artifact: "Weekly brief",
+    tier: "Free",
+  },
+  {
+    domain: "Technology",
+    status: "live",
+    name: "Micro-SaaS Map",
+    href: "/agents/micro-saas-map",
+    desc: "Tracks developments across the micro-SaaS landscape, organized into structured topic maps.",
+    cadence: "Weekly",
     artifact: "Topic map",
     tier: "Free",
   },
@@ -220,9 +227,10 @@ function UserNav() {
 
 export default function Home() {
   const totalAgents =
-    analysisAgents.length +
-    monitorAgents.length +
-    trackingAgents.length +
+    monthlyReviewAgents.length +
+    dailyAnalysisAgents.length +
+    dailyMonitorAgents.length +
+    weeklyWrapUpAgents.length +
     audioAgents.length +
     learningAgents.length;
 
@@ -231,7 +239,10 @@ export default function Home() {
       {/* Navigation */}
       <nav className={styles.nav}>
         <div className={styles.navLeft}>
-          <div className={styles.navLogo}>InScien</div>
+          <a href="/" className={styles.navLogo}>
+            <img src="/icon.png" alt="" className={styles.navLogoIcon} />
+            <span className={styles.navLogoText}>FinanceLab</span>
+          </a>
           <div className={styles.navLinks}>
             <a href="#agents">Agents</a>
             <a href="#how">How it works</a>
@@ -243,27 +254,28 @@ export default function Home() {
 
       {/* Hero */}
       <section className={styles.hero}>
-        <div className={styles.heroEyebrow}>Always-on analysis agents</div>
+        <div className={styles.heroEyebrow}>Your financial analysis companion</div>
         <h1>
-          Agents that
+          Understand markets.
           <br />
           <span className={styles.rotatingWrapper}>
             <span className={styles.rotatingWords}>
-              <span>monitor.</span>
-              <span>analyze.</span>
-              <span>brief you.</span>
-              <span>monitor.</span>
+              <span>Monitor daily events.</span>
+              <span>Track industry developments.</span>
+              <span>Analyze asset risk.</span>
+              <span>Explore new research.</span>
+              <span>Monitor daily events.</span>
             </span>
           </span>
         </h1>
         <p className={styles.heroDesc}>
-          InScien runs continuous analysis agents across markets, research, and
-          technology. Each agent has a defined job, operates on a set cadence,
-          and delivers structured artifacts you can act on.
+          FinanceLab brings together live market analysis, daily event monitoring,
+          and research tools so you can follow what matters and make
+          sense of it without the noise.
         </p>
         <div className={styles.heroActions}>
           <a href="#agents" className={styles.btnPrimary}>
-            Explore agents →
+            See what&apos;s running →
           </a>
           <a href="#how" className={styles.btnGhost}>
             How it works
@@ -272,15 +284,15 @@ export default function Home() {
         <div className={styles.stats}>
           <div className={styles.stat}>
             <div className={styles.statVal}>{totalAgents}</div>
-            <div className={styles.statKey}>Active agents</div>
+            <div className={styles.statKey}>Live agents</div>
           </div>
           <div className={styles.stat}>
             <div className={styles.statVal}>Daily</div>
-            <div className={styles.statKey}>Minimum cadence</div>
+            <div className={styles.statKey}>Updated continuously</div>
           </div>
           <div className={styles.stat}>
             <div className={styles.statVal}>50K+</div>
-            <div className={styles.statKey}>Sources processed daily</div>
+            <div className={styles.statKey}>Sources analyzed daily</div>
           </div>
         </div>
       </section>
@@ -292,48 +304,57 @@ export default function Home() {
       {/* Agents */}
       <section className={styles.section} id="agents">
         <div className={styles.sectionHeader}>
-          <div className={styles.sectionEyebrow}>Agent Catalog</div>
-          <div className={styles.sectionTitle}>Running systems</div>
+          <div className={styles.sectionEyebrow}>What&apos;s Running</div>
+          <div className={styles.sectionTitle}>Everything runs daily, ready when you are</div>
           <p className={styles.sectionDesc}>
-            Each agent covers a single domain, runs on a fixed schedule, and
-            produces structured artifacts. Enable the ones relevant to your
-            work.
+            From live risk metrics to market-moving events to research you can
+            listen to on the go. Pick what&apos;s relevant to you.
           </p>
         </div>
 
-        {/* Analysis Providers */}
+        {/* Daily Analysis */}
         <div className={styles.categoryBlock}>
-          <div className={styles.categoryLabel}>Analysis Providers</div>
-          <div className={styles.agentsGrid}>
-            {analysisAgents.map((a) => (
+          <div className={styles.categoryLabel}>Daily Analysis</div>
+          <div className={styles.agentsGridWide}>
+            {dailyAnalysisAgents.map((a) => (
               <AgentCard key={a.name} agent={a} />
             ))}
           </div>
         </div>
 
-        {/* Material Event Monitors */}
+        {/* Daily Material Event Updates */}
         <div className={styles.categoryBlock}>
-          <div className={styles.categoryLabel}>Material Event Monitors</div>
+          <div className={styles.categoryLabel}>Daily Event-Driven Updates</div>
           <div className={styles.agentsGrid}>
-            {monitorAgents.map((a) => (
+            {dailyMonitorAgents.map((a) => (
               <AgentCard key={a.name} agent={a} />
             ))}
           </div>
         </div>
 
-        {/* In-Depth Tracking */}
+        {/* Company & Industry Weekly Wrap-Ups */}
         <div className={styles.categoryBlock}>
-          <div className={styles.categoryLabel}>In-Depth Development Tracking</div>
+          <div className={styles.categoryLabel}>Company & Industry Weekly Wrap-Ups</div>
           <div className={styles.agentsGrid}>
-            {trackingAgents.map((a) => (
+            {weeklyWrapUpAgents.map((a) => (
               <AgentCard key={a.name} agent={a} />
             ))}
           </div>
         </div>
 
+        {/* Monthly Market Reviews */}
+        <div className={styles.categoryBlock}>
+          <div className={styles.categoryLabel}>Monthly Market Reviews</div>
+          <div className={styles.agentsGrid}>
+            {monthlyReviewAgents.map((a) => (
+              <AgentCard key={a.name} agent={a} />
+            ))}
+          </div>
+        </div>
+        
         {/* Audio Briefs */}
         <div className={styles.categoryBlock}>
-          <div className={styles.categoryLabel}>Audio Briefs</div>
+          <div className={styles.categoryLabel}>Research on the Go</div>
           <div className={styles.agentsGridWide}>
             {audioAgents.map((a) => (
               <AgentCard key={a.name} agent={a} />
@@ -343,7 +364,7 @@ export default function Home() {
 
         {/* Interactive Learning */}
         <div className={styles.categoryBlock}>
-          <div className={styles.categoryLabel}>Interactive Learning</div>
+          <div className={styles.categoryLabel}>Build Your Intuition</div>
           <div className={styles.agentsGridWide}>
             {learningAgents.map((a) => (
               <AgentCard key={a.name} agent={a} />
@@ -360,37 +381,35 @@ export default function Home() {
       <section className={styles.section} id="how">
         <div className={styles.sectionHeader}>
           <div className={styles.sectionEyebrow}>How It Works</div>
-          <div className={styles.sectionTitle}>Three steps. No setup.</div>
+          <div className={styles.sectionTitle}>Open it up and start reading.</div>
           <p className={styles.sectionDesc}>
-            There is nothing to build or configure. You enable an agent and it
-            starts working for you.
+            No setup, no configuration. Everything is already running.
           </p>
         </div>
 
         <div className={styles.howGrid}>
           <div className={styles.howCard}>
             <div className={styles.howNum}>01</div>
-            <div className={styles.howTitle}>Pick an agent</div>
+            <div className={styles.howTitle}>Pick what matters to you</div>
             <p className={styles.howDesc}>
-              Browse the catalog. Each agent covers a specific domain and
-              performs a clear, recurring job. Enable the ones that match your
-              needs.
+              Markets, cyber, energy, regulation, tech. Each area is
+              covered by a dedicated agent that runs every day.
             </p>
           </div>
           <div className={styles.howCard}>
             <div className={styles.howNum}>02</div>
-            <div className={styles.howTitle}>It runs on its own</div>
+            <div className={styles.howTitle}>Everything stays current</div>
             <p className={styles.howDesc}>
-              Agents process sources according to their cadence, whether daily,
-              weekly, or triggered by events. No manual input is required.
+              Agents process thousands of sources daily and surface only
+              what is material. Analysis is updated, not stale.
             </p>
           </div>
           <div className={styles.howCard}>
             <div className={styles.howNum}>03</div>
-            <div className={styles.howTitle}>You receive artifacts</div>
+            <div className={styles.howTitle}>Read, listen, explore</div>
             <p className={styles.howDesc}>
-              Briefings, scorecards, audio summaries, and dashboards are
-              delivered to your inbox, feed, or made available through the API.
+              Daily briefs when you need a quick view. Audio summaries for
+              your commute. Interactive tools when you want to go deeper.
             </p>
           </div>
         </div>
@@ -441,11 +460,11 @@ export default function Home() {
 
       {/* Footer */}
       <footer className={styles.footer}>
-        <div className={styles.footerCopy}>© 2026 InScien · Finance Lab Teknoloji A.Ş.</div>
+        <div className={styles.footerCopy}>© 2026 FinanceLab · Finance Lab Teknoloji A.Ş.</div>
         <div className={styles.footerLinks}>
           <a href="/terms">Terms</a>
           <a href="/privacy">Privacy</a>
-          <span>info@inscien.com</span>
+          <span>info@financelab.ai</span>
         </div>
       </footer>
     </>

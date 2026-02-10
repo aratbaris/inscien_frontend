@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Source_Serif_4, DM_Sans } from "next/font/google";
+import { Source_Serif_4, DM_Sans, Source_Code_Pro } from "next/font/google";
 import { AuthProvider } from "@/lib/auth";
 import "./globals.css";
 
@@ -15,10 +15,22 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
+const sourceCodePro = Source_Code_Pro({
+  subsets: ["latin"],
+  variable: "--font-logo",
+  weight: ["600"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "InScien — Always-on analysis agents",
+  title: "FinanceLab | Always-on analysis agents",
   description:
     "Continuous analysis agents across markets, research, and technology.",
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -27,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${sourceSerif.variable} ${dmSans.variable}`}>
+    <html lang="en" className={`${sourceSerif.variable} ${dmSans.variable} ${sourceCodePro.variable}`}>
       <body>
         <AuthProvider>{children}</AuthProvider>
       </body>

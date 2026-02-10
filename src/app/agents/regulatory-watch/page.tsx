@@ -21,7 +21,7 @@ function EmptyState() {
     <div className={styles.empty}>
       <p>No items for this date.</p>
       <p className={styles.emptyHint}>
-        This can happen on days with no material regulatory developments.
+        This can happen on days with no material financial regulatory developments.
       </p>
     </div>
   );
@@ -82,16 +82,17 @@ export default function RegulatoryWatchPage() {
       <header className={styles.header}>
         <div className={styles.headerTop}>
           <a href="/" className={styles.backLink}>
-            ← InScien
+            ← FinanceLab
           </a>
         </div>
         <div className={styles.headerMain}>
           <div>
             <div className={styles.agentDomain}>Regulation</div>
-            <h1 className={styles.agentTitle}>Regulatory Watch</h1>
+            <h1 className={styles.agentTitle}>Financial Regulation Monitor</h1>
             <p className={styles.agentDesc}>
-              Monitors regulatory changes, enforcement actions, and policy
-              developments across financial jurisdictions worldwide.
+              Tracks enforcement actions, rulemaking, and supervisory changes
+              from SEC, CFTC, FCA, ESMA, FDIC, OCC, and other financial
+              regulators that affect capital markets, banking, and payments.
             </p>
           </div>
           <div className={styles.agentMeta}>
@@ -100,7 +101,7 @@ export default function RegulatoryWatchPage() {
               <div className={styles.metaKey}>Cadence</div>
             </div>
             <div className={styles.metaItem}>
-              <div className={styles.metaVal}>3–10</div>
+              <div className={styles.metaVal}>3-10</div>
               <div className={styles.metaKey}>Items per day</div>
             </div>
             <div className={styles.metaItem}>

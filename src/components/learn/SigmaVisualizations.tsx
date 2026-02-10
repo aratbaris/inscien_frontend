@@ -430,8 +430,8 @@ export function SigmaComparisonVisualization({ width = 560, height = 280 }: Prop
     ctx.fillStyle = C.text; ctx.font = "13px system-ui"; ctx.textAlign = "center"
     ctx.fillText("Same σ, different distributions → different ranges", width / 2, 26)
 
-    drawChart(lcx, 0, "5% – 15%")
-    drawChart(rcx, 0.4, "2% – 12%")
+    drawChart(lcx, 0, "5% - 15%")
+    drawChart(rcx, 0.4, "2% - 12%")
   }, [width, height])
 
   return <canvas ref={canvasRef} style={{ borderRadius: 8, border: `1px solid ${C.border}` }} />

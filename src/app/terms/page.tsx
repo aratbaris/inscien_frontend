@@ -1,7 +1,7 @@
 import styles from "./page.module.css";
 
 export const metadata = {
-  title: "Terms of Use | InScien",
+  title: "Terms of Use | FinanceLab",
 };
 
 export default function TermsPage() {
@@ -9,7 +9,7 @@ export default function TermsPage() {
     <div className={styles.page}>
       <header className={styles.header}>
         <div className={styles.headerTop}>
-          <a href="/" className={styles.backLink}>← InScien</a>
+          <a href="/" className={styles.backLink}>← FinanceLab</a>
         </div>
         <div className={styles.headerMain}>
           <div className={styles.pageDomain}>Legal</div>
@@ -20,7 +20,7 @@ export default function TermsPage() {
 
       <main className={styles.content}>
         <p className={styles.intro}>
-          These Terms govern your access to and use of InScien products and services. By using InScien, you agree to these Terms.
+          These Terms govern your access to and use of FinanceLab products and services. By using FinanceLab, you agree to these Terms.
         </p>
 
         <section className={styles.section}>
@@ -30,7 +30,7 @@ export default function TermsPage() {
             <p>Address: Reşitpaşa Mah., Katar Cad., İTÜ ARI Teknokent 3 Binası No: 4, İç Kapı No: B204, Sarıyer / Istanbul, 34467</p>
             <p>Trade Registry Number: 1035621</p>
             <p>Tax Office: Sarıyer</p>
-            <p>Email: info@inscien.com</p>
+            <p>Email: info@financelab.ai</p>
           </div>
         </section>
 
@@ -51,12 +51,12 @@ export default function TermsPage() {
 
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Disclaimers</h2>
-          <p>InScien provides information tools, monitoring agents, and analysis capabilities for research and workflow support. InScien does not provide investment, financial, or legal advice. Analysis outputs and agent artifacts are for informational purposes only.</p>
+          <p>FinanceLab provides information tools, monitoring agents, and analysis capabilities for research and workflow support. FinanceLab does not provide investment, financial, or legal advice. Analysis outputs and agent artifacts are for informational purposes only.</p>
         </section>
 
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Limitation of Liability</h2>
-          <p>To the maximum extent permitted by law, InScien is not liable for indirect, incidental, special, consequential, or punitive damages arising from your use of the service.</p>
+          <p>To the maximum extent permitted by law, FinanceLab is not liable for indirect, incidental, special, consequential, or punitive damages arising from your use of the service.</p>
         </section>
 
         <section className={styles.section}>
@@ -66,7 +66,7 @@ export default function TermsPage() {
 
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Contact</h2>
-          <p>For questions about these Terms, contact us at <a href="mailto:info@inscien.com" className={styles.link}>info@inscien.com</a>.</p>
+          <p>For questions about these Terms, contact us at <a href="mailto:info@financelab.ai" className={styles.link}>info@financelab.ai</a>.</p>
         </section>
       </main>
     </div>

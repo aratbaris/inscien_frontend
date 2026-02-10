@@ -425,7 +425,7 @@ export default function VolatilityLabPage() {
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerTop}>
-          <a href="/" className={styles.backLink}>← InScien</a>
+          <a href="/" className={styles.backLink}>← FinanceLab</a>
         </div>
         <div className={styles.headerMain}>
           <div>
@@ -441,7 +441,7 @@ export default function VolatilityLabPage() {
             {report?.data_range && (
               <div className={styles.metaItem}>
                 <div className={styles.metaVal}>
-                  {report.data_range.start.substring(0, 4)}–{report.data_range.end.substring(0, 4)}
+                  {report.data_range.start.substring(0, 4)}-{report.data_range.end.substring(0, 4)}
                 </div>
                 <div className={styles.metaKey}>Data range</div>
               </div>

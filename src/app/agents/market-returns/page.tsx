@@ -577,7 +577,7 @@ export default function MarketReturnsPage() {
       <header className={styles.header}>
         <div className={styles.headerTop}>
           <a href="/" className={styles.backLink}>
-            ← InScien
+            ← FinanceLab
           </a>
         </div>
         <div className={styles.headerMain}>
@@ -595,7 +595,7 @@ export default function MarketReturnsPage() {
             {report?.data_range && (
               <div className={styles.metaItem}>
                 <div className={styles.metaVal}>
-                  {report.data_range.monthly_start.substring(0, 4)}–
+                  {report.data_range.monthly_start.substring(0, 4)}-
                   {report.data_range.monthly_end.substring(0, 4)}
                 </div>
                 <div className={styles.metaKey}>Data range</div>

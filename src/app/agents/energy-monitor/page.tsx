@@ -21,7 +21,7 @@ function EmptyState() {
     <div className={styles.empty}>
       <p>No items for this date.</p>
       <p className={styles.emptyHint}>
-        This can happen on days with no material incidents.
+        This can happen on days with no material supply disruptions or policy actions.
       </p>
     </div>
   );
@@ -47,7 +47,7 @@ function BriefItemCard({ item }: { item: BriefItem }) {
   );
 }
 
-export default function EnergyMonitorPage() {
+export default function OilSupplyMonitorPage() {
   const [data, setData] = useState<BriefResponse | null>(null);
   const [selectedDay, setSelectedDay] = useState("latest");
   const [loading, setLoading] = useState(true);
@@ -58,7 +58,7 @@ export default function EnergyMonitorPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetchAgentBrief("energy", day);
+      const res = await fetchAgentBrief("oil", day);
       setData(res);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to load brief");
@@ -82,16 +82,16 @@ export default function EnergyMonitorPage() {
       <header className={styles.header}>
         <div className={styles.headerTop}>
           <a href="/" className={styles.backLink}>
-            ← InScien
+            ← FinanceLab
           </a>
         </div>
         <div className={styles.headerMain}>
           <div>
             <div className={styles.agentDomain}>Energy</div>
-            <h1 className={styles.agentTitle}>Energy Monitor</h1>
+            <h1 className={styles.agentTitle}>Oil Supply Monitor</h1>
             <p className={styles.agentDesc}>
-              Tracks policy shifts, infrastructure events, and commodity signals
-              across global energy markets.
+              Tracks crude supply disruptions, OPEC actions, sanctions enforcement,
+              and chokepoint incidents that can materially affect oil flows.
             </p>
           </div>
           <div className={styles.agentMeta}>
@@ -100,7 +100,7 @@ export default function EnergyMonitorPage() {
               <div className={styles.metaKey}>Cadence</div>
             </div>
             <div className={styles.metaItem}>
-              <div className={styles.metaVal}>3–10</div>
+              <div className={styles.metaVal}>3-10</div>
               <div className={styles.metaKey}>Items per day</div>
             </div>
             <div className={styles.metaItem}>

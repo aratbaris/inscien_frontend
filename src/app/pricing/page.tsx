@@ -77,7 +77,7 @@ export default function PricingPage() {
     <div className={styles.page}>
       <header className={styles.header}>
         <div className={styles.headerTop}>
-          <a href="/" className={styles.backLink}>← InScien</a>
+          <a href="/" className={styles.backLink}>← FinanceLab</a>
         </div>
         <div className={styles.headerMain}>
           <div className={styles.headerCenter}>

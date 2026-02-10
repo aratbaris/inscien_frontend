@@ -138,7 +138,7 @@ export default function StatFoundationsPage() {
       {/* Header — matches other agent pages */}
       <header className={styles.header}>
         <div className={styles.headerTop}>
-          <a href="/" className={styles.backLink}>← InScien</a>
+          <a href="/" className={styles.backLink}>← FinanceLab</a>
         </div>
         <div className={styles.headerMain}>
           <div>
@@ -230,7 +230,7 @@ export default function StatFoundationsPage() {
             if (idx >= FREE_STEPS && !canAccess("auth")) {
               return (
                 <div key={idx} ref={(el) => { stepRefs.current[idx] = el }}>
-                  <AccessGate requires="auth" featureLabel={`steps ${FREE_STEPS + 1}–${totalSteps}`}>
+                  <AccessGate requires="auth" featureLabel={`steps ${FREE_STEPS + 1}-${totalSteps}`}>
                     <div />
                   </AccessGate>
                 </div>

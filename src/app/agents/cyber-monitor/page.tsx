@@ -13,8 +13,7 @@ function formatSource(source: string): string {
 
 function formatTimestamp(ts: string): string {
   if (!ts) return "";
-  const clean = ts.replace("T", " ").replace("Z", "").substring(0, 16);
-  return clean;
+  return ts.replace("T", " ").replace("Z", "").substring(0, 16);
 }
 
 function EmptyState() {
@@ -22,7 +21,7 @@ function EmptyState() {
     <div className={styles.empty}>
       <p>No items for this date.</p>
       <p className={styles.emptyHint}>
-        This can happen on days with no material incidents.
+        This can happen on days with no confirmed incidents or critical advisories.
       </p>
     </div>
   );
@@ -48,7 +47,7 @@ function BriefItemCard({ item }: { item: BriefItem }) {
   );
 }
 
-export default function CyberMonitorPage() {
+export default function CyberRiskMonitorPage() {
   const [data, setData] = useState<BriefResponse | null>(null);
   const [selectedDay, setSelectedDay] = useState("latest");
   const [loading, setLoading] = useState(true);
@@ -80,20 +79,20 @@ export default function CyberMonitorPage() {
 
   return (
     <div className={styles.page}>
-      {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerTop}>
           <a href="/" className={styles.backLink}>
-            ← InScien
+            ← FinanceLab
           </a>
         </div>
         <div className={styles.headerMain}>
           <div>
             <div className={styles.agentDomain}>Security</div>
-            <h1 className={styles.agentTitle}>Cyber Monitor</h1>
+            <h1 className={styles.agentTitle}>Cyber Risk Monitor</h1>
             <p className={styles.agentDesc}>
-              Daily brief of confirmed breaches, ransomware incidents, outages,
-              and exploited vulnerabilities. Material events only.
+              Confirmed breaches, ransomware attacks, actively exploited
+              vulnerabilities, critical advisories, and major infrastructure
+              outages that require operational attention.
             </p>
           </div>
           <div className={styles.agentMeta}>
@@ -102,7 +101,7 @@ export default function CyberMonitorPage() {
               <div className={styles.metaKey}>Cadence</div>
             </div>
             <div className={styles.metaItem}>
-              <div className={styles.metaVal}>3–10</div>
+              <div className={styles.metaVal}>3-8</div>
               <div className={styles.metaKey}>Items per day</div>
             </div>
             <div className={styles.metaItem}>
@@ -113,7 +112,6 @@ export default function CyberMonitorPage() {
         </div>
       </header>
 
-      {/* Controls */}
       <div className={styles.controls}>
         <div className={styles.controlsLeft}>
           {data && (
@@ -153,7 +151,6 @@ export default function CyberMonitorPage() {
         </div>
       </div>
 
-      {/* Content */}
       <main className={styles.content}>
         {loading && (
           <div className={styles.loading}>Loading brief...</div>
@@ -162,7 +159,10 @@ export default function CyberMonitorPage() {
         {error && (
           <div className={styles.error}>
             <p>{error}</p>
-            <button onClick={() => loadBrief(selectedDay)} className={styles.retry}>
+            <button
+              onClick={() => loadBrief(selectedDay)}
+              className={styles.retry}
+            >
               Retry
             </button>
           </div>

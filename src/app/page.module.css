@@ -14,8 +14,6 @@
   --green-soft: rgba(15, 123, 63, 0.07);
   --amber: #9a6b00;
   --amber-soft: rgba(154, 107, 0, 0.07);
-  --serif: var(--font-serif), Georgia, serif;
-  --sans: var(--font-sans), -apple-system, sans-serif;
   --radius: 8px;
 }
 
@@ -43,11 +41,27 @@
 }
 
 .navLogo {
-  font-family: var(--serif);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.navLogoIcon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.navLogoText {
+  font-family: var(--logo);
   font-weight: 600;
-  font-size: 18px;
-  letter-spacing: -0.03em;
+  font-size: 15px;
+  letter-spacing: -0.01em;
   color: var(--text);
+  position: relative;
+  top: 1px;
 }
 
 .navLinks {
@@ -180,13 +194,13 @@
   overflow: hidden;
   vertical-align: bottom;
   height: 1.2em;
-  min-width: 300px;
+  min-width: 420px;
 }
 
 .rotatingWords {
   display: flex;
   flex-direction: column;
-  animation: rotateWords 6s ease-in-out infinite;
+  animation: rotateWords 10s ease-in-out infinite;
 }
 
 .rotatingWords span {
@@ -198,20 +212,24 @@
 
 @keyframes rotateWords {
   0%,
-  22% {
+  18% {
     transform: translateY(0);
   }
-  28%,
-  50% {
+  22%,
+  40% {
     transform: translateY(-1.2em);
   }
-  56%,
-  78% {
+  44%,
+  62% {
     transform: translateY(-2.4em);
   }
-  84%,
-  100% {
+  66%,
+  84% {
     transform: translateY(-3.6em);
+  }
+  88%,
+  100% {
+    transform: translateY(-4.8em);
   }
 }
 

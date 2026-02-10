@@ -6,6 +6,15 @@
   box-sizing: border-box;
 }
 
+:root {
+  --serif: var(--font-serif), Georgia, serif;
+  --sans: var(--font-sans), -apple-system, sans-serif;
+  --logo: var(--font-logo), "Source Code Pro", monospace;
+}
+
 body {
+  font-family: var(--sans);
   -webkit-font-smoothing: antialiased;
+  background: #f7f7f9;
+  color: #1a1a1f;
 }
