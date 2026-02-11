@@ -123,14 +123,71 @@ function groupByCategory(list: AgentDef[]): Map<string, AgentDef[]> {
   return map;
 }
 
-const cadenceBadge: Record<string, string> = {
-  Daily: styles.cadenceDaily ?? "",
-  Weekly: styles.cadenceWeekly ?? "",
-  Monthly: styles.cadenceMonthly ?? "",
-  "Self-paced": styles.cadenceSelf ?? "",
-};
-
 /* ─── Components ─── */
+
+/* ─── Cadence Icons (Set 01 · Calendar/Clock) ─── */
+
+function CadenceIcon({ cadence }: { cadence: AgentDef["cadence"] }) {
+  const cls =
+    cadence === "Daily"
+      ? styles.cadenceIconDaily
+      : cadence === "Weekly"
+        ? styles.cadenceIconWeekly
+        : cadence === "Monthly"
+          ? styles.cadenceIconMonthly
+          : styles.cadenceIconSelf;
+
+  switch (cadence) {
+    case "Daily":
+      return (
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className={cls}>
+          <circle cx="8" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.4" />
+          <path
+            d="M8 1.5V3M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"
+            stroke="currentColor"
+            strokeWidth="1.3"
+            strokeLinecap="round"
+          />
+        </svg>
+      );
+    case "Weekly":
+      return (
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className={cls}>
+          <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
+          <path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+        </svg>
+      );
+    case "Monthly":
+      return (
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className={cls}>
+          <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
+          <path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+          <text x="8" y="12" textAnchor="middle" fill="currentColor" fontSize="6" fontWeight="700">
+            31
+          </text>
+        </svg>
+      );
+    case "Self-paced":
+      return (
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className={cls}>
+          <path
+            d="M1.5 6.5L8 3l6.5 3.5L8 10 1.5 6.5z"
+            stroke="currentColor"
+            strokeWidth="1.3"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M4 8v3.5c0 0 1.5 1.5 4 1.5s4-1.5 4-1.5V8"
+            stroke="currentColor"
+            strokeWidth="1.3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path d="M14.5 6.5V11" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+        </svg>
+      );
+  }
+}
 
 function AgentRow({ agent }: { agent: AgentDef }) {
   return (
@@ -140,7 +197,8 @@ function AgentRow({ agent }: { agent: AgentDef }) {
         <div className={styles.agentRowDesc}>{agent.desc}</div>
       </div>
       <div className={styles.agentRowMeta}>
-        <span className={`${styles.cadenceBadge} ${cadenceBadge[agent.cadence] || ""}`}>
+        <span className={styles.cadenceBadge}>
+          <CadenceIcon cadence={agent.cadence} />
           {agent.cadence}
         </span>
         <span className={styles.artifactLabel}>{agent.artifact}</span>

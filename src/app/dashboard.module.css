@@ -41,7 +41,7 @@
   font-weight: 600;
   font-size: 14px;
   letter-spacing: -0.01em;
-  color: var(--text, #1a1a1f);
+  color: #43464b;
 }
 
 .topBarRight {
@@ -51,14 +51,10 @@
 }
 
 .proBadge {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--text-3, #8a8a98);
-  background: var(--bg-tag, #ebebf0);
-  padding: 2px 7px;
-  border-radius: 3px;
+  letter-spacing: -0.01em;
+  color: #0a2342;
   line-height: 1;
 }
 
@@ -286,34 +282,39 @@
   flex-shrink: 0;
 }
 
+/* ─── Cadence Badge (Icon + Label · Treatment B) ─── */
+
 .cadenceBadge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 4px;
-  line-height: 1.4;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2, #4a4a56);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
-.cadenceDaily {
-  color: #0f7b3f;
-  background: rgba(15, 123, 63, 0.07);
+/* Colored icons only — text stays neutral */
+
+.cadenceIconDaily {
+  color: #16a34a;
+  flex-shrink: 0;
 }
 
-.cadenceWeekly {
-  color: #1e4fd8;
-  background: rgba(30, 79, 216, 0.06);
+.cadenceIconWeekly {
+  color: #2563eb;
+  flex-shrink: 0;
 }
 
-.cadenceMonthly {
-  color: #9a6b00;
-  background: rgba(154, 107, 0, 0.07);
+.cadenceIconMonthly {
+  color: #ca8a04;
+  flex-shrink: 0;
 }
 
-.cadenceSelf {
-  color: var(--text-3, #8a8a98);
-  background: var(--bg-tag, #ebebf0);
+.cadenceIconSelf {
+  color: #9ca3af;
+  flex-shrink: 0;
 }
 
 .artifactLabel {
