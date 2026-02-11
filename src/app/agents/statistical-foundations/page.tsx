@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect, ReactNode } from "react"
 import styles from "./page.module.css"
+import { AgentHeader, StatusBadge } from "@/components/agent"
 import { topics } from "@/components/learn/topicData"
 import { AccessGate } from "@/components/AccessGate"
 import { useAuth } from "@/lib/auth"
@@ -77,7 +78,7 @@ function resolveViz(key: string, active: boolean, props: Record<string, unknown>
 
 /* ─── Constants ─── */
 
-const FREE_STEPS = 4 // Steps 1-4 are free, 5+ require auth
+const FREE_STEPS = 4
 
 /* ─── Page ─── */
 
@@ -93,7 +94,6 @@ export default function StatFoundationsPage() {
   const totalSteps = topic?.steps.length || 0
   const totalFlowSteps = topics.reduce((s, t) => s + t.steps.length, 0)
 
-  /* ─── Preload click sound ─── */
   useEffect(() => {
     clickSound.current = new Audio("/sounds/next-button.mp3")
     clickSound.current.volume = 0.5
@@ -151,41 +151,17 @@ export default function StatFoundationsPage() {
 
   return (
     <div className={styles.page}>
-      {/* Header — matches other agent pages */}
-      <header className={styles.header}>
-        <div className={styles.headerTop}>
-          <a href="/" className={styles.backLink}>← FinanceLab</a>
-        </div>
-        <div className={styles.headerMain}>
-          <div>
-            <div className={styles.agentDomain}>Education</div>
-            <h1 className={styles.agentTitle}>Statistical Foundations</h1>
-            <p className={styles.agentDesc}>
-              Interactive walk-throughs for variance, standard deviation, and
-              bootstrap resampling. Each topic is a guided sequence with live
-              visualizations you step through at your own pace.
-            </p>
-          </div>
-          <div className={styles.agentMeta}>
-            <div className={styles.metaItem}>
-              <div className={styles.metaVal}>Self-paced</div>
-              <div className={styles.metaKey}>Cadence</div>
-            </div>
-            <div className={styles.metaItem}>
-              <div className={styles.metaVal}>{topics.length}</div>
-              <div className={styles.metaKey}>Topics</div>
-            </div>
-            <div className={styles.metaItem}>
-              <div className={styles.metaVal}>{totalFlowSteps}</div>
-              <div className={styles.metaKey}>Total steps</div>
-            </div>
-            <div className={styles.metaItem}>
-              <div className={styles.statusLive}>Live</div>
-              <div className={styles.metaKey}>Status</div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AgentHeader
+        domain="Education"
+        title="Statistical Foundations"
+        description="Interactive walk-throughs for variance, standard deviation, and bootstrap resampling. Each topic is a guided sequence with live visualizations you step through at your own pace."
+        meta={[
+          { label: "Cadence", value: "Self-paced" },
+          { label: "Topics", value: String(topics.length) },
+          { label: "Total steps", value: String(totalFlowSteps) },
+          { label: "Status", value: <StatusBadge status="live" /> },
+        ]}
+      />
 
       {/* Topic selector */}
       <div className={styles.topicSection}>
@@ -200,7 +176,6 @@ export default function StatFoundationsPage() {
                 onClick={() => isActive ? exitFlow() : startTopic(t.id)}
               >
                 <div className={styles.topicTop}>
-                  <span className={styles.topicTag}>{t.tag}</span>
                   <span className={styles.topicSteps}>
                     {canAccess("auth")
                       ? `${t.steps.length} steps`
@@ -210,7 +185,14 @@ export default function StatFoundationsPage() {
                 <div className={styles.topicTitle}>{t.title}</div>
                 <p className={styles.topicDesc}>{t.desc}</p>
                 <div className={styles.topicAction}>
-                  {isActive ? "Close ×" : "Start →"}
+                  {isActive ? (
+                    "Close ×"
+                  ) : (
+                    <>
+                      Start
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                    </>
+                  )}
                 </div>
               </button>
             )
@@ -242,7 +224,6 @@ export default function StatFoundationsPage() {
             if (idx > currentStep) return null
             const isCurrent = idx === currentStep
 
-            // If this step is gated and user has no access, show AccessGate
             if (idx >= FREE_STEPS && !canAccess("auth")) {
               return (
                 <div key={idx} ref={(el) => { stepRefs.current[idx] = el }}>

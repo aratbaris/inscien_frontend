@@ -1,107 +1,8 @@
 .page {
   min-height: 100vh;
   background: #f7f7f9;
-  font-family: var(--font-sans), "DM Sans", -apple-system, sans-serif;
+  font-family: var(--sans);
   color: #1a1a1f;
-}
-
-/* HEADER */
-.header {
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 100px 40px 0;
-}
-
-.headerTop {
-  margin-bottom: 32px;
-}
-
-.backLink {
-  font-size: 13px;
-  color: #8a8a98;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.15s;
-}
-
-.backLink:hover {
-  color: #1a1a1f;
-}
-
-.headerMain {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 40px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid #dddde3;
-}
-
-.agentDomain {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #8a8a98;
-  margin-bottom: 8px;
-}
-
-.agentTitle {
-  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
-  font-size: 30px;
-  font-weight: 500;
-  letter-spacing: -0.025em;
-  margin-bottom: 10px;
-  color: #1a1a1f;
-}
-
-.agentDesc {
-  font-size: 15px;
-  color: #4a4a56;
-  line-height: 1.6;
-  max-width: 560px;
-}
-
-.agentMeta {
-  display: flex;
-  gap: 28px;
-  flex-shrink: 0;
-  padding-top: 4px;
-}
-
-.metaItem {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.metaVal {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1a1a1f;
-}
-
-.metaKey {
-  font-size: 11px;
-  color: #8a8a98;
-  font-weight: 500;
-}
-
-.statusLive {
-  font-size: 14px;
-  font-weight: 600;
-  color: #0f7b3f;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.statusLive::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #0f7b3f;
 }
 
 /* TICKER BAR */
@@ -127,6 +28,10 @@
   flex-wrap: wrap;
 }
 
+.tickerChipWrap {
+  position: relative;
+}
+
 .tickerChip {
   padding: 5px 12px;
   border-radius: 20px;
@@ -149,6 +54,47 @@
   background: #1e4fd8;
   border-color: #1e4fd8;
   color: #ffffff;
+}
+
+.tickerChipLocked {
+  color: #c5c5ce;
+  border-color: #ebebf0;
+}
+
+.tickerChipLocked:hover {
+  color: #8a8a98;
+  border-color: #dddde3;
+}
+
+.tickerChipTooltip {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 500;
+  color: #ffffff;
+  background: #1a1a1f;
+  padding: 4px 10px;
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.tickerChipTooltip::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-bottom-color: #1a1a1f;
+}
+
+.tickerChipWrap:hover .tickerChipTooltip {
+  display: block;
 }
 
 .tickerInputGroup {
@@ -190,6 +136,30 @@
 
 .tickerGo:hover {
   opacity: 0.8;
+}
+
+.tickerProHint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.tickerProLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #1e4fd8;
+  background: rgba(30, 79, 216, 0.08);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.tickerProText {
+  font-size: 12.5px;
+  color: #8a8a98;
+  font-weight: 500;
 }
 
 /* SECTION NAV */
@@ -256,7 +226,7 @@
 }
 
 .sectionTitle {
-  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
+  font-family: var(--serif);
   font-size: 24px;
   font-weight: 500;
   letter-spacing: -0.02em;
@@ -294,7 +264,7 @@
 }
 
 .cardValue {
-  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
+  font-family: var(--serif);
   font-size: 22px;
   font-weight: 500;
   color: #1a1a1f;
@@ -358,7 +328,7 @@
 }
 
 .chartTitle {
-  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
+  font-family: var(--serif);
   font-size: 16px;
   font-weight: 500;
   color: #1a1a1f;
@@ -377,54 +347,8 @@
   margin-top: 16px;
 }
 
-/* STATES */
-.loading {
-  text-align: center;
-  padding: 100px 0;
-  font-size: 14px;
-  color: #8a8a98;
-}
-
-.error {
-  text-align: center;
-  padding: 100px 0;
-  font-size: 14px;
-  color: #b91c1c;
-}
-
-.retry {
-  margin-top: 12px;
-  padding: 8px 16px;
-  background: #1a1a1f;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 13px;
-  font-family: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.retry:hover {
-  opacity: 0.8;
-}
-
 /* RESPONSIVE */
 @media (max-width: 900px) {
-  .header {
-    padding: 80px 24px 0;
-  }
-
-  .headerMain {
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  .agentMeta {
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-
   .tickerBarInner {
     padding: 0 24px;
     flex-direction: column;
@@ -443,124 +367,4 @@
   .cardGrid {
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   }
-}
-
-
-/* ─── VOLATILITY LAB — Add to volatility-lab/page.module.css ─── */
-
-.tickerChipWrap {
-  position: relative;
-}
-
-.tickerChipLocked {
-  color: #c5c5ce;
-  border-color: #ebebf0;
-}
-
-.tickerChipLocked:hover {
-  color: #8a8a98;
-  border-color: #dddde3;
-}
-
-.tickerChipTooltip {
-  display: none;
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  font-size: 11px;
-  font-weight: 500;
-  color: #ffffff;
-  background: #1a1a1f;
-  padding: 4px 10px;
-  border-radius: 5px;
-  pointer-events: none;
-  z-index: 100;
-}
-
-.tickerChipTooltip::before {
-  content: "";
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 4px solid transparent;
-  border-bottom-color: #1a1a1f;
-}
-
-.tickerChipWrap:hover .tickerChipTooltip {
-  display: block;
-}
-
-.tickerProHint {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 4px;
-}
-
-.tickerProLabel {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #1e4fd8;
-  background: rgba(30, 79, 216, 0.08);
-  padding: 3px 8px;
-  border-radius: 4px;
-}
-
-.tickerProText {
-  font-size: 12.5px;
-  color: #8a8a98;
-  font-weight: 500;
-}
-
-
-/* ─── BIG TECH EVOLUTION — Add to big-tech-evolution/page.module.css ─── */
-
-.companyChipWrap {
-  position: relative;
-}
-
-.companyChipLocked {
-  color: #c5c5ce;
-  border-color: #ebebf0;
-}
-
-.companyChipLocked:hover {
-  color: #8a8a98;
-  border-color: #dddde3;
-}
-
-.companyChipTooltip {
-  display: none;
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  font-size: 11px;
-  font-weight: 500;
-  color: #ffffff;
-  background: #1a1a1f;
-  padding: 4px 10px;
-  border-radius: 5px;
-  pointer-events: none;
-  z-index: 100;
-}
-
-.companyChipTooltip::before {
-  content: "";
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 4px solid transparent;
-  border-bottom-color: #1a1a1f;
-}
-
-.companyChipWrap:hover .companyChipTooltip {
-  display: block;
 }

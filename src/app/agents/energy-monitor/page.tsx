@@ -3,9 +3,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { fetchAgentBrief } from "@/lib/api";
 import type { BriefResponse, BriefItem, AvailableDate } from "@/lib/types";
-import { AccessGate } from "@/components/AccessGate";
+import { AgentHeader, StatusBadge, LoadingState, ErrorState, EmptyState } from "@/components/agent";
 import { useAuth } from "@/lib/auth";
-import styles from "./page.module.css";
+import styles from "@/components/agent/daily-brief.module.css";
 
 function formatSource(source: string): string {
   return source.toUpperCase().replace(/^WWW\./, "");
@@ -14,17 +14,6 @@ function formatSource(source: string): string {
 function formatTimestamp(ts: string): string {
   if (!ts) return "";
   return ts.replace("T", " ").replace("Z", "").substring(0, 16);
-}
-
-function EmptyState() {
-  return (
-    <div className={styles.empty}>
-      <p>No items for this date.</p>
-      <p className={styles.emptyHint}>
-        This can happen on days with no material supply disruptions or policy actions.
-      </p>
-    </div>
-  );
 }
 
 function BriefItemCard({ item }: { item: BriefItem }) {
@@ -79,37 +68,16 @@ export default function OilSupplyMonitorPage() {
 
   return (
     <div className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.headerTop}>
-          <a href="/" className={styles.backLink}>
-            ← FinanceLab
-          </a>
-        </div>
-        <div className={styles.headerMain}>
-          <div>
-            <div className={styles.agentDomain}>Energy</div>
-            <h1 className={styles.agentTitle}>Oil Supply Monitor</h1>
-            <p className={styles.agentDesc}>
-              Tracks crude supply disruptions, OPEC actions, sanctions enforcement,
-              and chokepoint incidents that can materially affect oil flows.
-            </p>
-          </div>
-          <div className={styles.agentMeta}>
-            <div className={styles.metaItem}>
-              <div className={styles.metaVal}>Daily</div>
-              <div className={styles.metaKey}>Cadence</div>
-            </div>
-            <div className={styles.metaItem}>
-              <div className={styles.metaVal}>3-10</div>
-              <div className={styles.metaKey}>Items per day</div>
-            </div>
-            <div className={styles.metaItem}>
-              <div className={styles.statusLive}>Live</div>
-              <div className={styles.metaKey}>Status</div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AgentHeader
+        domain="Energy"
+        title="Oil Supply Monitor"
+        description="Tracks crude supply disruptions, OPEC actions, sanctions enforcement, and chokepoint incidents that can materially affect oil flows."
+        meta={[
+          { label: "Cadence", value: "Daily" },
+          { label: "Items per day", value: "3-10" },
+          { label: "Status", value: <StatusBadge status="live" /> },
+        ]}
+      />
 
       <div className={styles.controls}>
         <div className={styles.controlsLeft}>
@@ -151,24 +119,14 @@ export default function OilSupplyMonitorPage() {
       </div>
 
       <main className={styles.content}>
-        {loading && (
-          <div className={styles.loading}>Loading brief...</div>
-        )}
-
-        {error && (
-          <div className={styles.error}>
-            <p>{error}</p>
-            <button
-              onClick={() => loadBrief(selectedDay)}
-              className={styles.retry}
-            >
-              Retry
-            </button>
-          </div>
-        )}
+        {loading && <LoadingState message="Loading brief…" />}
+        {error && <ErrorState message={error} onRetry={() => loadBrief(selectedDay)} />}
 
         {!loading && !error && data && data.items.length === 0 && (
-          <EmptyState />
+          <EmptyState
+            message="No items for this date."
+            hint="This can happen on days with no material supply disruptions or policy actions."
+          />
         )}
 
         {!loading && !error && data && data.items.length > 0 && (

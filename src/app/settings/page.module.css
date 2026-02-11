@@ -1,7 +1,6 @@
 .page {
   min-height: 100vh;
   background: #f7f7f9;
-  font-family: var(--font-sans), "DM Sans", -apple-system, sans-serif;
   color: #1a1a1f;
   padding-bottom: 80px;
 }
@@ -13,51 +12,6 @@
   min-height: 100vh;
   font-size: 14px;
   color: #8a8a98;
-}
-
-/* HEADER */
-.header {
-  max-width: 880px;
-  margin: 0 auto;
-  padding: 100px 40px 0;
-}
-
-.headerTop {
-  margin-bottom: 32px;
-}
-
-.backLink {
-  font-size: 13px;
-  color: #8a8a98;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.15s;
-}
-
-.backLink:hover {
-  color: #1a1a1f;
-}
-
-.headerMain {
-  padding-bottom: 24px;
-  border-bottom: 1px solid #dddde3;
-}
-
-.pageDomain {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #8a8a98;
-  margin-bottom: 8px;
-}
-
-.pageTitle {
-  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
-  font-size: 30px;
-  font-weight: 500;
-  letter-spacing: -0.025em;
-  color: #1a1a1f;
 }
 
 /* CONTENT */
@@ -72,7 +26,7 @@
 }
 
 .sectionTitle {
-  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
+  font-family: var(--serif);
   font-size: 18px;
   font-weight: 500;
   letter-spacing: -0.015em;
@@ -85,7 +39,7 @@
   background: #ffffff;
   border: 1px solid #dddde3;
   border-radius: 8px;
-  padding: 28px 28px;
+  padding: 28px;
 }
 
 .avatarRow {
@@ -212,7 +166,7 @@
   border: 1px solid #dddde3;
   border-radius: 6px;
   font-size: 13px;
-  font-family: var(--font-sans), "DM Sans", -apple-system, sans-serif;
+  font-family: inherit;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
@@ -235,7 +189,7 @@
   border: none;
   border-radius: 6px;
   font-size: 13px;
-  font-family: var(--font-sans), "DM Sans", -apple-system, sans-serif;
+  font-family: inherit;
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.15s;
@@ -255,7 +209,7 @@
   background: #ffffff;
   border: 1px solid #dddde3;
   border-radius: 8px;
-  padding: 28px 28px;
+  padding: 28px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -276,7 +230,7 @@
   border: 1px solid #dddde3;
   border-radius: 6px;
   font-size: 13px;
-  font-family: var(--font-sans), "DM Sans", -apple-system, sans-serif;
+  font-family: inherit;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
@@ -291,12 +245,13 @@
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
-  .header {
-    padding: 80px 24px 0;
-  }
-
   .content {
     padding: 0 24px;
+  }
+
+  .subscriptionCard {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .sessionCard {

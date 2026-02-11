@@ -1,107 +1,8 @@
 .page {
   min-height: 100vh;
   background: #f7f7f9;
-  font-family: var(--font-sans), "DM Sans", -apple-system, sans-serif;
+  font-family: var(--sans);
   color: #1a1a1f;
-}
-
-/* ─── HEADER (matches other agent pages) ─── */
-.header {
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 100px 40px 0;
-}
-
-.headerTop {
-  margin-bottom: 32px;
-}
-
-.backLink {
-  font-size: 13px;
-  color: #8a8a98;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.15s;
-}
-
-.backLink:hover {
-  color: #1a1a1f;
-}
-
-.headerMain {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 40px;
-  padding-bottom: 32px;
-  border-bottom: 1px solid #dddde3;
-}
-
-.agentDomain {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #8a8a98;
-  margin-bottom: 8px;
-}
-
-.agentTitle {
-  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
-  font-size: 32px;
-  font-weight: 500;
-  letter-spacing: -0.025em;
-  margin-bottom: 10px;
-  color: #1a1a1f;
-}
-
-.agentDesc {
-  font-size: 15px;
-  color: #4a4a56;
-  line-height: 1.6;
-  max-width: 520px;
-}
-
-.agentMeta {
-  display: flex;
-  gap: 28px;
-  flex-shrink: 0;
-  padding-top: 4px;
-}
-
-.metaItem {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.metaVal {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1a1a1f;
-}
-
-.metaKey {
-  font-size: 11px;
-  color: #8a8a98;
-  font-weight: 500;
-}
-
-.statusLive {
-  font-size: 14px;
-  font-weight: 600;
-  color: #0f7b3f;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.statusLive::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #0f7b3f;
 }
 
 /* ─── TOPIC SELECTOR ─── */
@@ -155,17 +56,6 @@
   margin-bottom: 12px;
 }
 
-.topicTag {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #8a8a98;
-  background: #ebebf0;
-  padding: 2px 7px;
-  border-radius: 3px;
-}
-
 .topicSteps {
   font-size: 11px;
   color: #8a8a98;
@@ -173,7 +63,7 @@
 }
 
 .topicTitle {
-  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
+  font-family: var(--serif);
   font-size: 16px;
   font-weight: 500;
   letter-spacing: -0.01em;
@@ -193,6 +83,17 @@
   font-size: 12px;
   font-weight: 600;
   color: #1e4fd8;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.topicAction svg {
+  transition: transform 0.15s ease;
+}
+
+.topicCard:hover .topicAction svg {
+  transform: translateX(2px);
 }
 
 /* ─── FLOW CONTENT ─── */
@@ -293,7 +194,7 @@
 }
 
 .stepTitle {
-  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
+  font-family: var(--serif);
   font-size: 20px;
   font-weight: 500;
   letter-spacing: -0.02em;
@@ -397,17 +298,6 @@
 
 /* ─── RESPONSIVE ─── */
 @media (max-width: 900px) {
-  .header {
-    padding: 80px 24px 0;
-  }
-  .headerMain {
-    flex-direction: column;
-    gap: 24px;
-  }
-  .agentMeta {
-    gap: 20px;
-    flex-wrap: wrap;
-  }
   .topicSection {
     padding: 24px;
   }

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useAuth } from "@/lib/auth";
+import { AgentHeader } from "@/components/agent";
 import styles from "./page.module.css";
 
 export default function SettingsPage() {
@@ -34,19 +35,12 @@ export default function SettingsPage() {
 
   return (
     <div className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.headerTop}>
-          <a href="/" className={styles.backLink}>
-            ← FinanceLab
-          </a>
-        </div>
-        <div className={styles.headerMain}>
-          <div>
-            <div className={styles.pageDomain}>Account</div>
-            <h1 className={styles.pageTitle}>Settings</h1>
-          </div>
-        </div>
-      </header>
+      <AgentHeader
+        domain="Account"
+        title="Settings"
+        description=""
+        meta={[]}
+      />
 
       <main className={styles.content}>
         <section className={styles.section}>
@@ -128,7 +122,7 @@ export default function SettingsPage() {
           <h2 className={styles.sectionTitle}>Session</h2>
           <div className={styles.sessionCard}>
             <p className={styles.sessionDesc}>
-              Sign out of your InScien account on this device.
+              Sign out of your FinanceLab account on this device.
             </p>
             <button className={styles.signOutBtn} onClick={handleSignOut}>
               Sign out

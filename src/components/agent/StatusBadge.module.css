@@ -1,0 +1,33 @@
+.live {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f7b3f;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.live::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0f7b3f;
+}
+
+.soon {
+  font-size: 14px;
+  font-weight: 600;
+  color: #9a6b00;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.soon::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #9a6b00;
+}

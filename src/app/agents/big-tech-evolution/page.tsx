@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import styles from "./page.module.css";
+import styles from "@/components/agent/topic-map.module.css";
+import { AgentHeader, StatusBadge, LoadingState, ErrorState, EmptyState } from "@/components/agent";
 import { AccessGate } from "@/components/AccessGate";
 import { useAuth } from "@/lib/auth";
 
@@ -100,7 +101,7 @@ function formatEvidenceDate(ts: string): string {
   return `${months[m]} ${parseInt(parts[2], 10)}`;
 }
 
-// ─── Components ───
+// ─── Components (page-specific) ───
 
 function EvidenceCard({ item }: { item: EvidenceItem }) {
   return (
@@ -176,10 +177,7 @@ function CompanySelector({
             <button
               className={`${styles.companyChip} ${activeId === c.id ? styles.companyChipActive : ""} ${locked ? styles.companyChipLocked : ""}`}
               onClick={() => {
-                if (locked) {
-                  onLocked();
-                  return;
-                }
+                if (locked) { onLocked(); return; }
                 onChange(c.id);
               }}
               disabled={loading}
@@ -193,8 +191,6 @@ function CompanySelector({
     </div>
   );
 }
-
-// ─── Current Week View ───
 
 function WeekView({ data }: { data: WeeklyBrief }) {
   return (
@@ -213,13 +209,11 @@ function WeekView({ data }: { data: WeeklyBrief }) {
         ))}
       </div>
       {data.clusters.length === 0 && (
-        <div className={styles.emptyState}>No clusters for this week.</div>
+        <EmptyState message="No clusters for this week." />
       )}
     </div>
   );
 }
-
-// ─── Timeline View ───
 
 function TimelineView({ data }: { data: TimelineResponse }) {
   const [expandedWeek, setExpandedWeek] = useState<string | null>(
@@ -278,7 +272,7 @@ function TimelineView({ data }: { data: TimelineResponse }) {
         );
       })}
       {data.weeks.length === 0 && (
-        <div className={styles.emptyState}>No timeline data available.</div>
+        <EmptyState message="No timeline data available." />
       )}
     </div>
   );
@@ -337,39 +331,17 @@ export default function BigTechEvolutionPage() {
 
   return (
     <div className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.headerTop}>
-          <a href="/" className={styles.backLink}>← FinanceLab</a>
-        </div>
-        <div className={styles.headerMain}>
-          <div>
-            <div className={styles.agentDomain}>Technology</div>
-            <h1 className={styles.agentTitle}>Big Tech Evolution</h1>
-            <p className={styles.agentDesc}>
-              Weekly analysis of product launches, strategy shifts, and ecosystem
-              developments across major technology companies.
-            </p>
-          </div>
-          <div className={styles.agentMeta}>
-            <div className={styles.metaItem}>
-              <div className={styles.metaVal}>{COMPANIES.length}</div>
-              <div className={styles.metaKey}>Companies</div>
-            </div>
-            <div className={styles.metaItem}>
-              <div className={styles.metaVal}>{clusterCount}</div>
-              <div className={styles.metaKey}>Topics this week</div>
-            </div>
-            <div className={styles.metaItem}>
-              <div className={styles.metaVal}>{evidenceCount}</div>
-              <div className={styles.metaKey}>Sources</div>
-            </div>
-            <div className={styles.metaItem}>
-              <div className={styles.statusLive}>Live</div>
-              <div className={styles.metaKey}>Status</div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AgentHeader
+        domain="Technology"
+        title="Big Tech Evolution"
+        description="Weekly analysis of product launches, strategy shifts, and ecosystem developments across major technology companies."
+        meta={[
+          { label: "Companies", value: String(COMPANIES.length) },
+          { label: "Topics this week", value: String(clusterCount) },
+          { label: "Sources", value: String(evidenceCount) },
+          { label: "Status", value: <StatusBadge status="live" /> },
+        ]}
+      />
 
       <div className={styles.controlsBar}>
         <CompanySelector
@@ -408,7 +380,6 @@ export default function BigTechEvolutionPage() {
         </div>
       </div>
 
-      {/* Week header */}
       {weekData && !loading && (
         <div className={styles.companyHeader}>
           <h2 className={styles.companyTitle}>
@@ -421,13 +392,8 @@ export default function BigTechEvolutionPage() {
       )}
 
       <main className={styles.content}>
-        {loading && <div className={styles.loading}>Loading {activeCompany.label} weekly brief...</div>}
-        {error && (
-          <div className={styles.error}>
-            <p>{error}</p>
-            <button onClick={() => loadData(activeCompany)} className={styles.retry}>Retry</button>
-          </div>
-        )}
+        {loading && <LoadingState message={`Loading ${activeCompany.label} weekly brief…`} />}
+        {error && <ErrorState message={error} onRetry={() => loadData(activeCompany)} />}
         {!loading && !error && view === "week" && weekData && <WeekView data={weekData} />}
         {!loading && !error && view === "timeline" && hasTimeline && timelineData && <TimelineView data={timelineData} />}
         {!loading && !error && view === "timeline" && !hasTimeline && (

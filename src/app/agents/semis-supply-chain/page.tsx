@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import styles from "./page.module.css";
+import styles from "@/components/agent/topic-map.module.css";
+import { AgentHeader, StatusBadge, LoadingState, ErrorState, EmptyState } from "@/components/agent";
 import { AccessGate } from "@/components/AccessGate";
 import { useAuth } from "@/lib/auth";
 
@@ -182,7 +183,7 @@ function WeekView({ data }: { data: WeeklyBrief }) {
         ))}
       </div>
       {data.clusters.length === 0 && (
-        <div className={styles.emptyState}>No clusters for this week.</div>
+        <EmptyState message="No clusters for this week." />
       )}
     </div>
   );
@@ -255,7 +256,7 @@ function TimelineView({ data }: { data: TimelineResponse }) {
         );
       })}
       {data.weeks.length === 0 && (
-        <div className={styles.emptyState}>No timeline data available.</div>
+        <EmptyState message="No timeline data available." />
       )}
     </div>
   );
@@ -316,41 +317,16 @@ export default function SemisSupplyChainPage() {
 
   return (
     <div className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.headerTop}>
-          <a href="/" className={styles.backLink}>
-            ← FinanceLab
-          </a>
-        </div>
-        <div className={styles.headerMain}>
-          <div>
-            <div className={styles.agentDomain}>Industry</div>
-            <h1 className={styles.agentTitle}>
-              Semiconductors &amp; Supply Chain
-            </h1>
-            <p className={styles.agentDesc}>
-              Weekly wrap-up of chip industry developments including fab
-              investments, export controls, supply constraints, packaging
-              advances, and major design wins across the semiconductor
-              ecosystem.
-            </p>
-          </div>
-          <div className={styles.agentMeta}>
-            <div className={styles.metaItem}>
-              <div className={styles.metaVal}>{clusterCount}</div>
-              <div className={styles.metaKey}>Topics this week</div>
-            </div>
-            <div className={styles.metaItem}>
-              <div className={styles.metaVal}>{evidenceCount}</div>
-              <div className={styles.metaKey}>Sources</div>
-            </div>
-            <div className={styles.metaItem}>
-              <div className={styles.statusLive}>Live</div>
-              <div className={styles.metaKey}>Status</div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AgentHeader
+        domain="Industry"
+        title="Semiconductors & Supply Chain"
+        description="Weekly wrap-up of chip industry developments including fab investments, export controls, supply constraints, packaging advances, and major design wins across the semiconductor ecosystem."
+        meta={[
+          { label: "Topics this week", value: String(clusterCount) },
+          { label: "Sources", value: String(evidenceCount) },
+          { label: "Status", value: <StatusBadge status="live" /> },
+        ]}
+      />
 
       <div className={styles.controlsBar}>
         {/* No company selector — single-topic page */}
@@ -396,16 +372,9 @@ export default function SemisSupplyChainPage() {
       )}
 
       <main className={styles.content}>
-        {loading && (
-          <div className={styles.loading}>Loading weekly brief...</div>
-        )}
+        {loading && <LoadingState message="Loading weekly brief…" />}
         {error && (
-          <div className={styles.error}>
-            <p>{error}</p>
-            <button onClick={() => loadData()} className={styles.retry}>
-              Retry
-            </button>
-          </div>
+          <ErrorState message={error} onRetry={() => loadData()} />
         )}
         {!loading && !error && view === "week" && weekData && (
           <WeekView data={weekData} />

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import styles from "./page.module.css";
+import { AgentHeader, StatusBadge, LoadingState, ErrorState } from "@/components/agent";
 import { AccessGate } from "@/components/AccessGate";
 import { useAuth } from "@/lib/auth";
 import {
@@ -9,16 +10,12 @@ import {
   Line,
   BarChart,
   Bar,
-  AreaChart,
-  Area,
   XAxis,
   YAxis,
   Tooltip,
   Legend,
   ResponsiveContainer,
   CartesianGrid,
-  ReferenceLine,
-  Cell,
 } from "recharts";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -417,46 +414,24 @@ export default function VolatilityLabPage() {
     }
   };
 
-  // Free section count: anonymous users see the first section only
   const FREE_SECTIONS = 1;
+
+  const dataRangeLabel = report?.data_range
+    ? `${report.data_range.start.substring(0, 4)}-${report.data_range.end.substring(0, 4)}`
+    : null;
 
   return (
     <div className={styles.page}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.headerTop}>
-          <a href="/" className={styles.backLink}>← FinanceLab</a>
-        </div>
-        <div className={styles.headerMain}>
-          <div>
-            <div className={styles.agentDomain}>Markets</div>
-            <h1 className={styles.agentTitle}>
-              {report?.title || "Volatility Analysis"}
-            </h1>
-            <p className={styles.agentDesc}>
-              {report?.subtitle || "Realized volatility, distributional analysis, and forecast."}
-            </p>
-          </div>
-          <div className={styles.agentMeta}>
-            {report?.data_range && (
-              <div className={styles.metaItem}>
-                <div className={styles.metaVal}>
-                  {report.data_range.start.substring(0, 4)}-{report.data_range.end.substring(0, 4)}
-                </div>
-                <div className={styles.metaKey}>Data range</div>
-              </div>
-            )}
-            <div className={styles.metaItem}>
-              <div className={styles.metaVal}>{report?.sections?.length || 4}</div>
-              <div className={styles.metaKey}>Sections</div>
-            </div>
-            <div className={styles.metaItem}>
-              <div className={styles.statusLive}>Live</div>
-              <div className={styles.metaKey}>Status</div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AgentHeader
+        domain="Markets"
+        title={report?.title || "Volatility Analysis"}
+        description={report?.subtitle || "Realized volatility, distributional analysis, and forecast."}
+        meta={[
+          ...(dataRangeLabel ? [{ label: "Data range", value: dataRangeLabel }] : []),
+          { label: "Sections", value: String(report?.sections?.length || 4) },
+          { label: "Status", value: <StatusBadge status="live" /> },
+        ]}
+      />
 
       {/* Ticker Selector */}
       <div className={styles.tickerBar}>
@@ -532,23 +507,18 @@ export default function VolatilityLabPage() {
 
       {/* Content */}
       <main className={styles.content}>
-        {loading && <div className={styles.loading}>Loading {ticker} analysis...</div>}
+        {loading && <LoadingState message={`Loading ${ticker} analysis…`} />}
 
         {error && (
-          <div className={styles.error}>
-            <p>{error}</p>
-            <button onClick={() => loadReport(ticker)} className={styles.retry}>Retry</button>
-          </div>
+          <ErrorState message={error} onRetry={() => loadReport(ticker)} />
         )}
 
         {!loading && !error && report && (
           <div className={styles.sections}>
-            {/* Free sections — always visible */}
             {report.sections.slice(0, FREE_SECTIONS).map((section) => (
               <SectionRenderer key={section.id} section={section} />
             ))}
 
-            {/* Gated sections — require auth */}
             {report.sections.length > FREE_SECTIONS && (
               <AccessGate requires="auth" featureLabel="the full analysis">
                 {report.sections.slice(FREE_SECTIONS).map((section) => (

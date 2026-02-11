@@ -2,9 +2,9 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import styles from "./page.module.css";
+import { AgentHeader, StatusBadge } from "@/components/agent";
 
 // ─── Episode Data ───
-// Audio files go in: public/audio/paper-briefs/episodeXX.mp3
 const AUDIO_BASE = "/audio/paper-briefs";
 
 interface Episode {
@@ -22,6 +22,19 @@ interface Episode {
 
 const EPISODES: Episode[] = [
   {
+    id: 2,
+    title: "Modeling and Forecasting Realized Volatility",
+    authors: "Torben G. Andersen, Tim Bollerslev, Francis X. Diebold, Paul Labys",
+    venue: "Econometrica",
+    year: 2003,
+    citations: 5300,
+    link: "https://www.jstor.org/stable/3082068",
+    durationSeconds: 500,
+    audioFile: "episode02.mp3",
+    summary:
+      "How high-frequency intraday returns can be used to construct nonparametric realized volatility measures, and why long-memory models applied to these measures dramatically improve out-of-sample forecasting of asset return volatility across multiple horizons.",
+  },
+  {
     id: 1,
     title: "Tail Risk and Asset Prices",
     authors: "Bryan Kelly, Hao Jiang",
@@ -29,7 +42,7 @@ const EPISODES: Episode[] = [
     year: 2014,
     citations: 1000,
     link: "https://www.jstor.org/stable/24466856",
-    durationSeconds: 540,
+    durationSeconds: 562,
     audioFile: "episode01.mp3",
     summary:
       "How to measure tail risk when extreme events are too rare to estimate from aggregate data and why a cross-sectional approach using individual stock crashes predicts market returns, prices risk, and forecasts real economic downturns.",
@@ -100,7 +113,6 @@ export default function PaperBriefsPage() {
     const audio = audioRef.current;
     if (!audio) return;
 
-    // Same episode: toggle play/pause
     if (loadedIdRef.current === ep.id) {
       if (audio.paused) {
         audio.play().catch(() => {});
@@ -112,7 +124,6 @@ export default function PaperBriefsPage() {
       return;
     }
 
-    // New episode: load and play
     loadedIdRef.current = ep.id;
     setCurrentEp(ep);
     setProgress(0);
@@ -123,7 +134,6 @@ export default function PaperBriefsPage() {
     setIsPlaying(true);
   }, []);
 
-  // Attach event listeners once
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -133,9 +143,7 @@ export default function PaperBriefsPage() {
       if (audio.duration) setProgress((audio.currentTime / audio.duration) * 100);
     };
     const onLoaded = () => setDuration(audio.duration);
-    const onEnded = () => {
-      setIsPlaying(false);
-    };
+    const onEnded = () => setIsPlaying(false);
 
     audio.addEventListener("timeupdate", onTime);
     audio.addEventListener("loadedmetadata", onLoaded);
@@ -160,35 +168,16 @@ export default function PaperBriefsPage() {
     <div className={styles.page}>
       <audio ref={audioRef} preload="metadata" />
 
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.headerTop}>
-          <a href="/" className={styles.backLink}>← FinanceLab</a>
-        </div>
-        <div className={styles.headerMain}>
-          <div>
-            <div className={styles.agentDomain}>Research</div>
-            <h1 className={styles.agentTitle}>Volatility &amp; Risk Modeling</h1>
-            <p className={styles.agentDesc}>
-              Each episode walks through one influential paper: the problem it tackled, the core insight, why it works, and what it changed. No equations, no jargon walls. Just the ideas, explained for a quantitatively literate audience in under ten minutes.
-            </p>
-          </div>
-          <div className={styles.agentMeta}>
-            <div className={styles.metaItem}>
-              <div className={styles.metaVal}>{EPISODES.length}</div>
-              <div className={styles.metaKey}>Episodes</div>
-            </div>
-            <div className={styles.metaItem}>
-              <div className={styles.metaVal}>Weekly</div>
-              <div className={styles.metaKey}>Cadence</div>
-            </div>
-            <div className={styles.metaItem}>
-              <div className={styles.statusLive}>Live</div>
-              <div className={styles.metaKey}>Status</div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AgentHeader
+        domain="Research"
+        title="Volatility & Risk Modeling"
+        description="Each episode walks through one influential paper: the problem it tackled, the core insight, why it works, and what it changed. No equations, no jargon walls. Just the ideas, explained for a quantitatively literate audience in under ten minutes."
+        meta={[
+          { label: "Episodes", value: String(EPISODES.length) },
+          { label: "Cadence", value: "Weekly" },
+          { label: "Status", value: <StatusBadge status="live" /> },
+        ]}
+      />
 
       <main className={styles.content}>
         {/* Latest Episode Hero */}
@@ -199,7 +188,7 @@ export default function PaperBriefsPage() {
               <div className={styles.epNumber}>EP {latest.id}</div>
               <h2 className={styles.latestTitle}>{latest.title}</h2>
               <p className={styles.latestAuthors}>{latest.authors}</p>
-              <p className={styles.latestAffiliations}>University of Chicago &amp; NBER · Michigan State University</p>
+              <p className={styles.latestAffiliations}>University of Pennsylvania · Duke University · NYU Stern</p>
               <p className={styles.latestSummary}>{latest.summary}</p>
               <div className={styles.latestMeta}>
                 <span>{latest.venue} {latest.year}</span>
@@ -209,22 +198,14 @@ export default function PaperBriefsPage() {
                 <span>{fmtCitations(latest.citations)} citations</span>
               </div>
               <div className={styles.latestActions}>
-                <button
-                  className={styles.playBtn}
-                  onClick={() => playEpisode(latest)}
-                >
+                <button className={styles.playBtn} onClick={() => playEpisode(latest)}>
                   {currentEp?.id === latest.id && isPlaying ? (
                     <><PauseIcon size={20} /> Pause</>
                   ) : (
                     <><PlayIcon size={20} /> Play Episode</>
                   )}
                 </button>
-                <a
-                  href={latest.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.paperLink}
-                >
+                <a href={latest.link} target="_blank" rel="noopener noreferrer" className={styles.paperLink}>
                   <PaperIcon /> Read Paper
                 </a>
               </div>
@@ -237,43 +218,20 @@ export default function PaperBriefsPage() {
           <h3 className={styles.archiveTitle}>All Episodes</h3>
           <div className={styles.episodeList}>
             {EPISODES.map((ep) => (
-              <div
-                key={ep.id}
-                className={`${styles.episodeRow} ${currentEp?.id === ep.id ? styles.episodeRowActive : ""}`}
-              >
-                <button
-                  className={styles.episodePlayBtn}
-                  onClick={() => playEpisode(ep)}
-                  aria-label={`Play episode ${ep.id}`}
-                >
-                  {currentEp?.id === ep.id && isPlaying ? (
-                    <PauseIcon size={16} />
-                  ) : (
-                    <PlayIcon size={16} />
-                  )}
+              <div key={ep.id} className={`${styles.episodeRow} ${currentEp?.id === ep.id ? styles.episodeRowActive : ""}`}>
+                <button className={styles.episodePlayBtn} onClick={() => playEpisode(ep)} aria-label={`Play episode ${ep.id}`}>
+                  {currentEp?.id === ep.id && isPlaying ? <PauseIcon size={16} /> : <PlayIcon size={16} />}
                 </button>
                 <div className={styles.episodeNum}>{ep.id}</div>
                 <div className={styles.episodeInfo}>
                   <div className={styles.episodeTitle}>{ep.title}</div>
-                  <div className={styles.episodeAuthors}>
-                    {ep.authors} · {ep.venue} {ep.year}
-                  </div>
+                  <div className={styles.episodeAuthors}>{ep.authors} · {ep.venue} {ep.year}</div>
                 </div>
                 <div className={styles.episodeMeta}>
-                  <span className={styles.episodeCitations}>
-                    {fmtCitations(ep.citations)} cit.
-                  </span>
-                  <span className={styles.episodeDuration}>
-                    {fmtDuration(ep.durationSeconds)}
-                  </span>
+                  <span className={styles.episodeCitations}>{fmtCitations(ep.citations)} cit.</span>
+                  <span className={styles.episodeDuration}>{fmtDuration(ep.durationSeconds)}</span>
                 </div>
-                <a
-                  href={ep.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.episodePaperLink}
-                  aria-label="Read paper"
-                >
+                <a href={ep.link} target="_blank" rel="noopener noreferrer" className={styles.episodePaperLink} aria-label="Read paper">
                   <PaperIcon />
                 </a>
               </div>
@@ -286,26 +244,16 @@ export default function PaperBriefsPage() {
       {currentEp && (
         <div className={styles.player}>
           <div className={styles.playerInner}>
-            <button
-              className={styles.playerPlayBtn}
-              onClick={() => currentEp && playEpisode(currentEp)}
-            >
+            <button className={styles.playerPlayBtn} onClick={() => currentEp && playEpisode(currentEp)}>
               {isPlaying ? <PauseIcon size={20} /> : <PlayIcon size={20} />}
             </button>
             <div className={styles.playerInfo}>
-              <div className={styles.playerTitle}>
-                EP {currentEp.id}: {currentEp.title}
-              </div>
-              <div className={styles.playerTime}>
-                {fmtTime(currentTime)} / {fmtTime(duration)}
-              </div>
+              <div className={styles.playerTitle}>EP {currentEp.id}: {currentEp.title}</div>
+              <div className={styles.playerTime}>{fmtTime(currentTime)} / {fmtTime(duration)}</div>
             </div>
             <div className={styles.playerBar} onClick={seekTo}>
               <div className={styles.playerBarTrack}>
-                <div
-                  className={styles.playerBarFill}
-                  style={{ width: `${progress}%` }}
-                />
+                <div className={styles.playerBarFill} style={{ width: `${progress}%` }} />
               </div>
             </div>
           </div>

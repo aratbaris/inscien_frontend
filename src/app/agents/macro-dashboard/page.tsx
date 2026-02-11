@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import styles from "./page.module.css";
+import { AgentHeader, StatusBadge, LoadingState, ErrorState } from "@/components/agent";
 import { AccessGate } from "@/components/AccessGate";
 import {
   LineChart,
@@ -14,7 +15,6 @@ import {
   Legend,
   ResponsiveContainer,
   CartesianGrid,
-  ReferenceLine,
 } from "recharts";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -260,28 +260,15 @@ export default function MacroDashboardPage() {
 
   return (
     <div className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.headerTop}>
-          <a href="/" className={styles.backLink}>← FinanceLab</a>
-        </div>
-        <div className={styles.headerMain}>
-          <div>
-            <div className={styles.agentDomain}>Economy</div>
-            <h1 className={styles.agentTitle}>{report?.title || "U.S. Macro Dashboard"}</h1>
-            <p className={styles.agentDesc}>{report?.subtitle || "Interest rates, inflation, GDP growth, and federal debt."}</p>
-          </div>
-          <div className={styles.agentMeta}>
-            <div className={styles.metaItem}>
-              <div className={styles.metaVal}>{report?.sections?.length || 4}</div>
-              <div className={styles.metaKey}>Sections</div>
-            </div>
-            <div className={styles.metaItem}>
-              <div className={styles.statusLive}>Live</div>
-              <div className={styles.metaKey}>Status</div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AgentHeader
+        domain="Economy"
+        title={report?.title || "U.S. Macro Dashboard"}
+        description={report?.subtitle || "Interest rates, inflation, GDP growth, and federal debt."}
+        meta={[
+          { label: "Sections", value: String(report?.sections?.length || 4) },
+          { label: "Status", value: <StatusBadge status="live" /> },
+        ]}
+      />
 
       {report && !loading && (
         <nav className={styles.sectionNav}>
@@ -297,16 +284,13 @@ export default function MacroDashboardPage() {
       )}
 
       <main className={styles.content}>
-        {loading && <div className={styles.loading}>Loading macro analysis...</div>}
-        {error && <div className={styles.error}><p>{error}</p><button onClick={loadReport} className={styles.retry}>Retry</button></div>}
+        {loading && <LoadingState message="Loading macro analysis…" />}
+        {error && <ErrorState message={error} onRetry={loadReport} />}
         {!loading && !error && report && (
           <div className={styles.sections}>
-            {/* Free sections — always visible */}
             {report.sections.slice(0, FREE_SECTIONS).map((section) => (
               <SectionRenderer key={section.id} section={section} />
             ))}
-
-            {/* Gated sections — require auth */}
             {report.sections.length > FREE_SECTIONS && (
               <AccessGate requires="auth" featureLabel="the full dashboard">
                 {report.sections.slice(FREE_SECTIONS).map((section) => (
