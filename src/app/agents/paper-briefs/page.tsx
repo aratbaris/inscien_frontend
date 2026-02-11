@@ -17,140 +17,22 @@ interface Episode {
   link: string;
   durationSeconds: number;
   audioFile: string;
+  summary: string;
 }
 
 const EPISODES: Episode[] = [
   {
-    id: 12,
-    title: "The Information Bottleneck Method",
-    authors: "Naftali Tishby, Fernando C. Pereira, William Bialek",
-    venue: "arXiv preprint",
-    year: 2000,
-    citations: 5045,
-    link: "https://arxiv.org/abs/physics/0004057",
-    durationSeconds: 517,
-    audioFile: "episode12.mp3",
-  },
-  {
-    id: 11,
-    title: "Learning Transferable Visual Models From Natural Language Supervision",
-    authors: "A Radford, JW Kim, C Hallacy",
-    venue: "ICML",
-    year: 2021,
-    citations: 50764,
-    link: "http://proceedings.mlr.press/v139/radford21a",
-    durationSeconds: 506,
-    audioFile: "episode11.mp3",
-  },
-  {
-    id: 10,
-    title: "Masked Autoencoders Are Scalable Vision Learners",
-    authors: "K He, X Chen, S Xie, Y Li, P Dollár, R Girshick",
-    venue: "CVPR",
-    year: 2022,
-    citations: 13046,
-    link: "https://openaccess.thecvf.com/content/CVPR2022/html/He_Masked_Autoencoders_paper.html",
-    durationSeconds: 562,
-    audioFile: "episode10.mp3",
-  },
-  {
-    id: 9,
-    title: "Bootstrap Your Own Latent: A New Approach to Self-Supervised Learning",
-    authors: "JB Grill, F Strub, F Altché, C Tallec",
-    venue: "NeurIPS",
-    year: 2020,
-    citations: 9760,
-    link: "https://proceedings.neurips.cc/paper/2020/hash/f3ada80d5c4ee70142b17b8192b2958e-Abstract.html",
-    durationSeconds: 555,
-    audioFile: "episode09.mp3",
-  },
-  {
-    id: 8,
-    title: "Momentum Contrast for Unsupervised Visual Representation Learning",
-    authors: "K He, H Fan, Y Wu, S Xie",
-    venue: "CVPR",
-    year: 2020,
-    citations: 18281,
-    link: "https://openaccess.thecvf.com/content_CVPR_2020/html/He_Momentum_Contrast_paper.html",
-    durationSeconds: 531,
-    audioFile: "episode08.mp3",
-  },
-  {
-    id: 7,
-    title: "A Simple Framework for Contrastive Learning of Visual Representations",
-    authors: "T Chen, S Kornblith, M Norouzi, G Hinton",
-    venue: "ICML",
-    year: 2020,
-    citations: 28782,
-    link: "http://proceedings.mlr.press/v119/chen20j.html",
-    durationSeconds: 454,
-    audioFile: "episode07.mp3",
-  },
-  {
-    id: 6,
-    title: "Representation Learning with Contrastive Predictive Coding",
-    authors: "A Oord, Y Li, O Vinyals",
-    venue: "arXiv preprint",
-    year: 2018,
-    citations: 13726,
-    link: "https://arxiv.org/abs/1807.03748",
-    durationSeconds: 558,
-    audioFile: "episode06.mp3",
-  },
-  {
-    id: 5,
-    title: "Representation Learning: A Review and New Perspectives",
-    authors: "Y Bengio, A Courville, P Vincent",
-    venue: "IEEE TPAMI",
-    year: 2013,
-    citations: 19327,
-    link: "https://ieeexplore.ieee.org/document/6472238",
-    durationSeconds: 522,
-    audioFile: "episode05.mp3",
-  },
-  {
-    id: 4,
-    title: "Auto-Encoding Variational Bayes",
-    authors: "DP Kingma, M Welling",
-    venue: "arXiv preprint",
-    year: 2013,
-    citations: 51663,
-    link: "https://arxiv.org/abs/1312.6114",
-    durationSeconds: 579,
-    audioFile: "episode04.mp3",
-  },
-  {
-    id: 3,
-    title: "Reducing the Dimensionality of Data with Neural Networks",
-    authors: "G Hinton, R Salakhutdinov",
-    venue: "Science",
-    year: 2006,
-    citations: 26567,
-    link: "https://www.science.org/doi/abs/10.1126/science.1127647",
-    durationSeconds: 669,
-    audioFile: "episode03.mp3",
-  },
-  {
-    id: 2,
-    title: "GloVe: Global Vectors for Word Representation",
-    authors: "J Pennington, R Socher",
-    venue: "EMNLP",
-    year: 2014,
-    citations: 48627,
-    link: "https://aclanthology.org/D14-1162.pdf",
-    durationSeconds: 809,
-    audioFile: "episode02.mp3",
-  },
-  {
     id: 1,
-    title: "Efficient Estimation of Word Representations in Vector Space",
-    authors: "T Mikolov, K Chen, G Corrado, J Dean",
-    venue: "arXiv preprint",
-    year: 2013,
-    citations: 51355,
-    link: "https://arxiv.org/abs/1301.3781",
-    durationSeconds: 797,
+    title: "Tail Risk and Asset Prices",
+    authors: "Bryan Kelly, Hao Jiang",
+    venue: "The Review of Financial Studies",
+    year: 2014,
+    citations: 1000,
+    link: "https://www.jstor.org/stable/24466856",
+    durationSeconds: 540,
     audioFile: "episode01.mp3",
+    summary:
+      "How to measure tail risk when extreme events are too rare to estimate from aggregate data and why a cross-sectional approach using individual stock crashes predicts market returns, prices risk, and forecasts real economic downturns.",
   },
 ];
 
@@ -253,21 +135,6 @@ export default function PaperBriefsPage() {
     const onLoaded = () => setDuration(audio.duration);
     const onEnded = () => {
       setIsPlaying(false);
-      // Auto-play next
-      if (loadedIdRef.current !== null) {
-        const idx = EPISODES.findIndex((e) => e.id === loadedIdRef.current);
-        if (idx >= 0 && idx < EPISODES.length - 1) {
-          const next = EPISODES[idx + 1];
-          loadedIdRef.current = next.id;
-          setCurrentEp(next);
-          setProgress(0);
-          setCurrentTime(0);
-          audio.src = `${AUDIO_BASE}/${next.audioFile}`;
-          audio.load();
-          audio.play().catch(() => {});
-          setIsPlaying(true);
-        }
-      }
     };
 
     audio.addEventListener("timeupdate", onTime);
@@ -301,9 +168,9 @@ export default function PaperBriefsPage() {
         <div className={styles.headerMain}>
           <div>
             <div className={styles.agentDomain}>Research</div>
-            <h1 className={styles.agentTitle}>ML Paper Briefs</h1>
+            <h1 className={styles.agentTitle}>Volatility &amp; Risk Modeling</h1>
             <p className={styles.agentDesc}>
-              Weekly audio narratives of influential machine learning papers. Each episode distills a key paper into a concise audio brief.
+              Each episode walks through one influential paper: the problem it tackled, the core insight, why it works, and what it changed. No equations, no jargon walls. Just the ideas, explained for a quantitatively literate audience in under ten minutes.
             </p>
           </div>
           <div className={styles.agentMeta}>
@@ -332,6 +199,8 @@ export default function PaperBriefsPage() {
               <div className={styles.epNumber}>EP {latest.id}</div>
               <h2 className={styles.latestTitle}>{latest.title}</h2>
               <p className={styles.latestAuthors}>{latest.authors}</p>
+              <p className={styles.latestAffiliations}>University of Chicago &amp; NBER · Michigan State University</p>
+              <p className={styles.latestSummary}>{latest.summary}</p>
               <div className={styles.latestMeta}>
                 <span>{latest.venue} {latest.year}</span>
                 <span className={styles.dot} />

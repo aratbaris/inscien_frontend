@@ -136,9 +136,9 @@ const audioAgents: Agent[] = [
   {
     domain: "Research",
     status: "live",
-    name: "Paper Briefs",
+    name: "Volatility Research Briefs",
     href: "/agents/paper-briefs",
-    desc: "Weekly audio narratives of influential ML papers. Each episode distills a key research paper into a concise audio brief.",
+    desc: "Audio narratives of influential papers in volatility modeling, tail risk, and asset pricing. Each episode distills a key research paper into a concise audio brief.",
     cadence: "Weekly",
     artifact: "Audio + Summary",
     tier: "Free",
@@ -322,15 +322,6 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Monthly Market Reviews */}
-        <div className={styles.categoryBlock}>
-          <div className={styles.categoryLabel}>Monthly Market Reviews</div>
-          <div className={styles.agentsGrid}>
-            {monthlyReviewAgents.map((a) => (
-              <AgentCard key={a.name} agent={a} />
-            ))}
-          </div>
-        </div>
 
         {/* Daily Analysis */}
         <div className={styles.categoryBlock}>
@@ -362,6 +353,17 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Monthly Market Reviews */}
+        <div className={styles.categoryBlock}>
+          <div className={styles.categoryLabel}>Monthly Market Reviews</div>
+          <div className={styles.agentsGrid}>
+            {monthlyReviewAgents.map((a) => (
+              <AgentCard key={a.name} agent={a} />
+            ))}
+          </div>
+        </div>
+
+        
         {/* Audio Briefs */}
         <div className={styles.categoryBlock}>
           <div className={styles.categoryLabel}>Research on the Go</div>

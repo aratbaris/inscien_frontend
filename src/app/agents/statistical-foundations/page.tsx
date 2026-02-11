@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback, ReactNode } from "react"
+import { useState, useRef, useCallback, useEffect, ReactNode } from "react"
 import styles from "./page.module.css"
 import { topics } from "@/components/learn/topicData"
 import { AccessGate } from "@/components/AccessGate"
@@ -86,11 +86,25 @@ export default function StatFoundationsPage() {
   const [currentStep, setCurrentStep] = useState(0)
   const stepRefs = useRef<(HTMLDivElement | null)[]>([])
   const flowRef = useRef<HTMLDivElement | null>(null)
+  const clickSound = useRef<HTMLAudioElement | null>(null)
   const { canAccess } = useAuth()
 
   const topic = topics.find((t) => t.id === activeTopic)
   const totalSteps = topic?.steps.length || 0
   const totalFlowSteps = topics.reduce((s, t) => s + t.steps.length, 0)
+
+  /* ─── Preload click sound ─── */
+  useEffect(() => {
+    clickSound.current = new Audio("/sounds/next-button.mp3")
+    clickSound.current.volume = 0.5
+  }, [])
+
+  const playClick = useCallback(() => {
+    if (clickSound.current) {
+      clickSound.current.currentTime = 0
+      clickSound.current.play().catch(() => {})
+    }
+  }, [])
 
   const scrollToStep = useCallback((idx: number) => {
     setTimeout(() => {
@@ -100,6 +114,7 @@ export default function StatFoundationsPage() {
   }, [])
 
   const handleAdvance = () => {
+    playClick()
     if (currentStep >= totalSteps - 1) {
       setActiveTopic(null)
       setCurrentStep(0)
@@ -112,6 +127,7 @@ export default function StatFoundationsPage() {
   }
 
   const handleBack = () => {
+    playClick()
     if (currentStep > 0) {
       const prev = currentStep - 1
       setCurrentStep(prev)

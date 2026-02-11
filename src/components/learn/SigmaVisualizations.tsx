@@ -189,7 +189,7 @@ export function SigmaGaussianVisualization({
       ctx.beginPath(); ctx.moveTo(r2, baseY); ctx.lineTo(r2, y2); ctx.stroke()
       ctx.setLineDash([])
       ctx.fillStyle = C.green; ctx.font = "12px system-ui"; ctx.textAlign = "center"
-      ctx.fillText("95% — 2σ", centerX + 2 * sigW + 28, baseY - amp * 0.3)
+      ctx.fillText("95% - 2σ", centerX + 2 * sigW + 28, baseY - amp * 0.3)
     }
 
     if (showOneSigma) {
@@ -205,7 +205,7 @@ export function SigmaGaussianVisualization({
       ctx.beginPath(); ctx.moveTo(r1, baseY); ctx.lineTo(r1, y1); ctx.stroke()
       ctx.setLineDash([])
       ctx.fillStyle = C.green; ctx.font = "12px system-ui"; ctx.textAlign = "center"
-      ctx.fillText("68% — 1σ", centerX + sigW + 28, baseY - amp * 0.5)
+      ctx.fillText("68% - 1σ", centerX + sigW + 28, baseY - amp * 0.5)
     }
 
     if (showRings) {

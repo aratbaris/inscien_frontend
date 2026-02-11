@@ -159,7 +159,21 @@
 .latestAuthors {
   font-size: 14px;
   color: #4a4a56;
+  margin-bottom: 4px;
+}
+
+.latestAffiliations {
+  font-size: 13px;
+  color: #8a8a98;
   margin-bottom: 12px;
+}
+
+.latestSummary {
+  font-size: 14px;
+  color: #4a4a56;
+  line-height: 1.55;
+  margin-bottom: 16px;
+  max-width: 620px;
 }
 
 .latestMeta {

@@ -622,7 +622,7 @@
 }
 
 .priceItem::before {
-  content: "—";
+  content: "-";
   color: var(--border-hover);
   font-size: 12px;
   flex-shrink: 0;

@@ -175,13 +175,13 @@ export default function PricingPage() {
             <div className={styles.faqItem}>
               <h3 className={styles.faqQ}>Can I cancel anytime?</h3>
               <p className={styles.faqA}>
-                Yes. Pro is billed monthly through Gumroad. Cancel anytime from your Gumroad dashboard — no lock-in.
+                Yes. Pro is billed monthly through Gumroad. Cancel anytime from your Gumroad dashboard, no lock-in.
               </p>
             </div>
             <div className={styles.faqItem}>
               <h3 className={styles.faqQ}>What happens when I upgrade?</h3>
               <p className={styles.faqA}>
-                You'll be redirected to Gumroad to complete payment. Once confirmed, your account is upgraded instantly — no page refresh needed.
+                You'll be redirected to Gumroad to complete payment. Once confirmed, your account is upgraded instantly, no page refresh needed.
               </p>
             </div>
             <div className={styles.faqItem}>
