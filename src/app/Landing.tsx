@@ -46,38 +46,54 @@ const dailyAnalysisAgents: Agent[] = [
   },
 ];
 
-/* Daily Material Event Updates */
+/* Daily Monitors */
 const dailyMonitorAgents: Agent[] = [
   {
     status: "live",
-    name: "Cyber Risk Monitor",
+    name: "Public Company Cyber Risk",
     href: "/agents/cyber-monitor",
-    desc: "Confirmed breaches, ransomware incidents, actively exploited vulnerabilities, and major infrastructure outages requiring operational attention.",
+    desc: "Confirmed cyber incidents affecting publicly traded companies, SEC investigations, securities class actions, and material operational disruptions with equity relevance.",
     cadence: "Daily",
     artifact: "Brief",
   },
   {
     status: "live",
-    name: "Oil Supply Monitor",
-    href: "/agents/energy-monitor",
-    desc: "Tracks crude supply disruptions, OPEC actions, sanctions enforcement, and chokepoint incidents that can materially affect oil flows.",
+    name: "Oil Market Monitor",
+    href: "/agents/oil-market-monitor",
+    desc: "EIA inventories, OPEC actions, sanctions decisions, supply disruptions, and demand signals affecting oil markets.",
     cadence: "Daily",
     artifact: "Brief",
   },
   {
     status: "live",
-    name: "Financial Regulation Monitor",
-    href: "/agents/regulatory-watch",
-    desc: "Tracks enforcement actions, rulemaking, and supervisory changes from SEC, CFTC, FCA, ESMA, and other financial regulators.",
+    name: "G10 Macro Releases",
+    href: "/agents/macro-market-monitor",
+    desc: "G10 central bank rate decisions, official policy statements, and major data releases including CPI, PCE, NFP, GDP, PMI, retail sales, and unemployment.",
     cadence: "Daily",
     artifact: "Brief",
   },
   {
     status: "live",
-    name: "Crypto Regulation & Incidents",
-    href: "/agents/crypto-monitor",
-    desc: "Regulatory enforcement, exchange hacks, stablecoin events, and licensing actions affecting crypto markets and infrastructure.",
+    name: "Crypto Regulatory Shifts",
+    href: "/agents/crypto-regulatory",
+    desc: "Binding rule changes, stablecoin framework enactments, exchange licensing actions, major enforcement, and court rulings changing classification or scope.",
     cadence: "Daily",
+    artifact: "Brief",
+  },
+  {
+    status: "live",
+    name: "Crypto ETF Access",
+    href: "/agents/crypto-etf-access",
+    desc: "ETF approvals, rejections, filings, listing decisions, and flow-related structural milestones for crypto capital access vehicles.",
+    cadence: "Daily",
+    artifact: "Brief",
+  },
+  {
+    status: "live",
+    name: "Weekly Highlights",
+    href: "/agents/weekly-cross-brief",
+    desc: "Top items across all monitors from the past week, ranked by significance.",
+    cadence: "Weekly",
     artifact: "Brief",
   },
 ];
@@ -175,8 +191,8 @@ interface RhythmItem {
 const rhythmItems: RhythmItem[] = [
   {
     frequency: "Daily",
-    title: "Event monitors",
-    desc: "Breaches, supply disruptions, regulatory actions, crypto incidents. Catch what happened overnight, read in two minutes with your coffee.",
+    title: "Catalyst monitors",
+    desc: "Equity-impacting cyber events, macro data releases, crypto regime changes, and oil supply signals. Only what moved or could move prices.",
   },
   {
     frequency: "Daily",
@@ -232,21 +248,24 @@ export default function Landing() {
           <br />
           <span className={styles.rotatingWrapper}>
             <span className={styles.rotatingWords}>
-              <span>Monitor daily events.</span>
+              <span>Monitor daily catalysts.</span>
               <span>Track industry change.</span>
               <span>Analyze asset risk.</span>
               <span>Explore new research.</span>
-              <span>Monitor daily events.</span>
+              <span>Monitor daily catalysts.</span>
             </span>
           </span>
         </h1>
         <p className={styles.heroDesc}>
-          Live market analysis, daily event monitoring, weekly wrap-ups,
-          and research tools. Follow what matters without the noise.
+          Constraint and catalyst monitors, weekly industry wrap-ups,
+          and research tools. Signal, not noise.
         </p>
         <div className={styles.heroActions}>
           <a href="#agents" className={styles.btnPrimary}>
-            See what&apos;s running →
+            Explore agents
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </a>
           <a href="#rhythm" className={styles.btnGhost}>
             How it works
@@ -262,10 +281,10 @@ export default function Landing() {
       <section className={styles.section} id="agents">
         <div className={styles.sectionHeader}>
           <div className={styles.sectionEyebrow}>What&apos;s Running</div>
-          <div className={styles.sectionTitle}>Everything runs daily, ready when you are</div>
+          <div className={styles.sectionTitle}>High-signal monitors, ready when you are</div>
           <p className={styles.sectionDesc}>
-            From live risk metrics to market-moving events to research you can
-            listen to on the go. Pick what&apos;s relevant to you.
+            Each monitor tracks a narrow wedge of constraint changes, capital access shifts,
+            or equity-impact events. Empty on quiet days by design.
           </p>
         </div>
 
@@ -279,7 +298,7 @@ export default function Landing() {
         </div>
 
         <div className={styles.categoryBlock}>
-          <div className={styles.categoryLabel}>Daily Material Event Updates</div>
+          <div className={styles.categoryLabel}>Daily Monitors</div>
           <div className={styles.agentsGrid}>
             {dailyMonitorAgents.map((a) => (
               <AgentCard key={a.name} agent={a} />
@@ -332,9 +351,9 @@ export default function Landing() {
       <section className={styles.section} id="rhythm">
         <div className={styles.sectionHeader}>
           <div className={styles.sectionEyebrow}>Stay Current With Ease</div>
-          <div className={styles.sectionTitle}>From morning briefs to monthly deep dives</div>
+          <div className={styles.sectionTitle}>From morning catalysts to monthly deep dives</div>
           <p className={styles.sectionDesc}>
-            Every layer of your financial awareness covered, from overnight events
+            Every layer of your financial awareness covered, from overnight constraint changes
             to long-term macro trends.
           </p>
         </div>
@@ -390,7 +409,10 @@ export default function Landing() {
               <div className={styles.priceItem}>Priority support</div>
             </div>
             <a href="/pricing" className={styles.priceCardCta}>
-              View plans →
+              View plans
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </a>
           </div>
         </div>

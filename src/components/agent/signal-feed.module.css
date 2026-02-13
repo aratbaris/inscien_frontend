@@ -1,0 +1,354 @@
+/* ─── Signal Feed ─── */
+
+.page {
+  min-height: 100vh;
+  background: #f7f7f9;
+  font-family: var(--sans);
+  color: #1a1a1f;
+}
+
+/* ─── Timeline ─── */
+
+.timeline {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 16px 40px 80px;
+}
+
+/* ─── Date Group ─── */
+
+.dateGroup {
+  position: relative;
+  padding-left: 32px;
+  padding-bottom: 4px;
+}
+
+/* Vertical spine */
+.dateGroup::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 20px;
+  bottom: 0;
+  width: 1px;
+  background: #dddde3;
+}
+
+.dateGroup:last-child::before {
+  display: none;
+}
+
+/* ─── Date Header ─── */
+
+.dateHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0 12px;
+  position: relative;
+}
+
+.dateDot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2px solid #1e4fd8;
+  background: #ffffff;
+  position: absolute;
+  left: -32px;
+  top: 10px;
+  flex-shrink: 0;
+}
+
+.dateLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e4fd8;
+  letter-spacing: -0.01em;
+}
+
+.dateCount {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8a8a98;
+  white-space: nowrap;
+}
+
+/* ─── Items within a date ─── */
+
+.dateItems {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 16px;
+}
+
+/* ─── Item Card (matches daily-brief style) ─── */
+
+.item {
+  display: block;
+  background: #ffffff;
+  border: 1px solid #dddde3;
+  border-radius: 8px;
+  padding: 22px 24px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.15s;
+}
+
+.item:hover {
+  border-color: #c5c5ce;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.itemMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.itemSource {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #8a8a98;
+}
+
+.itemTime {
+  font-size: 11px;
+  color: #8a8a98;
+  font-weight: 400;
+}
+
+.itemTitle {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+  color: #1a1a1f;
+}
+
+.itemExtended {
+  font-size: 13.5px;
+  color: #4a4a56;
+  line-height: 1.55;
+  margin-top: 6px;
+}
+
+/* ─── Monitor Sections (weekly cross brief) ─── */
+
+.monitorGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.monitorGroup + .monitorGroup {
+  margin-top: 20px;
+}
+
+.monitorSection {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 0 2px;
+}
+
+.monitorName {
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #4a4a56;
+}
+
+.monitorCount {
+  font-size: 11px;
+  font-weight: 500;
+  color: #a0a0ad;
+}
+
+/* ─── Gap Spacer (empty spine between active dates) ─── */
+
+.gapSpacer {
+  position: relative;
+  padding-left: 32px;
+  height: 28px;
+}
+
+.gapSpacer::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #ebebf0;
+}
+
+/* ─── Anchor Date (latest date shown as quiet node when empty) ─── */
+
+.anchorDate {
+  position: relative;
+  padding-left: 32px;
+}
+
+.anchorDate::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 14px;
+  bottom: 0;
+  width: 1px;
+  background: #ebebf0;
+}
+
+.anchorDateInner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  position: relative;
+}
+
+.quietDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid #c5c5ce;
+  background: #f7f7f9;
+  position: absolute;
+  left: -30px;
+  top: 9px;
+  flex-shrink: 0;
+}
+
+.quietLabel {
+  font-size: 13px;
+  color: #c5c5ce;
+  font-weight: 500;
+}
+
+/* ─── Auth Gate ─── */
+
+.gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 24px 40px;
+}
+
+.gateDivider {
+  width: 40px;
+  height: 1px;
+  background: #dddde3;
+  margin-bottom: 4px;
+}
+
+.gateMessage {
+  font-size: 14px;
+  font-weight: 500;
+  color: #8a8a98;
+  text-align: center;
+}
+
+.gateButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #ffffff;
+  background: #1a1a1f;
+  border: 1px solid #1a1a1f;
+  border-radius: 6px;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.gateButton:hover {
+  background: #2d2d35;
+  border-color: #2d2d35;
+}
+
+.gateButton svg {
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
+.gateButton:hover svg {
+  transform: translateX(2px);
+}
+
+/* ─── Footer ─── */
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 0 0;
+  margin-top: 24px;
+  border-top: 1px solid #dddde3;
+  font-size: 12px;
+  color: #8a8a98;
+  font-weight: 500;
+  max-width: 880px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+/* ─── Empty State ─── */
+
+.emptyTimeline {
+  text-align: center;
+  padding: 48px 24px;
+  color: #8a8a98;
+}
+
+.emptyTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #4a4a56;
+  margin-bottom: 6px;
+}
+
+.emptyHint {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ─── Responsive ─── */
+
+@media (max-width: 768px) {
+  .timeline {
+    padding: 12px 24px 60px;
+  }
+
+  .dateGroup {
+    padding-left: 28px;
+  }
+
+  .dateDot {
+    left: -28px;
+  }
+
+  .gapDot {
+    left: -26px;
+  }
+
+  .item {
+    padding: 18px 20px;
+  }
+
+  .footer {
+    padding: 16px 24px 0;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
