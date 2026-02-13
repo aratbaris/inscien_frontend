@@ -18,6 +18,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
   ReferenceLine,
+  ReferenceArea,
   Cell,
 } from "recharts";
 
@@ -183,6 +184,8 @@ function MultiLineChart({ series, title, ySuffix }: { series: SeriesData[]; titl
 function SimpleBarChart({ data, xKey, yKey, ySuffix, xSuffix, colorKey, title }: {
   data: Record<string, unknown>[]; xKey: string; yKey: string; ySuffix?: string; xSuffix?: string; colorKey?: string; title?: string;
 }) {
+  const hasPositiveFlag = data.length > 0 && "isPositive" in data[0];
+
   const ticks = useMemo(() => {
     if (data.length <= 20) return undefined;
     const vals = data.map((d) => d[xKey]);
@@ -190,20 +193,42 @@ function SimpleBarChart({ data, xKey, yKey, ySuffix, xSuffix, colorKey, title }:
     return vals.filter((_, i) => i % step === 0).map(String);
   }, [data, xKey]);
 
+  const formatXLabel = (v: string | number) => {
+    const s = String(v);
+    // If it looks like a year (4 digits), show as-is
+    if (/^\d{4}$/.test(s)) return s;
+    return `${s}${xSuffix || ""}`;
+  };
+
   return (
     <div className={styles.chartContainer}>
       {title && <h4 className={styles.chartTitle}>{title}</h4>}
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data} margin={{ top: 8, right: 24, bottom: 8, left: 16 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#ebebf0" />
-          <XAxis dataKey={xKey} tick={{ fontSize: 11 }} tickFormatter={(v: string | number) => `${v}${xSuffix || ""}`} ticks={ticks} />
+          <XAxis
+            dataKey={xKey}
+            tick={{ fontSize: 10 }}
+            tickFormatter={formatXLabel}
+            ticks={ticks}
+            interval={ticks ? 0 : undefined}
+            angle={data.length > 20 ? -45 : 0}
+            textAnchor={data.length > 20 ? "end" : "middle"}
+            height={data.length > 20 ? 50 : 30}
+          />
           <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => `${v}${ySuffix || ""}`} width={50} />
           <Tooltip formatter={(value) => [`${typeof value === "number" ? value.toFixed(2) : value}${ySuffix || ""}`]} />
           <ReferenceLine y={0} stroke="#8a8a98" strokeDasharray="3 3" />
           <Bar dataKey={yKey} radius={[2, 2, 0, 0]}>
-            {data.map((entry, idx) => (
-              <Cell key={idx} fill={colorKey && entry[colorKey] ? String(entry[colorKey]) : COLORS[0]} />
-            ))}
+            {data.map((entry, idx) => {
+              let fill = COLORS[0];
+              if (hasPositiveFlag) {
+                fill = entry.isPositive ? "#22c55e" : "#ef4444";
+              } else if (colorKey && entry[colorKey]) {
+                fill = String(entry[colorKey]);
+              }
+              return <Cell key={idx} fill={fill} />;
+            })}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
@@ -255,23 +280,60 @@ function AreaChartWithBands({ block }: { block: Block }) {
   const series = block.series as SeriesData;
   if (!series || !series.dates) return null;
 
-  const { sampled, ticks } = useMemo(() => {
+  const REGIME_COLORS: Record<string, string> = {
+    Low: "rgba(34,197,94,0.12)",
+    Normal: "rgba(59,130,246,0.10)",
+    Elevated: "rgba(245,158,11,0.12)",
+    High: "rgba(239,68,68,0.12)",
+    Crisis: "rgba(127,29,29,0.15)",
+  };
+
+  const REGIME_LEGEND: { label: string; color: string }[] = [
+    { label: "Low", color: "rgba(34,197,94,0.4)" },
+    { label: "Normal", color: "rgba(59,130,246,0.4)" },
+    { label: "Elevated", color: "rgba(245,158,11,0.4)" },
+    { label: "High", color: "rgba(239,68,68,0.4)" },
+    { label: "Crisis", color: "rgba(127,29,29,0.4)" },
+  ];
+
+  const { sampled, ticks, bandRefs } = useMemo(() => {
     const data = series.dates.map((d, i) => ({ date: d, value: series.values[i] }));
     const maxPoints = 500;
     const step = Math.max(1, Math.floor(data.length / maxPoints));
     const s = data.filter((_, i) => i % step === 0 || i === data.length - 1);
     const t = getYearTicks(s, "date");
-    return { sampled: s, ticks: t };
-  }, [series]);
+
+    // Map bands to sampled date space — find nearest sampled date for each band boundary
+    const sampledDates = s.map((d) => String(d.date));
+    const refs: { x1: string; x2: string; regime: string }[] = [];
+    if (block.bands) {
+      for (const band of block.bands) {
+        // Find nearest sampled dates for band start/end
+        const startIdx = sampledDates.findIndex((d) => d >= band.start);
+        const endIdx = sampledDates.findLastIndex((d) => d <= band.end);
+        if (startIdx >= 0 && endIdx >= 0 && endIdx >= startIdx) {
+          refs.push({
+            x1: sampledDates[startIdx],
+            x2: sampledDates[endIdx],
+            regime: band.regime,
+          });
+        }
+      }
+    }
+
+    return { sampled: s, ticks: t, bandRefs: refs };
+  }, [series, block.bands]);
 
   return (
     <div className={styles.chartContainer}>
       {block.title && <h4 className={styles.chartTitle}>{block.title}</h4>}
       {block.bands && (
         <div className={styles.bandLegend}>
-          <span className={styles.bandDot} style={{ background: "rgba(0,128,0,0.3)" }} /> Low
-          <span className={styles.bandDot} style={{ background: "rgba(255,165,0,0.3)" }} /> Medium
-          <span className={styles.bandDot} style={{ background: "rgba(255,0,0,0.3)" }} /> High
+          {REGIME_LEGEND.map((r) => (
+            <span key={r.label}>
+              <span className={styles.bandDot} style={{ background: r.color }} /> {r.label}
+            </span>
+          ))}
         </div>
       )}
       <ResponsiveContainer width="100%" height={340}>
@@ -280,7 +342,17 @@ function AreaChartWithBands({ block }: { block: Block }) {
           <XAxis dataKey="date" tick={{ fontSize: 11 }} tickFormatter={formatYear} ticks={ticks} />
           <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => `${v}${block.y_suffix || ""}`} width={60} />
           <Tooltip formatter={(value) => [`${typeof value === "number" ? value.toFixed(2) : value}${block.y_suffix || ""}`]} labelFormatter={(label) => formatDateDetailed(String(label))} />
-          <Area type="monotone" dataKey="value" stroke="#1e4fd8" fill="rgba(30,79,216,0.08)" strokeWidth={1.5} dot={false} />
+          {bandRefs.map((ref, i) => (
+            <ReferenceArea
+              key={i}
+              x1={ref.x1}
+              x2={ref.x2}
+              fill={REGIME_COLORS[ref.regime] || "rgba(0,0,0,0.05)"}
+              fillOpacity={1}
+              strokeOpacity={0}
+            />
+          ))}
+          <Area type="monotone" dataKey="value" stroke="#1e4fd8" fill="rgba(30,79,216,0.06)" strokeWidth={1.5} dot={false} />
         </AreaChart>
       </ResponsiveContainer>
     </div>
@@ -374,11 +446,11 @@ export default function MarketReturnsPage() {
     <div className={styles.page}>
       <AgentHeader
         domain="Markets"
-        title={report?.title || "S&P 500 Market Returns Analysis"}
-        description={report?.subtitle || "Comprehensive risk, return, and regime analysis."}
+        title={report?.title || "S&P 500 Long-Term Performance"}
+        description={report?.subtitle || "Risk, return, volatility regimes, and bootstrap simulations."}
         meta={[
           ...(dataRangeLabel ? [{ label: "Data range", value: dataRangeLabel }] : []),
-          { label: "Sections", value: "5" },
+          { label: "Sections", value: String(report?.sections?.length || 5) },
           { label: "Status", value: <StatusBadge status="live" /> },
         ]}
       />
@@ -415,7 +487,7 @@ export default function MarketReturnsPage() {
         )}
         {!loading && !error && report && (
           <div className={styles.reportFooter}>
-            <span>Data: Yahoo Finance (^GSPC)</span>
+            <span>Data: S3 Parquet (SPY)</span>
             <span>Updated: {new Date(report.updated_at).toLocaleDateString()}</span>
           </div>
         )}

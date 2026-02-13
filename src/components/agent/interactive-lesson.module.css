@@ -5,102 +5,11 @@
   color: #1a1a1f;
 }
 
-/* ─── TOPIC SELECTOR ─── */
-.topicSection {
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 32px 40px;
-}
-
-.topicSectionLabel {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #8a8a98;
-  margin-bottom: 14px;
-}
-
-.topicGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.topicCard {
-  background: #ffffff;
-  border: 1px solid #dddde3;
-  border-radius: 8px;
-  padding: 22px 20px;
-  text-align: left;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  transition: all 0.15s;
-  font-family: inherit;
-}
-
-.topicCard:hover {
-  border-color: #c5c5ce;
-  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.03);
-}
-
-.topicCardActive {
-  border-color: #1a1a1f;
-}
-
-.topicTop {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.topicSteps {
-  font-size: 11px;
-  color: #8a8a98;
-  font-weight: 500;
-}
-
-.topicTitle {
-  font-family: var(--serif);
-  font-size: 16px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  color: #1a1a1f;
-  margin-bottom: 6px;
-}
-
-.topicDesc {
-  font-size: 12.5px;
-  color: #4a4a56;
-  line-height: 1.55;
-  flex: 1;
-  margin-bottom: 14px;
-}
-
-.topicAction {
-  font-size: 12px;
-  font-weight: 600;
-  color: #1e4fd8;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.topicAction svg {
-  transition: transform 0.15s ease;
-}
-
-.topicCard:hover .topicAction svg {
-  transform: translateX(2px);
-}
-
 /* ─── FLOW CONTENT ─── */
 .content {
   max-width: 720px;
   margin: 0 auto;
-  padding: 0 40px 100px;
+  padding: 32px 40px 100px;
 }
 
 /* PROGRESS BAR */
@@ -119,26 +28,6 @@
   display: flex;
   align-items: center;
   gap: 14px;
-}
-
-.progressClose {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 1px solid #dddde3;
-  background: #ffffff;
-  font-size: 16px;
-  color: #4a4a56;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: border-color 0.15s;
-}
-
-.progressClose:hover {
-  border-color: #1a1a1f;
 }
 
 .progressTrack {
@@ -269,6 +158,7 @@
   font-weight: 500;
   padding: 0;
   transition: color 0.15s;
+  text-decoration: none;
 }
 
 .stepBackBtn:hover {
@@ -298,14 +188,8 @@
 
 /* ─── RESPONSIVE ─── */
 @media (max-width: 900px) {
-  .topicSection {
-    padding: 24px;
-  }
-  .topicGrid {
-    grid-template-columns: 1fr;
-  }
   .content {
-    padding: 0 24px 80px;
+    padding: 24px 24px 80px;
   }
   .stepPanel {
     padding: 22px 18px 18px;

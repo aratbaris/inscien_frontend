@@ -302,7 +302,7 @@ export default function MacroDashboardPage() {
         )}
         {!loading && !error && report && (
           <div className={styles.reportFooter}>
-            <span>Data: FRED / BEA / BLS / Dallas Fed</span>
+            <span>Data: FRED / BEA / BLS</span>
             <span>Updated: {new Date(report.updated_at).toLocaleDateString()}</span>
           </div>
         )}

@@ -18,6 +18,7 @@ interface Episode {
   durationSeconds: number;
   audioFile: string;
   summary: string;
+  briefHref: string;
 }
 
 const EPISODES: Episode[] = [
@@ -33,6 +34,7 @@ const EPISODES: Episode[] = [
     audioFile: "episode02.mp3",
     summary:
       "How high-frequency intraday returns can be used to construct nonparametric realized volatility measures, and why long-memory models applied to these measures dramatically improve out-of-sample forecasting of asset return volatility across multiple horizons.",
+    briefHref: "/agents/paper-briefs/realized-volatility",
   },
   {
     id: 1,
@@ -46,6 +48,7 @@ const EPISODES: Episode[] = [
     audioFile: "episode01.mp3",
     summary:
       "How to measure tail risk when extreme events are too rare to estimate from aggregate data and why a cross-sectional approach using individual stock crashes predicts market returns, prices risk, and forecasts real economic downturns.",
+    briefHref: "/agents/paper-briefs/tail-risk",
   },
 ];
 
@@ -96,9 +99,17 @@ function PaperIcon() {
   );
 }
 
+function BriefIcon() {
+  return (
+    <svg width={14} height={14} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 4L10 8L6 12" />
+    </svg>
+  );
+}
+
 // ─── Main Page ───
 
-export default function PaperBriefsPage() {
+export default function DeepResearchVolatilityPage() {
   const [currentEp, setCurrentEp] = useState<Episode | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -205,6 +216,9 @@ export default function PaperBriefsPage() {
                     <><PlayIcon size={20} /> Play Episode</>
                   )}
                 </button>
+                <a href={latest.briefHref} className={styles.paperLink}>
+                  <BriefIcon /> View Brief
+                </a>
                 <a href={latest.link} target="_blank" rel="noopener noreferrer" className={styles.paperLink}>
                   <PaperIcon /> Read Paper
                 </a>
@@ -231,6 +245,9 @@ export default function PaperBriefsPage() {
                   <span className={styles.episodeCitations}>{fmtCitations(ep.citations)} cit.</span>
                   <span className={styles.episodeDuration}>{fmtDuration(ep.durationSeconds)}</span>
                 </div>
+                <a href={ep.briefHref} className={styles.episodePaperLink} aria-label="View brief">
+                  <BriefIcon />
+                </a>
                 <a href={ep.link} target="_blank" rel="noopener noreferrer" className={styles.episodePaperLink} aria-label="Read paper">
                   <PaperIcon />
                 </a>

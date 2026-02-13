@@ -1,30 +1,12 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import styles from "@/components/agent/topic-map.module.css";
+import styles from "./topic-map.module.css";
 import { AgentHeader, StatusBadge, LoadingState, ErrorState, EmptyState } from "@/components/agent";
 import { AccessGate } from "@/components/AccessGate";
 import { useAuth } from "@/lib/auth";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
-// ─── Company Registry ───
-
-interface CompanyDef {
-  id: string;
-  label: string;
-}
-
-const COMPANIES: CompanyDef[] = [
-  { id: "openai", label: "OpenAI" },
-  { id: "google", label: "Google" },
-  { id: "microsoft", label: "Microsoft" },
-  { id: "apple", label: "Apple" },
-  { id: "nvidia", label: "NVIDIA" },
-  { id: "meta", label: "Meta" },
-];
-
-const DEFAULT_COMPANY = COMPANIES[0];
 
 // ─── Types ───
 
@@ -77,6 +59,21 @@ interface TimelineResponse {
   weeks: TimelineWeek[];
 }
 
+// ─── Props ───
+
+export interface TopicMapAgentProps {
+  /** API topic key, e.g. "openai", "google" */
+  topicId: string;
+  /** Display label, e.g. "OpenAI" */
+  label: string;
+  /** Agent page title shown in header */
+  title: string;
+  /** Short description for the agent header */
+  description: string;
+  /** Domain tag shown above the title */
+  domain?: string;
+}
+
 // ─── Helpers ───
 
 function formatWeekRange(start: string, end: string): string {
@@ -101,7 +98,7 @@ function formatEvidenceDate(ts: string): string {
   return `${months[m]} ${parseInt(parts[2], 10)}`;
 }
 
-// ─── Components (page-specific) ───
+// ─── Sub-components ───
 
 function EvidenceCard({ item }: { item: EvidenceItem }) {
   return (
@@ -148,46 +145,6 @@ function ClusterCard({ cluster, defaultOpen }: { cluster: Cluster; defaultOpen?:
           ))}
         </div>
       )}
-    </div>
-  );
-}
-
-function CompanySelector({
-  companies,
-  activeId,
-  onChange,
-  loading,
-  hasPro,
-  onLocked,
-}: {
-  companies: CompanyDef[];
-  activeId: string;
-  onChange: (id: string) => void;
-  loading: boolean;
-  hasPro: boolean;
-  onLocked: () => void;
-}) {
-  return (
-    <div className={styles.companySelector}>
-      {companies.map((c, idx) => {
-        const isFree = idx === 0;
-        const locked = !isFree && !hasPro;
-        return (
-          <div key={c.id} className={styles.companyChipWrap}>
-            <button
-              className={`${styles.companyChip} ${activeId === c.id ? styles.companyChipActive : ""} ${locked ? styles.companyChipLocked : ""}`}
-              onClick={() => {
-                if (locked) { onLocked(); return; }
-                onChange(c.id);
-              }}
-              disabled={loading}
-            >
-              {c.label}
-            </button>
-            {locked && <div className={styles.companyChipTooltip}>Pro feature</div>}
-          </div>
-        );
-      })}
     </div>
   );
 }
@@ -278,10 +235,15 @@ function TimelineView({ data }: { data: TimelineResponse }) {
   );
 }
 
-// ─── Main Page ───
+// ─── Main Shared Component ───
 
-export default function BigTechEvolutionPage() {
-  const [activeCompany, setActiveCompany] = useState<CompanyDef>(DEFAULT_COMPANY);
+export default function TopicMapAgent({
+  topicId,
+  label,
+  title,
+  description,
+  domain = "Technology",
+}: TopicMapAgentProps) {
   const [view, setView] = useState<"week" | "timeline">("week");
   const [weekData, setWeekData] = useState<WeeklyBrief | null>(null);
   const [timelineData, setTimelineData] = useState<TimelineResponse | null>(null);
@@ -289,15 +251,15 @@ export default function BigTechEvolutionPage() {
   const [error, setError] = useState<string | null>(null);
   const { canAccess, login } = useAuth();
 
-  const loadData = useCallback(async (company: CompanyDef) => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     setWeekData(null);
     setTimelineData(null);
     try {
       const [weekRes, timelineRes] = await Promise.all([
-        fetch(`${API_BASE}/api/v1/techmap/topic/${company.id}`, { cache: "no-store" }),
-        fetch(`${API_BASE}/api/v1/techmap/topic/${company.id}/timeline?weeks=8`, { cache: "no-store" }),
+        fetch(`${API_BASE}/api/v1/techmap/topic/${topicId}`, { cache: "no-store" }),
+        fetch(`${API_BASE}/api/v1/techmap/topic/${topicId}/timeline?weeks=8`, { cache: "no-store" }),
       ]);
       if (!weekRes.ok) throw new Error(`API error: ${weekRes.status}`);
       if (!timelineRes.ok) throw new Error(`Timeline API error: ${timelineRes.status}`);
@@ -308,18 +270,11 @@ export default function BigTechEvolutionPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [topicId]);
 
   useEffect(() => {
-    loadData(activeCompany);
-  }, [activeCompany, loadData]);
-
-  const handleCompanyChange = (id: string) => {
-    const found = COMPANIES.find((c) => c.id === id);
-    if (found && found.id !== activeCompany.id) {
-      setActiveCompany(found);
-    }
-  };
+    loadData();
+  }, [loadData]);
 
   const clusterCount = weekData?.clusters?.length || 0;
   const evidenceCount = weekData
@@ -327,16 +282,14 @@ export default function BigTechEvolutionPage() {
     : 0;
 
   const hasTimeline = canAccess("auth");
-  const hasPro = canAccess("pro");
 
   return (
     <div className={styles.page}>
       <AgentHeader
-        domain="Technology"
-        title="Big Tech Evolution"
-        description="Weekly analysis of product launches, strategy shifts, and ecosystem developments across major technology companies."
+        domain={domain}
+        title={title}
+        description={description}
         meta={[
-          { label: "Companies", value: String(COMPANIES.length) },
           { label: "Topics this week", value: String(clusterCount) },
           { label: "Sources", value: String(evidenceCount) },
           { label: "Status", value: <StatusBadge status="live" /> },
@@ -344,14 +297,7 @@ export default function BigTechEvolutionPage() {
       />
 
       <div className={styles.controlsBar}>
-        <CompanySelector
-          companies={COMPANIES}
-          activeId={activeCompany.id}
-          onChange={handleCompanyChange}
-          loading={loading}
-          hasPro={hasPro}
-          onLocked={() => { window.location.href = "/pricing"; }}
-        />
+        <div /> {/* Left side empty — no company selector needed */}
         <div className={styles.viewToggle}>
           <button
             className={`${styles.viewTab} ${view === "week" ? styles.viewTabActive : ""}`}
@@ -383,7 +329,7 @@ export default function BigTechEvolutionPage() {
       {weekData && !loading && (
         <div className={styles.companyHeader}>
           <h2 className={styles.companyTitle}>
-            {weekData.company || activeCompany.label}
+            {weekData.company || label}
           </h2>
           <p className={styles.companySubtitle}>
             Week of {formatWeekRange(weekData.weekStartUtc, weekData.weekEndUtc)}
@@ -392,8 +338,8 @@ export default function BigTechEvolutionPage() {
       )}
 
       <main className={styles.content}>
-        {loading && <LoadingState message={`Loading ${activeCompany.label} weekly brief…`} />}
-        {error && <ErrorState message={error} onRetry={() => loadData(activeCompany)} />}
+        {loading && <LoadingState message={`Loading ${label} weekly brief…`} />}
+        {error && <ErrorState message={error} onRetry={loadData} />}
         {!loading && !error && view === "week" && weekData && <WeekView data={weekData} />}
         {!loading && !error && view === "timeline" && hasTimeline && timelineData && <TimelineView data={timelineData} />}
         {!loading && !error && view === "timeline" && !hasTimeline && (
