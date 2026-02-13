@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/auth";
+import { fetchNotificationCount } from "@/lib/api";
+import { NotificationFeed } from "@/components/notifications";
 import styles from "./dashboard.module.css";
 
 /* ─── Agent Registry (shared source of truth) ─── */
@@ -436,11 +438,12 @@ const FILTER_CHIPS: FilterChip[] = [
 
 export default function Dashboard() {
   const { user, tier } = useAuth();
-  const [tab, setTab] = useState<"feed" | "explore">("feed");
+  const [tab, setTab] = useState<"feed" | "updates" | "explore">("feed");
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [hydrated, setHydrated] = useState(false);
   const [query, setQuery] = useState("");
   const [activeChip, setActiveChip] = useState<string | null>(null);
+  const [notifCount, setNotifCount] = useState(0);
 
   useEffect(() => {
     const loaded = loadFavorites();
@@ -448,6 +451,20 @@ export default function Dashboard() {
     if (loaded.size === 0) setTab("explore");
     setHydrated(true);
   }, []);
+
+  // Fetch notification count on mount
+  useEffect(() => {
+    fetchNotificationCount()
+      .then((res) => setNotifCount(res.count || 0))
+      .catch(() => setNotifCount(0));
+  }, []);
+
+  // If user has no favorites but has notifications, default to updates tab
+  useEffect(() => {
+    if (hydrated && favorites.size === 0 && notifCount > 0) {
+      setTab("updates");
+    }
+  }, [hydrated, notifCount, favorites.size]);
 
   const toggleFavorite = useCallback((href: string) => {
     setFavorites((prev) => {
@@ -499,6 +516,22 @@ export default function Dashboard() {
           <span className={styles.logoText}>FinanceLab</span>
         </a>
         <div className={styles.topBarRight}>
+          <button
+            className={styles.bellBtn}
+            onClick={() => setTab("updates")}
+            aria-label="Updates"
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path
+                d="M7.5 15.5a1.5 1.5 0 003 0M9 2a5 5 0 00-5 5c0 2.5-.5 4-1.5 5h13C14.5 11 14 9.5 14 7a5 5 0 00-5-5z"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            {notifCount > 0 && <span className={styles.bellDot} />}
+          </button>
           {tier === "pro" && <span className={styles.proBadge}>Pro</span>}
           <a href="/settings" className={styles.avatarLink}>
             {user?.picture_url ? (
@@ -521,6 +554,10 @@ export default function Dashboard() {
           <button className={`${styles.tab} ${tab === "feed" ? styles.tabActive : ""}`} onClick={() => setTab("feed")}>
             My Feed
             {favorites.size > 0 && <span className={styles.tabCount}>{favorites.size}</span>}
+          </button>
+          <button className={`${styles.tab} ${tab === "updates" ? styles.tabActive : ""}`} onClick={() => setTab("updates")}>
+            Updates
+            {notifCount > 0 && <span className={styles.tabCount}>{notifCount}</span>}
           </button>
           <button className={`${styles.tab} ${tab === "explore" ? styles.tabActive : ""}`} onClick={() => setTab("explore")}>
             Explore
@@ -605,6 +642,12 @@ export default function Dashboard() {
               ))
             )}
           </>
+        )}
+
+        {tab === "updates" && (
+          <NotificationFeed
+            onCountChange={(count) => setNotifCount(count)}
+          />
         )}
 
         {tab === "explore" && (

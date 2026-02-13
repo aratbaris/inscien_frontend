@@ -1,0 +1,364 @@
+.wrap {
+  width: 100%;
+}
+
+/* ─── Header ─── */
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text, #1a1a1f);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.weekRange {
+  font-size: 12.5px;
+  color: var(--text-3, #9b9ba8);
+}
+
+.weekPicker {
+  height: 30px;
+  padding: 0 26px 0 10px;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-2, #5a5a66);
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border, #dddde3);
+  border-radius: 6px;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='8' height='5' viewBox='0 0 8 5' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L4 4L7 1' stroke='%239b9ba8' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  flex-shrink: 0;
+}
+
+.weekPicker:hover {
+  border-color: var(--text-3, #c5c5ce);
+}
+
+/* ─── Panel (single bordered container) ─── */
+
+.panel {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border, #e0e0e6);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* ─── Sections ─── */
+
+.section {
+  border-bottom: 1px solid var(--border, #e8e8ee);
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.sectionOpen {
+  background: var(--bg-surface, #f8f8fa);
+}
+
+/* ─── Disclosure Row ─── */
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.row:hover {
+  background: var(--bg-hover, #fafafc);
+}
+
+.rowOpen {
+  background: none;
+}
+
+.rowOpen:hover {
+  background: none;
+}
+
+.rowLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text, #1a1a1f);
+}
+
+.rowRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.count {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-3, #9b9ba8);
+  min-width: 16px;
+  text-align: right;
+}
+
+.chevron {
+  color: var(--text-3, #c5c5ce);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+/* ─── Disclosure (expanded items) ─── */
+
+.disclosure {
+  padding: 0 16px 12px 16px;
+}
+
+.disclosureInner {
+  border-radius: 0;
+  padding: 0 14px;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-inner, #e4e4ea);
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.1s;
+}
+
+.item:last-of-type {
+  border-bottom: none;
+}
+
+.item:hover {
+  opacity: 0.65;
+}
+
+.itemMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.itemSource {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-3, #78788a);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.itemDate {
+  font-size: 11px;
+  color: var(--text-3, #9b9ba8);
+  white-space: nowrap;
+}
+
+.itemTitle {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text, #1a1a1f);
+  line-height: 1.4;
+}
+
+/* ─── Disclosure Footer ─── */
+
+.disclosureFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.monitorBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px 5px 14px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-2, #5a5a66);
+  text-decoration: none;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border, #e0e0e6);
+  border-radius: 6px;
+  transition: all 0.12s;
+}
+
+.monitorBtn:hover {
+  color: var(--text, #1a1a1f);
+  border-color: var(--text-3, #c5c5ce);
+}
+
+.monitorBtn svg {
+  flex-shrink: 0;
+}
+
+/* ─── Share Button + Popover ─── */
+
+.shareWrap {
+  position: relative;
+}
+
+.shareTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  font-family: var(--sans);
+  color: var(--text-3, #9b9ba8);
+  background: none;
+  border: 1px solid var(--border, #e0e0e6);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.shareTrigger:hover {
+  color: var(--text-2, #5a5a66);
+  border-color: var(--text-3, #c5c5ce);
+}
+
+.sharePopover {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  min-width: 180px;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border, #e0e0e6);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+  padding: 4px;
+  z-index: 50;
+}
+
+.shareOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--sans);
+  color: var(--text, #1a1a1f);
+  background: none;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.1s;
+  text-align: left;
+}
+
+.shareOption:hover {
+  background: var(--bg-hover, #f5f5f8);
+}
+
+.shareOption svg {
+  color: var(--text-3, #9b9ba8);
+  flex-shrink: 0;
+}
+
+/* ─── Quiet row ─── */
+
+.quietRow {
+  padding: 32px 16px;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--text-3, #9b9ba8);
+}
+
+/* ─── States ─── */
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 64px 24px;
+  text-align: center;
+}
+
+.muted {
+  font-size: 14px;
+  color: var(--text-3, #9b9ba8);
+}
+
+.error {
+  font-size: 13.5px;
+  color: #b91c1c;
+}
+
+.retryBtn {
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--sans);
+  color: var(--text, #1a1a1f);
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border, #dddde3);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.retryBtn:hover {
+  background: var(--bg-hover, #f0f0f4);
+}
+
+/* ─── Responsive ─── */
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .row {
+    padding: 12px 14px;
+  }
+
+  .disclosure {
+    padding: 0 14px 10px 14px;
+  }
+
+  .disclosureInner {
+    padding: 4px 12px;
+  }
+
+  .disclosureFooter {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}

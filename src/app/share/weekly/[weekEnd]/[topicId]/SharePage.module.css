@@ -1,0 +1,196 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 20px 80px;
+  background: #f4f4f7;
+  font-family: var(--sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 80px 24px;
+  color: #9b9ba8;
+  font-size: 14px;
+}
+
+/* ─── Card ─── */
+
+.card {
+  max-width: 640px;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e0e0e6;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+  border-bottom: 1px solid #ededf2;
+}
+
+.brand {
+  font-size: 13px;
+  font-weight: 700;
+  color: #4c566a;
+  letter-spacing: -0.02em;
+}
+
+.headerSep {
+  font-size: 13px;
+  color: #c5c5ce;
+}
+
+.headerMeta {
+  font-size: 13px;
+  font-weight: 500;
+  color: #9b9ba8;
+}
+
+.topicTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1f;
+  margin: 0;
+  padding: 24px 24px 0;
+  letter-spacing: -0.02em;
+}
+
+.weekRange {
+  font-size: 14px;
+  color: #9b9ba8;
+  padding: 4px 24px 0;
+  margin: 0;
+}
+
+/* ─── Items ─── */
+
+.itemList {
+  padding: 20px 24px 8px;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px 0;
+  border-bottom: 1px solid #f0f0f4;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.12s;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.item:hover {
+  opacity: 0.65;
+}
+
+.itemMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.itemSource {
+  font-size: 11px;
+  font-weight: 600;
+  color: #78788a;
+  letter-spacing: 0.03em;
+}
+
+.itemDate {
+  font-size: 11px;
+  color: #9b9ba8;
+}
+
+.itemTitle {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a1a1f;
+  line-height: 1.45;
+}
+
+/* ─── Footer ─── */
+
+.cardFooter {
+  padding: 16px 24px 20px;
+  border-top: 1px solid #ededf2;
+}
+
+.ctaBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #ffffff;
+  background: #1a1a1f;
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: opacity 0.12s;
+}
+
+.ctaBtn:hover {
+  opacity: 0.85;
+}
+
+/* ─── Error ─── */
+
+.errorTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1f;
+  margin: 0 0 8px;
+}
+
+.errorDesc {
+  font-size: 14px;
+  color: #9b9ba8;
+  margin: 0 0 20px;
+}
+
+/* ─── Responsive ─── */
+
+@media (max-width: 680px) {
+  .page {
+    padding: 20px 12px 60px;
+  }
+
+  .card {
+    border-radius: 10px;
+  }
+
+  .topicTitle {
+    font-size: 19px;
+    padding: 20px 18px 0;
+  }
+
+  .weekRange {
+    padding: 4px 18px 0;
+  }
+
+  .itemList {
+    padding: 16px 18px 4px;
+  }
+
+  .cardHeader {
+    padding: 14px 18px;
+  }
+
+  .cardFooter {
+    padding: 14px 18px 18px;
+  }
+}

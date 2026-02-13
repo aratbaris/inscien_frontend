@@ -596,3 +596,37 @@
     gap: 10px;
   }
 }
+
+/* ─── Bell Button ─── */
+
+.bellBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--text-3, #8a8a98);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.bellBtn:hover {
+  color: var(--text, #1a1a1f);
+  background: var(--bg-hover, #f2f2f5);
+  border-color: var(--border, #dddde3);
+}
+
+.bellDot {
+  position: absolute;
+  top: 6px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #dc2626;
+  border: 1.5px solid rgba(247, 247, 249, 0.92);
+}
