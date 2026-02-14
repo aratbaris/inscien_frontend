@@ -5,6 +5,7 @@ import styles from "./volatility-analysis.module.css";
 import { AgentHeader, StatusBadge, LoadingState, ErrorState } from "@/components/agent";
 import { AccessGate } from "@/components/AccessGate";
 import { useAuth } from "@/lib/auth";
+import { getAnalysisSections } from "@/lib/agent-access";
 import {
   LineChart,
   Line,
@@ -267,8 +268,6 @@ function SectionRenderer({ section }: { section: Section }) {
 
 // ─── Main Component ───
 
-const FREE_SECTIONS = 1;
-
 export default function VolatilityAnalysisAgent({
   ticker,
   title,
@@ -282,7 +281,7 @@ export default function VolatilityAnalysisAgent({
   const [error, setError] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState("");
   const observerRef = useRef<IntersectionObserver | null>(null);
-  const { canAccess } = useAuth();
+  const { tier } = useAuth();
 
   const loadReport = useCallback(async () => {
     setLoading(true);
@@ -325,6 +324,12 @@ export default function VolatilityAnalysisAgent({
     ? `${report.data_range.start.substring(0, 4)}–${report.data_range.end.substring(0, 4)}`
     : null;
 
+  // Resolve access: how many sections to show and what gate to use
+  const accessInfo = useMemo(() => {
+    if (!report) return null;
+    return getAnalysisSections(ticker, tier, report.sections.length);
+  }, [ticker, tier, report]);
+
   return (
     <div className={styles.page}>
       <AgentHeader
@@ -355,14 +360,24 @@ export default function VolatilityAnalysisAgent({
       <main className={styles.content}>
         {loading && <LoadingState message={`Loading ${ticker} analysis…`} />}
         {error && <ErrorState message={error} onRetry={loadReport} />}
-        {!loading && !error && report && (
+        {!loading && !error && report && accessInfo && (
           <div className={styles.sections}>
-            {report.sections.slice(0, FREE_SECTIONS).map((section) => (
+            {/* Visible sections (free preview) */}
+            {report.sections.slice(0, accessInfo.visibleCount).map((section) => (
               <SectionRenderer key={section.id} section={section} />
             ))}
-            {report.sections.length > FREE_SECTIONS && (
-              <AccessGate requires="auth" featureLabel="the full analysis">
-                {report.sections.slice(FREE_SECTIONS).map((section) => (
+
+            {/* Gated sections (if any remain) */}
+            {accessInfo.gateType !== "none" && accessInfo.visibleCount < report.sections.length && (
+              <AccessGate
+                requires={accessInfo.gateType}
+                featureLabel={
+                  accessInfo.gateType === "pro"
+                    ? `the full ${ticker} analysis`
+                    : "the full analysis"
+                }
+              >
+                {report.sections.slice(accessInfo.visibleCount).map((section) => (
                   <SectionRenderer key={section.id} section={section} />
                 ))}
               </AccessGate>

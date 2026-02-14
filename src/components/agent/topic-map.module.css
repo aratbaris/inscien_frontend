@@ -107,7 +107,7 @@
 .companyHeader {
   max-width: 1120px;
   margin: 0 auto;
-  padding: 0 40px 16px;
+  padding: 0 40px 20px;
 }
 
 .companyTitle {
@@ -123,6 +123,15 @@
   font-size: 14px;
   color: #8a8a98;
   line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.companyTopicCount {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8a8a98;
 }
 
 /* VIEW TOGGLE */
@@ -143,6 +152,8 @@
   border: none;
   cursor: pointer;
   transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
 }
 
 .viewTab:not(:last-child) {
@@ -216,25 +227,6 @@
   max-width: 780px;
 }
 
-.weekMeta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.weekRange {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1a1a1f;
-}
-
-.weekClusterCount {
-  font-size: 12px;
-  font-weight: 500;
-  color: #8a8a98;
-}
-
 .clusterList {
   display: flex;
   flex-direction: column;
@@ -282,17 +274,14 @@
   color: #1a1a1f;
 }
 
-.clusterStats {
-  flex-shrink: 0;
-}
-
 .clusterCount {
   font-size: 11px;
   font-weight: 600;
   color: #1e4fd8;
-  background: rgba(30, 79, 216, 0.08);
-  padding: 3px 10px;
-  border-radius: 12px;
+  border: 1px solid rgba(30, 79, 216, 0.25);
+  background: transparent;
+  padding: 2px 9px;
+  border-radius: 4px;
   white-space: nowrap;
 }
 
@@ -316,15 +305,19 @@
   font-size: 13.5px;
   color: #4a4a56;
   line-height: 1.55;
-  padding-left: 14px;
+  padding-left: 16px;
   position: relative;
 }
 
 .takeaway::before {
-  content: "–";
+  content: "";
   position: absolute;
-  left: 0;
-  color: #c5c5ce;
+  left: 2px;
+  top: 8px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #c5c5ce;
 }
 
 /* EVIDENCE IN CLUSTER */
@@ -492,9 +485,10 @@
   font-size: 11px;
   font-weight: 600;
   color: #1e4fd8;
-  background: rgba(30, 79, 216, 0.08);
+  border: 1px solid rgba(30, 79, 216, 0.25);
+  background: transparent;
   padding: 2px 8px;
-  border-radius: 10px;
+  border-radius: 4px;
   white-space: nowrap;
 }
 
@@ -509,8 +503,41 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  padding-top: 8px;
+}
+
+.timelineEvidenceWrap {
   border-top: 1px solid #ebebf0;
   padding-top: 12px;
+  margin-top: 4px;
+}
+
+.timelineEvidenceToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  color: #8a8a98;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.timelineEvidenceToggle:hover {
+  color: #4a4a56;
+}
+
+.chevronDown {
+  transition: transform 0.15s;
+}
+
+.chevronUp {
+  transform: rotate(180deg);
+  transition: transform 0.15s;
 }
 
 /* RESPONSIVE */

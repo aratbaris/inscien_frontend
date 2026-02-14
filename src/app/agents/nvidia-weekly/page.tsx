@@ -7,7 +7,7 @@ export default function NvidiaWeeklyPage() {
     <TopicMapAgent
       topicId="nvidia"
       label="NVIDIA"
-      title="NVIDIA Weekly Topic Map"
+      title="NVIDIA Weekly Brief"
       description="Weekly analysis of GPU architecture, data center strategy, AI compute developments, and supply chain shifts from NVIDIA."
     />
   );

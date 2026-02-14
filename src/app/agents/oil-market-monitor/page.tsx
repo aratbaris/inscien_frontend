@@ -10,7 +10,6 @@ export default function OilMarketMonitorPage() {
       title="Oil Market Monitor"
       description="EIA inventories, OPEC actions, sanctions decisions, supply disruptions, and demand signals affecting oil markets."
       emptyHint="This can happen on days with no material supply disruptions or policy actions."
-      historyDepth={14}
     />
   );
 }

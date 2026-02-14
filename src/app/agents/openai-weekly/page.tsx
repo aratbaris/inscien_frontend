@@ -7,7 +7,7 @@ export default function OpenAIWeeklyPage() {
     <TopicMapAgent
       topicId="openai"
       label="OpenAI"
-      title="OpenAI Weekly Topic Map"
+      title="OpenAI Weekly Brief"
       description="Weekly analysis of product launches, API updates, partnerships, and strategic developments from OpenAI."
     />
   );

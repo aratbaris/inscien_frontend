@@ -7,7 +7,7 @@ export default function MicrosoftWeeklyPage() {
     <TopicMapAgent
       topicId="microsoft"
       label="Microsoft"
-      title="Microsoft Weekly Topic Map"
+      title="Microsoft Weekly Brief"
       description="Weekly analysis of Azure strategy, AI integration, enterprise developments, and ecosystem shifts from Microsoft."
     />
   );

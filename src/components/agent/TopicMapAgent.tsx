@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import styles from "./topic-map.module.css";
 import { AgentHeader, StatusBadge, LoadingState, ErrorState, EmptyState } from "@/components/agent";
 import { AccessGate } from "@/components/AccessGate";
 import { useAuth } from "@/lib/auth";
+import { getTopicMapAccess } from "@/lib/agent-access";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -62,15 +63,10 @@ interface TimelineResponse {
 // ─── Props ───
 
 export interface TopicMapAgentProps {
-  /** API topic key, e.g. "openai", "google" */
   topicId: string;
-  /** Display label, e.g. "OpenAI" */
   label: string;
-  /** Agent page title shown in header */
   title: string;
-  /** Short description for the agent header */
   description: string;
-  /** Domain tag shown above the title */
   domain?: string;
 }
 
@@ -85,7 +81,7 @@ function formatWeekRange(start: string, end: string): string {
     const m = parseInt(parts[1], 10) - 1;
     return `${months[m]} ${parseInt(parts[2], 10)}`;
   };
-  return `${fmt(start)} – ${fmt(end)}`;
+  return `${fmt(start)} to ${fmt(end)}`;
 }
 
 function formatEvidenceDate(ts: string): string {
@@ -108,7 +104,7 @@ function EvidenceCard({ item }: { item: EvidenceItem }) {
         <span className={styles.evidenceSource}>{item.source}</span>
         {item.timestamp && (
           <>
-            <span className={styles.evidenceDot}>·</span>
+            <span className={styles.evidenceDot}>&middot;</span>
             <span>{formatEvidenceDate(item.timestamp)}</span>
           </>
         )}
@@ -117,17 +113,50 @@ function EvidenceCard({ item }: { item: EvidenceItem }) {
   );
 }
 
-function ClusterCard({ cluster, defaultOpen }: { cluster: Cluster; defaultOpen?: boolean }) {
-  const [expanded, setExpanded] = useState(defaultOpen || false);
+function TimelineEvidence({ evidence }: { evidence: EvidenceItem[] }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className={styles.timelineEvidenceWrap}>
+      <button
+        className={styles.timelineEvidenceToggle}
+        onClick={() => setExpanded(!expanded)}
+      >
+        {expanded ? "Hide sources" : `Show ${evidence.length} sources`}
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={expanded ? styles.chevronUp : styles.chevronDown}
+        >
+          <path d="M4 6L8 10L12 6" />
+        </svg>
+      </button>
+      {expanded && (
+        <div className={styles.timelineClusterEvidence}>
+          {evidence.map((ev, idx) => (
+            <EvidenceCard key={`${ev.url}-${idx}`} item={ev} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ClusterCard({ cluster }: { cluster: Cluster }) {
+  const [expanded, setExpanded] = useState(false);
 
   return (
     <div className={styles.clusterCard}>
       <button className={styles.clusterHeader} onClick={() => setExpanded(!expanded)}>
         <div className={styles.clusterInfo}>
           <h3 className={styles.clusterLabel}>{cluster.label}</h3>
-          <div className={styles.clusterStats}>
-            <span className={styles.clusterCount}>{cluster.evidence.length} sources</span>
-          </div>
+          <span className={styles.clusterCount}>{cluster.evidence.length} sources</span>
         </div>
         <span className={styles.clusterToggle}>{expanded ? "−" : "+"}</span>
       </button>
@@ -152,17 +181,9 @@ function ClusterCard({ cluster, defaultOpen }: { cluster: Cluster; defaultOpen?:
 function WeekView({ data }: { data: WeeklyBrief }) {
   return (
     <div className={styles.weekView}>
-      <div className={styles.weekMeta}>
-        <span className={styles.weekRange}>
-          {formatWeekRange(data.weekStartUtc, data.weekEndUtc)}
-        </span>
-        <span className={styles.weekClusterCount}>
-          {data.clusters.length} topic{data.clusters.length !== 1 ? "s" : ""}
-        </span>
-      </div>
       <div className={styles.clusterList}>
-        {data.clusters.map((cluster, idx) => (
-          <ClusterCard key={cluster.label} cluster={cluster} defaultOpen={idx === 0} />
+        {data.clusters.map((cluster) => (
+          <ClusterCard key={cluster.label} cluster={cluster} />
         ))}
       </div>
       {data.clusters.length === 0 && (
@@ -173,9 +194,7 @@ function WeekView({ data }: { data: WeeklyBrief }) {
 }
 
 function TimelineView({ data }: { data: TimelineResponse }) {
-  const [expandedWeek, setExpandedWeek] = useState<string | null>(
-    data.weeks.length > 0 ? data.weeks[0].weekKey : null
-  );
+  const [expandedWeek, setExpandedWeek] = useState<string | null>(null);
 
   return (
     <div className={styles.timeline}>
@@ -215,11 +234,7 @@ function TimelineView({ data }: { data: TimelineResponse }) {
                       ))}
                     </div>
                     {cluster.evidence && cluster.evidence.length > 0 && (
-                      <div className={styles.timelineClusterEvidence}>
-                        {cluster.evidence.map((ev, idx) => (
-                          <EvidenceCard key={`${ev.url}-${idx}`} item={ev} />
-                        ))}
-                      </div>
+                      <TimelineEvidence evidence={cluster.evidence} />
                     )}
                   </div>
                 ))}
@@ -242,14 +257,19 @@ export default function TopicMapAgent({
   label,
   title,
   description,
-  domain = "Technology",
+  domain = "Weekly Brief",
 }: TopicMapAgentProps) {
   const [view, setView] = useState<"week" | "timeline">("week");
   const [weekData, setWeekData] = useState<WeeklyBrief | null>(null);
   const [timelineData, setTimelineData] = useState<TimelineResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { canAccess, login } = useAuth();
+  const { tier, login } = useAuth();
+
+  const topicAccess = useMemo(
+    () => getTopicMapAccess(topicId, tier),
+    [topicId, tier]
+  );
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -257,20 +277,28 @@ export default function TopicMapAgent({
     setWeekData(null);
     setTimelineData(null);
     try {
-      const [weekRes, timelineRes] = await Promise.all([
-        fetch(`${API_BASE}/api/v1/techmap/topic/${topicId}`, { cache: "no-store" }),
-        fetch(`${API_BASE}/api/v1/techmap/topic/${topicId}/timeline?weeks=8`, { cache: "no-store" }),
-      ]);
+      const weekRes = await fetch(
+        `${API_BASE}/api/v1/techmap/topic/${topicId}`,
+        { cache: "no-store" }
+      );
       if (!weekRes.ok) throw new Error(`API error: ${weekRes.status}`);
-      if (!timelineRes.ok) throw new Error(`Timeline API error: ${timelineRes.status}`);
       setWeekData(await weekRes.json());
-      setTimelineData(await timelineRes.json());
+
+      if (topicAccess.timelineWeeks > 0) {
+        const timelineRes = await fetch(
+          `${API_BASE}/api/v1/techmap/topic/${topicId}/timeline?weeks=${topicAccess.timelineWeeks}`,
+          { cache: "no-store" }
+        );
+        if (timelineRes.ok) {
+          setTimelineData(await timelineRes.json());
+        }
+      }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to load data");
     } finally {
       setLoading(false);
     }
-  }, [topicId]);
+  }, [topicId, topicAccess.timelineWeeks]);
 
   useEffect(() => {
     loadData();
@@ -281,7 +309,8 @@ export default function TopicMapAgent({
     ? weekData.clusters.reduce((sum, c) => sum + (c.evidence?.length || 0), 0)
     : 0;
 
-  const hasTimeline = canAccess("auth");
+  const hasTimelineAccess = topicAccess.timelineWeeks > 0;
+  const timelineGateType = topicAccess.gateType;
 
   return (
     <div className={styles.page}>
@@ -297,7 +326,7 @@ export default function TopicMapAgent({
       />
 
       <div className={styles.controlsBar}>
-        <div /> {/* Left side empty — no company selector needed */}
+        <div />
         <div className={styles.viewToggle}>
           <button
             className={`${styles.viewTab} ${view === "week" ? styles.viewTabActive : ""}`}
@@ -305,14 +334,15 @@ export default function TopicMapAgent({
           >
             This week
           </button>
-          {hasTimeline ? (
+
+          {hasTimelineAccess ? (
             <button
               className={`${styles.viewTab} ${view === "timeline" ? styles.viewTabActive : ""}`}
               onClick={() => setView("timeline")}
             >
-              Timeline
+              Timeline{topicAccess.timelineWeeks < 8 ? ` (${topicAccess.timelineWeeks}w)` : ""}
             </button>
-          ) : (
+          ) : timelineGateType === "auth" ? (
             <div className={styles.viewTabLockedWrap}>
               <button
                 className={`${styles.viewTab} ${styles.viewTabLocked}`}
@@ -322,28 +352,55 @@ export default function TopicMapAgent({
               </button>
               <div className={styles.viewTabTooltip}>Sign in to access timeline</div>
             </div>
-          )}
+          ) : timelineGateType === "pro" ? (
+            <div className={styles.viewTabLockedWrap}>
+              <button
+                className={`${styles.viewTab} ${styles.viewTabLocked}`}
+                onClick={() => setView("timeline")}
+              >
+                Timeline
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 4 }}>
+                  <rect x="4" y="7" width="8" height="7" rx="1" />
+                  <path d="M6 7V5a2 2 0 114 0v2" />
+                </svg>
+              </button>
+              <div className={styles.viewTabTooltip}>Upgrade to Pro for timeline</div>
+            </div>
+          ) : null}
         </div>
       </div>
 
-      {weekData && !loading && (
+      {weekData && !loading && view === "week" && (
         <div className={styles.companyHeader}>
           <h2 className={styles.companyTitle}>
             {weekData.company || label}
           </h2>
           <p className={styles.companySubtitle}>
             Week of {formatWeekRange(weekData.weekStartUtc, weekData.weekEndUtc)}
+            <span className={styles.companyTopicCount}>
+              {clusterCount} topic{clusterCount !== 1 ? "s" : ""}
+            </span>
           </p>
         </div>
       )}
 
       <main className={styles.content}>
-        {loading && <LoadingState message={`Loading ${label} weekly brief…`} />}
+        {loading && <LoadingState message={`Loading ${label} weekly brief...`} />}
         {error && <ErrorState message={error} onRetry={loadData} />}
-        {!loading && !error && view === "week" && weekData && <WeekView data={weekData} />}
-        {!loading && !error && view === "timeline" && hasTimeline && timelineData && <TimelineView data={timelineData} />}
-        {!loading && !error && view === "timeline" && !hasTimeline && (
-          <AccessGate requires="auth" featureLabel="the weekly timeline">
+
+        {!loading && !error && view === "week" && weekData && (
+          <WeekView data={weekData} />
+        )}
+
+        {!loading && !error && view === "timeline" && hasTimelineAccess && timelineData && (
+          <TimelineView data={timelineData} />
+        )}
+
+        {!loading && !error && view === "timeline" && !hasTimelineAccess && (
+          <AccessGate
+            requires={timelineGateType as "auth" | "pro"}
+            featureLabel="the weekly timeline"
+          >
             <div />
           </AccessGate>
         )}

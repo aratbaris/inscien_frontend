@@ -1,168 +1,86 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth";
 import styles from "./landing.module.css";
 
-/* ─── Agent Catalog ─── */
+/* ─── Agent Catalog (landing subset: up to 3 per section) ─── */
 
 interface Agent {
-  status: "live" | "soon";
   name: string;
   href: string;
   desc: string;
   cadence: string;
   artifact: string;
+  access: "free" | "trial";
 }
 
-/* Monthly Market Reviews */
-const monthlyReviewAgents: Agent[] = [
-  {
-    status: "live",
-    name: "S&P Long-Term Performance",
-    href: "/agents/market-returns",
-    desc: "Comprehensive S&P 500 analysis covering risk-return snapshots, volatility regimes, Sharpe ratios, and bootstrap simulations.",
-    cadence: "Monthly",
-    artifact: "Analysis report",
-  },
-  {
-    status: "live",
-    name: "U.S. Macro Dashboard",
-    href: "/agents/macro-dashboard",
-    desc: "Unified view of rates, inflation, GDP, and federal debt with FRED data.",
-    cadence: "Monthly",
-    artifact: "Analysis report",
-  },
+const marketAnalysisAgents: Agent[] = [
+  { name: "S&P 500 Market Analysis", href: "/agents/analysis/spy", desc: "Volatility regimes, tail risk, drawdowns, and short-term forecasts.", cadence: "Daily", artifact: "Analysis report", access: "free" },
+  { name: "QQQ Volatility & Risk", href: "/agents/analysis/qqq", desc: "Realized volatility and risk metrics for the Nasdaq-100 ETF.", cadence: "Daily", artifact: "Analysis report", access: "trial" },
+  { name: "U.S. Macro Dashboard", href: "/agents/macro-dashboard", desc: "Rates, inflation, GDP, and federal debt from FRED data.", cadence: "Monthly", artifact: "Analysis report", access: "free" },
 ];
 
-/* Daily Analysis */
-const dailyAnalysisAgents: Agent[] = [
-  {
-    status: "live",
-    name: "Volatility Lab",
-    href: "/agents/volatility-lab",
-    desc: "Analyzes realized volatility across multiple windows with distributional statistics and short-term forecasts for any ticker.",
-    cadence: "Daily",
-    artifact: "Analysis report",
-  },
+const companyAnalysisAgents: Agent[] = [
+  { name: "Apple Performance & Risk", href: "/agents/analysis/aapl", desc: "Earnings impact, volatility regimes, and risk analysis for AAPL.", cadence: "Daily", artifact: "Analysis report", access: "free" },
+  { name: "NVIDIA Performance & Risk", href: "/agents/analysis/nvda", desc: "Earnings impact, volatility regimes, and risk analysis for NVDA.", cadence: "Daily", artifact: "Analysis report", access: "trial" },
 ];
 
-/* Daily Monitors */
 const dailyMonitorAgents: Agent[] = [
-  {
-    status: "live",
-    name: "Public Company Cyber Risk",
-    href: "/agents/cyber-monitor",
-    desc: "Confirmed cyber incidents affecting publicly traded companies, SEC investigations, securities class actions, and material operational disruptions with equity relevance.",
-    cadence: "Daily",
-    artifact: "Brief",
-  },
-  {
-    status: "live",
-    name: "Oil Market Monitor",
-    href: "/agents/oil-market-monitor",
-    desc: "EIA inventories, OPEC actions, sanctions decisions, supply disruptions, and demand signals affecting oil markets.",
-    cadence: "Daily",
-    artifact: "Brief",
-  },
-  {
-    status: "live",
-    name: "G10 Macro Releases",
-    href: "/agents/macro-market-monitor",
-    desc: "G10 central bank rate decisions, official policy statements, and major data releases including CPI, PCE, NFP, GDP, PMI, retail sales, and unemployment.",
-    cadence: "Daily",
-    artifact: "Brief",
-  },
-  {
-    status: "live",
-    name: "Crypto Regulatory Shifts",
-    href: "/agents/crypto-regulatory",
-    desc: "Binding rule changes, stablecoin framework enactments, exchange licensing actions, major enforcement, and court rulings changing classification or scope.",
-    cadence: "Daily",
-    artifact: "Brief",
-  },
-  {
-    status: "live",
-    name: "Crypto ETF Access",
-    href: "/agents/crypto-etf-access",
-    desc: "ETF approvals, rejections, filings, listing decisions, and flow-related structural milestones for crypto capital access vehicles.",
-    cadence: "Daily",
-    artifact: "Brief",
-  },
-  {
-    status: "live",
-    name: "Weekly Highlights",
-    href: "/agents/weekly-cross-brief",
-    desc: "Top items across all monitors from the past week, ranked by significance.",
-    cadence: "Weekly",
-    artifact: "Brief",
-  },
+  { name: "G10 Macro Releases", href: "/agents/macro-market-monitor", desc: "Central bank decisions, policy statements, and major data releases.", cadence: "Daily", artifact: "Brief", access: "trial" },
+  { name: "Oil Market Monitor", href: "/agents/oil-market-monitor", desc: "EIA inventories, OPEC actions, sanctions, and supply disruptions.", cadence: "Daily", artifact: "Brief", access: "trial" },
+  { name: "Public Company Cyber Risk", href: "/agents/cyber-monitor", desc: "Cyber incidents affecting listed companies with equity relevance.", cadence: "Daily", artifact: "Brief", access: "trial" },
 ];
 
-/* Company & Industry Weekly Wrap-Ups */
-const weeklyWrapUpAgents: Agent[] = [
-  {
-    status: "live",
-    name: "Big Tech Evolution",
-    href: "/agents/big-tech-evolution",
-    desc: "Weekly analysis of product launches, strategy shifts, and ecosystem developments across major tech companies.",
-    cadence: "Weekly",
-    artifact: "Weekly brief",
-  },
-  {
-    status: "live",
-    name: "Semiconductors & Supply Chain",
-    href: "/agents/semis-supply-chain",
-    desc: "Fab investments, export controls, supply constraints, packaging advances, and major design wins across the semiconductor ecosystem.",
-    cadence: "Weekly",
-    artifact: "Weekly brief",
-  },
-  {
-    status: "live",
-    name: "Micro-SaaS Map",
-    href: "/agents/micro-saas-map",
-    desc: "Tracks developments across the micro-SaaS landscape, organized into structured topic maps.",
-    cadence: "Weekly",
-    artifact: "Topic map",
-  },
+const deepDiveAgents: Agent[] = [
+  { name: "Apple Weekly Topic Map", href: "/agents/apple-weekly", desc: "Product launches, services, and platform developments.", cadence: "Weekly", artifact: "Topic map", access: "free" },
+  { name: "NVIDIA Weekly Topic Map", href: "/agents/nvidia-weekly", desc: "GPU architecture, data center strategy, and AI compute.", cadence: "Weekly", artifact: "Topic map", access: "trial" },
+  { name: "Semiconductors & Supply Chain", href: "/agents/semis-supply-chain", desc: "Fab investments, export controls, and packaging advances.", cadence: "Weekly", artifact: "Topic map", access: "trial" },
 ];
 
-const audioAgents: Agent[] = [
-  {
-    status: "live",
-    name: "Volatility Research Briefs",
-    href: "/agents/paper-briefs",
-    desc: "Audio narratives of influential papers in volatility modeling, tail risk, and asset pricing. Each episode distills a key research paper into a concise audio brief.",
-    cadence: "Weekly",
-    artifact: "Audio + Summary",
-  },
+const researchAgents: Agent[] = [
+  { name: "Realized Volatility", href: "/agents/paper-briefs/realized-volatility", desc: "Andersen, Bollerslev, Diebold & Labys (2003).", cadence: "Self-paced", artifact: "Audio brief", access: "free" },
+  { name: "Tail Risk and Asset Prices", href: "/agents/paper-briefs/tail-risk", desc: "Kelly & Jiang (2014).", cadence: "Self-paced", artifact: "Audio brief", access: "free" },
+  { name: "Bootstrap Resampling", href: "/agents/learn/bootstrap-resampling", desc: "Sampling distributions using real S&P 500 data.", cadence: "Self-paced", artifact: "Interactive lesson", access: "free" },
 ];
 
-const learningAgents: Agent[] = [
-  {
-    status: "live",
-    name: "Statistical Foundations",
-    href: "/agents/statistical-foundations",
-    desc: "Interactive walk-throughs for variance, standard deviation, and bootstrap resampling with live visualizations.",
-    cadence: "Self-paced",
-    artifact: "Interactive flow",
-  },
-];
+/* ─── Scroll Reveal Hook ─── */
+
+function useScrollReveal() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add(styles.revealed);
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold: 0.12 }
+    );
+    const children = el.querySelectorAll(`.${styles.reveal}`);
+    children.forEach((child) => observer.observe(child));
+    return () => observer.disconnect();
+  }, []);
+  return ref;
+}
 
 /* ─── Components ─── */
 
-function AgentCard({ agent }: { agent: Agent }) {
-  const isDisabled = agent.status === "soon";
+function AccessBadge({ access }: { access: Agent["access"] }) {
+  if (access === "free") return <span className={styles.badgeFree}>Free</span>;
+  return <span className={styles.badgeTrial}>Trial</span>;
+}
+
+function AgentCard({ agent, idx }: { agent: Agent; idx: number }) {
   return (
-    <a
-      href={isDisabled ? undefined : agent.href}
-      className={`${styles.agentCard} ${isDisabled ? styles.agentCardDisabled : ""}`}
-    >
+    <a href={agent.href} className={`${styles.agentCard} ${styles.reveal}`} style={{ transitionDelay: `${idx * 80}ms` }}>
       <div className={styles.agentTop}>
-        {agent.status === "live" ? (
-          <div className={styles.agentStatus}>Live</div>
-        ) : (
-          <div className={styles.agentStatusSoon}>Coming soon</div>
-        )}
+        <AccessBadge access={agent.access} />
       </div>
       <div className={styles.agentName}>{agent.name}</div>
       <p className={styles.agentDesc}>{agent.desc}</p>
@@ -180,253 +98,216 @@ function AgentCard({ agent }: { agent: Agent }) {
   );
 }
 
-/* ─── Rhythm section data ─── */
-
-interface RhythmItem {
-  frequency: string;
-  title: string;
-  desc: string;
+function AgentSection({ label, agents }: { label: string; agents: Agent[] }) {
+  const ref = useScrollReveal();
+  return (
+    <div className={styles.categoryBlock} ref={ref}>
+      <div className={`${styles.categoryLabel} ${styles.reveal}`}>{label}</div>
+      <div className={styles.agentsGrid}>
+        {agents.map((a, i) => (
+          <AgentCard key={a.name} agent={a} idx={i} />
+        ))}
+      </div>
+    </div>
+  );
 }
-
-const rhythmItems: RhythmItem[] = [
-  {
-    frequency: "Daily",
-    title: "Catalyst monitors",
-    desc: "Equity-impacting cyber events, macro data releases, crypto regime changes, and oil supply signals. Only what moved or could move prices.",
-  },
-  {
-    frequency: "Daily",
-    title: "Risk & volatility analysis",
-    desc: "Fresh numbers on any ticker. Realized volatility, distributional stats, and short-term forecasts updated every trading day.",
-  },
-  {
-    frequency: "Weekly",
-    title: "Industry wrap-ups",
-    desc: "Big tech, semiconductors, and micro-SaaS developments distilled into structured briefs every week.",
-  },
-  {
-    frequency: "Monthly",
-    title: "Macro & market reviews",
-    desc: "S&P performance, volatility regimes, rates, inflation, and federal debt. The longer view, refreshed monthly.",
-  },
-  {
-    frequency: "Anytime",
-    title: "Research & intuition",
-    desc: "Audio briefs of key research papers and interactive tools for building quantitative intuition, on your own schedule.",
-  },
-];
 
 /* ─── Landing Page ─── */
 
 export default function Landing() {
   const { login } = useAuth();
+  const howRef = useScrollReveal();
+  const pricingRef = useScrollReveal();
 
   return (
-    <>
+    <div className={styles.page}>
       {/* Navigation */}
       <nav className={styles.nav}>
-        <div className={styles.navLeft}>
-          <a href="/" className={styles.navLogo}>
-            <img src="/icon.png" alt="" className={styles.navLogoIcon} />
-            <span className={styles.navLogoText}>FinanceLab</span>
-          </a>
-          <div className={styles.navLinks}>
-            <a href="#agents">Agents</a>
-            <a href="#rhythm">How it works</a>
-            <a href="/pricing">Pricing</a>
+        <div className={styles.navInner}>
+          <div className={styles.navLeft}>
+            <a href="/" className={styles.navLogo}>
+              <img src="/icon.png" alt="" className={styles.navLogoIcon} />
+              <span className={styles.navLogoText}>FinanceLab</span>
+            </a>
+            <div className={styles.navLinks}>
+              <a href="#agents">Agents</a>
+              <a href="#how">How it works</a>
+              <a href="/pricing">Pricing</a>
+            </div>
           </div>
+          <button className={styles.navCta} onClick={() => login("/")}>
+            Sign in
+          </button>
         </div>
-        <button className={styles.navCta} onClick={() => login("/")}>
-          Sign in
-        </button>
       </nav>
 
-      {/* Hero */}
+      {/* Hero — full viewport */}
       <section className={styles.hero}>
-        <h1>
-          Understand markets.
-          <br />
-          <span className={styles.rotatingWrapper}>
-            <span className={styles.rotatingWords}>
-              <span>Monitor daily catalysts.</span>
-              <span>Track industry change.</span>
-              <span>Analyze asset risk.</span>
-              <span>Explore new research.</span>
-              <span>Monitor daily catalysts.</span>
+        <div className={styles.heroInner}>
+          <h1 className={styles.heroH1}>
+            <span className={styles.heroLine1}>Financial analysis, automated.</span>
+            <span className={styles.rotatingWrapper}>
+              <span className={styles.rotatingWords}>
+                <span>Risk reports.</span>
+                <span>Event monitors.</span>
+                <span>Company reviews.</span>
+                <span>Risk reports.</span>
+              </span>
             </span>
-          </span>
-        </h1>
-        <p className={styles.heroDesc}>
-          Constraint and catalyst monitors, weekly industry wrap-ups,
-          and research tools. Signal, not noise.
-        </p>
-        <div className={styles.heroActions}>
-          <a href="#agents" className={styles.btnPrimary}>
-            Explore agents
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </a>
-          <a href="#rhythm" className={styles.btnGhost}>
-            How it works
-          </a>
-        </div>
-      </section>
-
-      <div className={styles.divider}>
-        <hr />
-      </div>
-
-      {/* Agents */}
-      <section className={styles.section} id="agents">
-        <div className={styles.sectionHeader}>
-          <div className={styles.sectionEyebrow}>What&apos;s Running</div>
-          <div className={styles.sectionTitle}>High-signal monitors, ready when you are</div>
-          <p className={styles.sectionDesc}>
-            Each monitor tracks a narrow wedge of constraint changes, capital access shifts,
-            or equity-impact events. Empty on quiet days by design.
+          </h1>
+          <p className={styles.heroDesc}>
+            Subscribe to agents covering equities, macro, energy, and crypto.
+            <br />
+            Get daily reports and weekly reviews in your feed.
           </p>
-        </div>
-
-        <div className={styles.categoryBlock}>
-          <div className={styles.categoryLabel}>Daily Analysis</div>
-          <div className={styles.agentsGrid}>
-            {dailyAnalysisAgents.map((a) => (
-              <AgentCard key={a.name} agent={a} />
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.categoryBlock}>
-          <div className={styles.categoryLabel}>Daily Monitors</div>
-          <div className={styles.agentsGrid}>
-            {dailyMonitorAgents.map((a) => (
-              <AgentCard key={a.name} agent={a} />
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.categoryBlock}>
-          <div className={styles.categoryLabel}>Company & Industry Weekly Wrap-Ups</div>
-          <div className={styles.agentsGrid}>
-            {weeklyWrapUpAgents.map((a) => (
-              <AgentCard key={a.name} agent={a} />
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.categoryBlock}>
-          <div className={styles.categoryLabel}>Monthly Market Reviews</div>
-          <div className={styles.agentsGrid}>
-            {monthlyReviewAgents.map((a) => (
-              <AgentCard key={a.name} agent={a} />
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.categoryBlock}>
-          <div className={styles.categoryLabel}>Research on the Go</div>
-          <div className={styles.agentsGrid}>
-            {audioAgents.map((a) => (
-              <AgentCard key={a.name} agent={a} />
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.categoryBlock}>
-          <div className={styles.categoryLabel}>Build Your Intuition</div>
-          <div className={styles.agentsGrid}>
-            {learningAgents.map((a) => (
-              <AgentCard key={a.name} agent={a} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <div className={styles.divider}>
-        <hr />
-      </div>
-
-      {/* Product Rhythm */}
-      <section className={styles.section} id="rhythm">
-        <div className={styles.sectionHeader}>
-          <div className={styles.sectionEyebrow}>Stay Current With Ease</div>
-          <div className={styles.sectionTitle}>From morning catalysts to monthly deep dives</div>
-          <p className={styles.sectionDesc}>
-            Every layer of your financial awareness covered, from overnight constraint changes
-            to long-term macro trends.
-          </p>
-        </div>
-
-        <div className={styles.rhythmTimeline}>
-          {rhythmItems.map((item) => (
-            <div key={item.title} className={styles.rhythmItem}>
-              <div className={styles.rhythmFreq}>{item.frequency}</div>
-              <div className={styles.rhythmContent}>
-                <div className={styles.rhythmTitle}>{item.title}</div>
-                <p className={styles.rhythmDesc}>{item.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <div className={styles.divider}>
-        <hr />
-      </div>
-
-      {/* Pricing */}
-      <section className={styles.section} id="pricing">
-        <div className={styles.sectionHeader}>
-          <div className={styles.sectionEyebrow}>Pricing</div>
-          <div className={styles.sectionTitle}>Simple, transparent pricing.</div>
-          <p className={styles.sectionDesc}>
-            Start free. Upgrade when you need full access.
-          </p>
-        </div>
-
-        <div className={styles.pricingRow}>
-          <div className={styles.priceCard}>
-            <div className={styles.priceLabel}>Free</div>
-            <div className={styles.priceAmount}>$0</div>
-            <div className={styles.priceList}>
-              <div className={styles.priceItem}>Access to all public agents</div>
-              <div className={styles.priceItem}>Latest artifact from each agent</div>
-              <div className={styles.priceItem}>Limited history</div>
-            </div>
-          </div>
-          <div className={`${styles.priceCard} ${styles.priceCardFeatured}`}>
-            <div className={styles.priceFeaturedBadge}>Recommended</div>
-            <div className={styles.priceLabel}>Early Access</div>
-            <div className={styles.priceAmount}>
-              $12 <span>/ month</span>
-            </div>
-            <div className={styles.priceList}>
-              <div className={styles.priceItem}>Full artifact history and search</div>
-              <div className={styles.priceItem}>All tickers and company tracking</div>
-              <div className={styles.priceItem}>14-day timelines on topic maps</div>
-              <div className={styles.priceItem}>Exports and API access</div>
-              <div className={styles.priceItem}>Priority support</div>
-            </div>
-            <a href="/pricing" className={styles.priceCardCta}>
-              View plans
+          <div className={styles.heroActions}>
+            <a href="#agents" className={styles.btnPrimary}>
+              Explore agents
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </a>
+            <a href="#how" className={styles.btnGhost}>
+              How it works
+            </a>
           </div>
+        </div>
+        <div className={styles.scrollHint}>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 4v12M6 12l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      </section>
+
+      {/* Agents */}
+      <section className={styles.section} id="agents">
+        <div className={styles.sectionInner}>
+          <div className={styles.sectionHeader}>
+            <div className={styles.sectionEyebrow}>What&apos;s Running</div>
+            <h2 className={styles.sectionTitle}>Explore agents</h2>
+            <p className={styles.sectionDesc}>
+              Sign up free and start exploring. Pro unlocks all 28 agents and full history.
+            </p>
+          </div>
+
+          <AgentSection label="Market & Macro Analysis" agents={marketAnalysisAgents} />
+          <AgentSection label="Company Analysis" agents={companyAnalysisAgents} />
+          <AgentSection label="Daily Event Monitors" agents={dailyMonitorAgents} />
+          <AgentSection label="Company & Industry Deep Dives" agents={deepDiveAgents} />
+          <AgentSection label="Research & Learning" agents={researchAgents} />
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className={styles.sectionAlt} id="how">
+        <div className={styles.sectionInner} ref={howRef}>
+          <div className={`${styles.sectionHeader} ${styles.sectionHeaderCenter}`}>
+            <div className={styles.sectionEyebrow}>How It Works</div>
+            <h2 className={styles.sectionTitle}>Three steps to your feed</h2>
+          </div>
+
+          <div className={styles.howSteps}>
+            <div className={`${styles.howStep} ${styles.reveal}`} style={{ transitionDelay: "0ms" }}>
+              <div className={styles.howIcon}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+              </div>
+              <div className={styles.howTitle}>Explore</div>
+              <div className={styles.howDesc}>Browse agents covering equities, macro, energy, and crypto.</div>
+            </div>
+            <div className={styles.howConnector}>
+              <div className={styles.howConnectorLine} />
+            </div>
+            <div className={`${styles.howStep} ${styles.reveal}`} style={{ transitionDelay: "120ms" }}>
+              <div className={styles.howIcon}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M10 6h11"/><path d="M10 12h11"/><path d="M10 18h11"/><path d="M3 6l1.5 1.5L7 5"/><path d="M3 12l1.5 1.5L7 11"/><path d="M3 18l1.5 1.5L7 17"/></svg>
+              </div>
+              <div className={styles.howTitle}>Choose</div>
+              <div className={styles.howDesc}>Select the agents you want in your feed.</div>
+            </div>
+            <div className={styles.howConnector}>
+              <div className={styles.howConnectorLine} />
+            </div>
+            <div className={`${styles.howStep} ${styles.reveal}`} style={{ transitionDelay: "240ms" }}>
+              <div className={styles.howIcon}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
+              </div>
+              <div className={styles.howTitle}>Receive</div>
+              <div className={styles.howDesc}>Reports land on a daily, weekly, or monthly schedule.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section className={styles.section} id="pricing">
+        <div className={styles.sectionInner} ref={pricingRef}>
+          <div className={styles.sectionHeader}>
+            <div className={styles.sectionEyebrow}>Pricing</div>
+            <h2 className={styles.sectionTitle}>Start free, upgrade when you need more</h2>
+            <p className={styles.sectionDesc}>
+              Free accounts get full access to selected agents. Pro unlocks everything.
+            </p>
+          </div>
+
+          <div className={styles.pricingRow}>
+            <div className={`${styles.priceCard} ${styles.reveal}`} style={{ transitionDelay: "0ms" }}>
+              <div className={styles.priceLabel}>Free</div>
+              <div className={styles.priceAmount}>$0</div>
+              <div className={styles.priceList}>
+                <div className={styles.priceItem}>Access to all free-tier agents</div>
+                <div className={styles.priceItem}>Latest report from each agent</div>
+                <div className={styles.priceItem}>All research briefs and lessons</div>
+              </div>
+            </div>
+            <div className={`${styles.priceCard} ${styles.priceCardFeatured} ${styles.reveal}`} style={{ transitionDelay: "100ms" }}>
+              <div className={styles.priceFeaturedBadge}>Recommended</div>
+              <div className={styles.priceLabel}>Pro</div>
+              <div className={styles.priceAmount}>
+                $12 <span>/ month</span>
+              </div>
+              <div className={styles.priceList}>
+                <div className={styles.priceItem}>All 28 agents unlocked</div>
+                <div className={styles.priceItem}>Full report history and search</div>
+                <div className={styles.priceItem}>All tickers and company tracking</div>
+                <div className={styles.priceItem}>Exports and API access</div>
+                <div className={styles.priceItem}>Priority support</div>
+              </div>
+              <a href="/pricing" className={styles.priceCardCta}>
+                View plans
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Banner */}
+      <section className={styles.ctaBanner}>
+        <div className={styles.ctaBannerInner}>
+          <h2 className={styles.ctaBannerTitle}>Start tracking markets today</h2>
+          <p className={styles.ctaBannerDesc}>Free to sign up. No credit card required.</p>
+          <button className={styles.btnPrimaryLg} onClick={() => login("/")}>
+            Get started
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
         </div>
       </section>
 
       {/* Footer */}
       <footer className={styles.footer}>
-        <div className={styles.footerCopy}>© 2026 FinanceLab · Finance Lab Teknoloji A.Ş.</div>
-        <div className={styles.footerLinks}>
-          <a href="/terms">Terms</a>
-          <a href="/privacy">Privacy</a>
-          <span>info@financelab.ai</span>
+        <div className={styles.footerInner}>
+          <div className={styles.footerCopy}>&copy; 2026 FinanceLab &middot; Finance Lab Teknoloji A.Ş.</div>
+          <div className={styles.footerLinks}>
+            <a href="/terms">Terms</a>
+            <a href="/privacy">Privacy</a>
+            <span>info@financelab.ai</span>
+          </div>
         </div>
       </footer>
-    </>
+    </div>
   );
 }

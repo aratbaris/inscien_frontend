@@ -58,22 +58,45 @@
   line-height: 1;
 }
 
+.upgradeLink {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-3, #8a8a98);
+  text-decoration: none;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.upgradeLink:hover {
+  color: var(--text, #1a1a1f);
+  border-color: var(--border, #dddde3);
+}
+
 .avatarLink {
   display: flex;
   text-decoration: none;
+  padding: 2px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  transition: border-color 0.15s;
+}
+
+.avatarLink:hover {
+  border-color: var(--border, #dddde3);
 }
 
 .avatar {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid var(--border, #dddde3);
 }
 
 .avatarFallback {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: var(--bg-tag, #ebebf0);
   color: var(--text-2, #4a4a56);
@@ -82,7 +105,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border, #dddde3);
 }
 
 /* ─── Greeting ─── */
@@ -145,18 +167,20 @@
   border-bottom-color: var(--text, #1a1a1f);
 }
 
-.tabCount {
+.tabCountOutlined {
   font-size: 11px;
   font-weight: 600;
   color: var(--text-3, #8a8a98);
-  background: var(--bg-tag, #ebebf0);
+  background: transparent;
+  border: 1px solid var(--border, #dddde3);
   padding: 1px 6px;
   border-radius: 3px;
   line-height: 1.4;
 }
 
-.tabActive .tabCount {
+.tabActive .tabCountOutlined {
   color: var(--text-2, #4a4a56);
+  border-color: var(--border-hover, #c5c5ce);
 }
 
 /* ─── Search Area ─── */
@@ -329,9 +353,7 @@
 /* ─── Agent Row ─── */
 
 .agentRow {
-  display: flex;
-  align-items: center;
-  gap: 0;
+  position: relative;
   border-bottom: 1px solid var(--border, #dddde3);
 }
 
@@ -339,40 +361,13 @@
   border-bottom: none;
 }
 
-.starBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  flex-shrink: 0;
-  align-self: stretch;
-  background: none;
-  border: none;
-  border-right: 1px solid var(--border, #dddde3);
-  cursor: pointer;
-  color: var(--text-3, #c5c5ce);
-  transition: color 0.12s, background 0.12s;
-}
-
-.starBtn:hover {
-  background: var(--bg-hover, #f2f2f5);
-  color: #e6a817;
-}
-
-.starBtnActive {
-  color: #e6a817;
-}
-
-.starBtnActive:hover {
-  color: #c4900f;
-}
-
+/* The link IS the entire row */
 .agentRowLink {
   display: flex;
   align-items: center;
   gap: 16px;
   padding: 16px 20px;
-  flex: 1;
+  width: 100%;
   min-width: 0;
   text-decoration: none;
   color: inherit;
@@ -408,46 +403,125 @@
 .agentRowMeta {
   display: flex;
   align-items: center;
-  gap: 10px;
   flex-shrink: 0;
 }
 
-/* ─── Cadence Badge ─── */
+/* ─── Compound Meta Pill (outlined, no dot) ─── */
 
-.cadenceBadge {
+.metaPillWrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metaPill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 500;
-  color: var(--text-2, #4a4a56);
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-}
-
-.cadenceIconDaily { color: #16a34a; flex-shrink: 0; }
-.cadenceIconWeekly { color: #2563eb; flex-shrink: 0; }
-.cadenceIconMonthly { color: #ca8a04; flex-shrink: 0; }
-.cadenceIconSelf { color: #9ca3af; flex-shrink: 0; }
-
-.artifactLabel {
-  font-size: 12px;
   color: var(--text-3, #8a8a98);
-  font-weight: 500;
+  background: transparent;
+  border: 1px solid var(--border, #dddde3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* ─── Access Badges (outlined) ─── */
+
+.badgeFree {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 6px;
+  background: transparent;
+  color: #6b8f71;
+  border: 1px solid #c5d5c7;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
   white-space: nowrap;
 }
+
+.badgeTrial {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 6px;
+  background: transparent;
+  color: #9a8560;
+  border: 1px solid #d5ccb8;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.badgeLock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--border-hover, #c5c5ce);
+  flex-shrink: 0;
+}
+
+/* ─── Bookmark Button (overlaid on the row link) ─── */
+
+.bookmarkBtn {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  color: transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+/* Ghost outline appears on row hover */
+.agentRow:hover .bookmarkBtn {
+  color: var(--border-hover, #c5c5ce);
+}
+
+/* Bookmark's own hover — outlined border */
+.bookmarkBtn:hover {
+  color: var(--text-2, #4a4a56) !important;
+  border-color: var(--border, #dddde3);
+}
+
+/* Active / bookmarked — visible outline, muted */
+.bookmarkBtnActive {
+  color: var(--text-3, #8a8a98);
+}
+
+.bookmarkBtnActive:hover {
+  color: var(--text-2, #4a4a56) !important;
+  border-color: var(--border, #dddde3);
+}
+
+/* ─── Chevron (visual indicator, not interactive) ─── */
 
 .agentRowArrow {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-3, #8a8a98);
+  width: 20px;
   flex-shrink: 0;
+  color: var(--border-hover, #c5c5ce);
   transition: color 0.15s, transform 0.15s;
 }
 
 .agentRowLink:hover .agentRowArrow {
-  color: var(--text, #1a1a1f);
+  color: var(--text-3, #8a8a98);
   transform: translateX(2px);
 }
 
@@ -562,10 +636,6 @@
     padding: 28px 20px 48px;
   }
 
-  .agentRow {
-    flex-wrap: nowrap;
-  }
-
   .agentRowLink {
     flex-wrap: wrap;
     gap: 8px;
@@ -586,8 +656,9 @@
     display: none;
   }
 
-  .starBtn {
-    width: 40px;
+  /* Always show bookmark on mobile (no hover) */
+  .bookmarkBtn {
+    color: var(--border-hover, #c5c5ce);
   }
 
   .footer {
@@ -611,12 +682,11 @@
   border-radius: 8px;
   color: var(--text-3, #8a8a98);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: color 0.15s, border-color 0.15s;
 }
 
 .bellBtn:hover {
   color: var(--text, #1a1a1f);
-  background: var(--bg-hover, #f2f2f5);
   border-color: var(--border, #dddde3);
 }
 
@@ -627,6 +697,6 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #dc2626;
+  background: #6b8f71;
   border: 1.5px solid rgba(247, 247, 249, 0.92);
 }

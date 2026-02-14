@@ -26,7 +26,7 @@ export interface BriefResponse {
   item_count: number;
 }
 
-// ─── NEW: Notification types ───
+// ─── Weekly Notification types ───
 
 export interface NotificationItem {
   title: string;
@@ -67,7 +67,67 @@ export interface NotificationsResponse {
   available_weeks: NotificationWeek[];
 }
 
+// ─── Analysis Event types ───
+
+export interface AnalysisEvent {
+  event_id: string;
+  ticker: string;
+  event_type: string;
+  severity: "high" | "medium" | "low";
+  headline: string;
+  detail: string;
+  metrics: Record<string, unknown>;
+  date: string;
+  agent_path: string;
+  created_at: string;
+}
+
+export interface AnalysisEventsResponse {
+  status: string;
+  events: AnalysisEvent[];
+  event_count: number;
+  available_dates: string[];
+}
+
+// ─── Techmap Highlight types (new) ───
+
+export interface TechmapEvidence {
+  title: string;
+  timestamp: string;
+  source: string;
+  url: string;
+}
+
+export interface TechmapHighlight {
+  topic_id: string;
+  company: string;
+  week_start: string;
+  week_end: string;
+  headline: string;
+  top_cluster_label: string;
+  takeaways: string[];
+  evidence: TechmapEvidence[];
+  agent_path: string;
+  created_at: string;
+}
+
+export interface TechmapHighlightsResponse {
+  status: string;
+  highlights: TechmapHighlight[];
+  highlight_count: number;
+  week_end: string;
+  week_start: string;
+  available_weeks: string[];
+}
+
+// ─── Combined count (updated) ───
+
 export interface NotificationCountResponse {
   count: number;
+  weekly_count: number;
+  analysis_count: number;
+  techmap_count: number;
   week_end: string;
+  latest_event_date: string;
+  techmap_week_end: string;
 }

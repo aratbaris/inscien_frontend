@@ -10,7 +10,6 @@ export default function G10MacroReleasesPage() {
       title="G10 Macro Releases"
       description="G10 central bank rate decisions, official policy statements, and major data releases including CPI, PCE, NFP, GDP, PMI, retail sales, and unemployment."
       emptyHint="This is normal on non-release days. Items appear only when official G10 data or rate decisions are published."
-      historyDepth={14}
     />
   );
 }

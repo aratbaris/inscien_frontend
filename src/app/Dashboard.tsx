@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { Bell } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { fetchNotificationCount } from "@/lib/api";
 import { NotificationFeed } from "@/components/notifications";
@@ -15,6 +16,8 @@ interface AgentDef {
   cadence: "Daily" | "Weekly" | "Monthly" | "Self-paced";
   artifact: string;
   category: string;
+  /** Access tier: "free" = full for auth, "trial" = limited for auth, "pro" = pro-only */
+  access?: "free" | "trial" | "pro";
 }
 
 const agents: AgentDef[] = [
@@ -26,6 +29,7 @@ const agents: AgentDef[] = [
     cadence: "Monthly",
     artifact: "Analysis report",
     category: "Macro Analysis",
+    access: "free",
   },
 
   /* ── Market ETF Analysis ── */
@@ -36,6 +40,7 @@ const agents: AgentDef[] = [
     cadence: "Monthly",
     artifact: "Analysis report",
     category: "Market ETF Analysis",
+    access: "trial",
   },
   {
     name: "S&P 500 Market Analysis",
@@ -44,6 +49,7 @@ const agents: AgentDef[] = [
     cadence: "Daily",
     artifact: "Analysis report",
     category: "Market ETF Analysis",
+    access: "free",
   },
   {
     name: "QQQ Volatility & Risk",
@@ -52,48 +58,54 @@ const agents: AgentDef[] = [
     cadence: "Daily",
     artifact: "Analysis report",
     category: "Market ETF Analysis",
+    access: "trial",
   },
 
   /* ── Company Analysis ── */
   {
     name: "NVIDIA Performance & Risk",
     href: "/agents/analysis/nvda",
-    desc: "Earnings impact, profitability trend, volatility regimes, and risk analysis for NVDA — with SEC EDGAR fundamentals.",
+    desc: "Earnings impact, profitability trend, volatility regimes, and risk analysis for NVDA. Includes SEC EDGAR fundamentals.",
     cadence: "Daily",
     artifact: "Analysis report",
     category: "Company Analysis",
+    access: "trial",
   },
   {
     name: "Apple Performance & Risk",
     href: "/agents/analysis/aapl",
-    desc: "Earnings impact, profitability trend, volatility regimes, and risk analysis for AAPL — with SEC EDGAR fundamentals.",
+    desc: "Earnings impact, profitability trend, volatility regimes, and risk analysis for AAPL. Includes SEC EDGAR fundamentals.",
     cadence: "Daily",
     artifact: "Analysis report",
     category: "Company Analysis",
+    access: "free",
   },
   {
     name: "Alphabet Performance & Risk",
     href: "/agents/analysis/googl",
-    desc: "Earnings impact, profitability trend, volatility regimes, and risk analysis for GOOGL — with SEC EDGAR fundamentals.",
+    desc: "Earnings impact, profitability trend, volatility regimes, and risk analysis for GOOGL. Includes SEC EDGAR fundamentals.",
     cadence: "Daily",
     artifact: "Analysis report",
     category: "Company Analysis",
+    access: "pro",
   },
   {
     name: "Microsoft Performance & Risk",
     href: "/agents/analysis/msft",
-    desc: "Earnings impact, profitability trend, volatility regimes, and risk analysis for MSFT — with SEC EDGAR fundamentals.",
+    desc: "Earnings impact, profitability trend, volatility regimes, and risk analysis for MSFT. Includes SEC EDGAR fundamentals.",
     cadence: "Daily",
     artifact: "Analysis report",
     category: "Company Analysis",
+    access: "pro",
   },
   {
     name: "Meta Platforms Performance & Risk",
     href: "/agents/analysis/meta",
-    desc: "Earnings impact, profitability trend, volatility regimes, and risk analysis for META — with SEC EDGAR fundamentals.",
+    desc: "Earnings impact, profitability trend, volatility regimes, and risk analysis for META. Includes SEC EDGAR fundamentals.",
     cadence: "Daily",
     artifact: "Analysis report",
     category: "Company Analysis",
+    access: "pro",
   },
 
   /* ── Daily Monitors ── */
@@ -103,7 +115,8 @@ const agents: AgentDef[] = [
     desc: "Confirmed cyber incidents affecting listed companies, SEC investigations, securities class actions, and material operational disruptions with equity relevance.",
     cadence: "Daily",
     artifact: "Brief",
-    category: "Daily Monitors",
+    category: "Daily Event Monitors",
+    access: "trial",
   },
   {
     name: "Oil Market Monitor",
@@ -111,7 +124,8 @@ const agents: AgentDef[] = [
     desc: "EIA inventories, OPEC actions, sanctions decisions, supply disruptions, and demand signals.",
     cadence: "Daily",
     artifact: "Brief",
-    category: "Daily Monitors",
+    category: "Daily Event Monitors",
+    access: "trial",
   },
   {
     name: "G10 Macro Releases",
@@ -119,7 +133,8 @@ const agents: AgentDef[] = [
     desc: "G10 central bank rate decisions, official policy statements, and major data releases including CPI, NFP, GDP, and PMI.",
     cadence: "Daily",
     artifact: "Brief",
-    category: "Daily Monitors",
+    category: "Daily Event Monitors",
+    access: "trial",
   },
   {
     name: "Crypto Regulatory Shifts",
@@ -127,7 +142,8 @@ const agents: AgentDef[] = [
     desc: "Binding rule changes, stablecoin framework enactments, exchange licensing actions, major enforcement, and court rulings changing classification or scope.",
     cadence: "Daily",
     artifact: "Brief",
-    category: "Daily Monitors",
+    category: "Daily Event Monitors",
+    access: "pro",
   },
   {
     name: "Crypto ETF Access",
@@ -135,97 +151,86 @@ const agents: AgentDef[] = [
     desc: "ETF approvals, rejections, filings, listing decisions, and flow-related structural milestones for crypto capital access vehicles.",
     cadence: "Daily",
     artifact: "Brief",
-    category: "Daily Monitors",
+    category: "Daily Event Monitors",
+    access: "pro",
   },
 
-  /* ── Highlights ── */
+  /* ── Company Briefs ── */
   {
-    name: "Weekly Monitoring Highlights",
-    href: "/agents/weekly-cross-brief",
-    desc: "Top items across all monitors from the past week, ranked by significance.",
-    cadence: "Weekly",
-    artifact: "Brief",
-    category: "Highlights",
-  },
-
-  /* ── Weekly Company Deep Dives ── */
-  {
-    name: "OpenAI Weekly Topic Map",
+    name: "OpenAI Weekly Brief",
     href: "/agents/openai-weekly",
     desc: "Product launches, API updates, partnerships, and strategic developments from OpenAI.",
     cadence: "Weekly",
-    artifact: "Topic map",
-    category: "Weekly Company Deep Dives",
+    artifact: "Brief",
+    category: "Company Briefs",
+    access: "trial",
   },
   {
-    name: "Google Weekly Topic Map",
+    name: "Google Weekly Brief",
     href: "/agents/google-weekly",
     desc: "Product launches, AI initiatives, cloud strategy, and ecosystem developments from Google.",
     cadence: "Weekly",
-    artifact: "Topic map",
-    category: "Weekly Company Deep Dives",
+    artifact: "Brief",
+    category: "Company Briefs",
+    access: "pro",
   },
   {
-    name: "Apple Weekly Topic Map",
+    name: "Apple Weekly Brief",
     href: "/agents/apple-weekly",
     desc: "Product launches, services expansion, and platform developments from Apple.",
     cadence: "Weekly",
-    artifact: "Topic map",
-    category: "Weekly Company Deep Dives",
+    artifact: "Brief",
+    category: "Company Briefs",
+    access: "free",
   },
   {
-    name: "Microsoft Weekly Topic Map",
+    name: "Microsoft Weekly Brief",
     href: "/agents/microsoft-weekly",
     desc: "Azure strategy, AI integration, enterprise developments, and ecosystem shifts from Microsoft.",
     cadence: "Weekly",
-    artifact: "Topic map",
-    category: "Weekly Company Deep Dives",
+    artifact: "Brief",
+    category: "Company Briefs",
+    access: "pro",
   },
   {
-    name: "NVIDIA Weekly Topic Map",
+    name: "NVIDIA Weekly Brief",
     href: "/agents/nvidia-weekly",
     desc: "GPU architecture, data center strategy, AI compute developments, and supply chain shifts from NVIDIA.",
     cadence: "Weekly",
-    artifact: "Topic map",
-    category: "Weekly Company Deep Dives",
+    artifact: "Brief",
+    category: "Company Briefs",
+    access: "trial",
   },
   {
-    name: "Meta Weekly Topic Map",
+    name: "Meta Weekly Brief",
     href: "/agents/meta-weekly",
     desc: "AI research, social platform strategy, Reality Labs developments, and ecosystem shifts from Meta.",
     cadence: "Weekly",
-    artifact: "Topic map",
-    category: "Weekly Company Deep Dives",
+    artifact: "Brief",
+    category: "Company Briefs",
+    access: "pro",
   },
 
-  /* ── Weekly Industry Deep Dives ── */
+  /* ── Industry Briefs ── */
   {
-    name: "Semiconductors & Supply Chain",
+    name: "Semiconductor Supply Chain",
     href: "/agents/semis-supply-chain",
     desc: "Fab investments, export controls, supply constraints, packaging advances.",
     cadence: "Weekly",
-    artifact: "Topic map",
-    category: "Weekly Industry Deep Dives",
+    artifact: "Brief",
+    category: "Industry Briefs",
+    access: "trial",
   },
 
-  /* ── Deep Research Reviews ── */
-  {
-    name: "Volatility & Risk Modeling",
-    href: "/agents/deep-research/volatility-risk",
-    desc: "Audio narratives walking through influential papers in volatility modeling and asset pricing.",
-    cadence: "Self-paced",
-    artifact: "Audio series",
-    category: "Deep Research Reviews",
-  },
-
-  /* ── Paper Briefs ── */
+  /* ── Research Briefs ── */
   {
     name: "Modeling and Forecasting Realized Volatility",
     href: "/agents/paper-briefs/realized-volatility",
     desc: "Andersen, Bollerslev, Diebold & Labys · Econometrica 2003 · How high-frequency intraday returns construct nonparametric realized volatility measures.",
     cadence: "Self-paced",
     artifact: "Audio brief",
-    category: "Paper Briefs",
+    category: "Research Briefs",
+    access: "free",
   },
   {
     name: "Tail Risk and Asset Prices",
@@ -233,7 +238,8 @@ const agents: AgentDef[] = [
     desc: "Kelly & Jiang · The Review of Financial Studies 2014 · Cross-sectional tail risk measurement and its predictive power for market returns.",
     cadence: "Self-paced",
     artifact: "Audio brief",
-    category: "Paper Briefs",
+    category: "Research Briefs",
+    access: "free",
   },
 
   /* ── Quantitative Concepts ── */
@@ -244,6 +250,7 @@ const agents: AgentDef[] = [
     cadence: "Self-paced",
     artifact: "Interactive lesson",
     category: "Quantitative Concepts",
+    access: "free",
   },
   {
     name: "Standard Deviation (σ)",
@@ -252,6 +259,7 @@ const agents: AgentDef[] = [
     cadence: "Self-paced",
     artifact: "Interactive lesson",
     category: "Quantitative Concepts",
+    access: "free",
   },
   {
     name: "Bootstrap Resampling",
@@ -260,6 +268,7 @@ const agents: AgentDef[] = [
     cadence: "Self-paced",
     artifact: "Interactive lesson",
     category: "Quantitative Concepts",
+    access: "free",
   },
 ];
 
@@ -279,11 +288,38 @@ const CADENCE_LABELS: Record<string, string> = {
   "Self-paced": "Self-paced",
 };
 
+/** Shorten artifact labels to single words */
+const ARTIFACT_SHORT: Record<string, string> = {
+  "Analysis report": "Analysis",
+  "Brief": "Brief",
+  "Audio brief": "Audio",
+  "Interactive lesson": "Lesson",
+};
+
+function shortArtifact(artifact: string): string {
+  return ARTIFACT_SHORT[artifact] || artifact;
+}
+
+const ACCESS_ORDER: Record<string, number> = {
+  free: 0,
+  trial: 1,
+  pro: 2,
+};
+
+function sortByAccess(list: AgentDef[]): AgentDef[] {
+  return [...list].sort(
+    (a, b) => (ACCESS_ORDER[a.access ?? "trial"] ?? 1) - (ACCESS_ORDER[b.access ?? "trial"] ?? 1)
+  );
+}
+
 function groupByCategory(list: AgentDef[]): Map<string, AgentDef[]> {
   const map = new Map<string, AgentDef[]>();
   for (const a of list) {
     if (!map.has(a.category)) map.set(a.category, []);
     map.get(a.category)!.push(a);
+  }
+  for (const [key, items] of map) {
+    map.set(key, sortByAccess(items));
   }
   return map;
 }
@@ -297,10 +333,22 @@ function groupByCadence(list: AgentDef[]): Map<string, AgentDef[]> {
     if (!map.has(a.cadence)) map.set(a.cadence, []);
     map.get(a.cadence)!.push(a);
   }
+  for (const [key, items] of map) {
+    map.set(key, sortByAccess(items));
+  }
   return map;
 }
 
 const FAVORITES_KEY = "financelab_favorites";
+const TAB_KEY = "financelab_tab";
+
+type TabValue = "feed" | "updates" | "explore";
+
+const VALID_TABS: TabValue[] = ["feed", "updates", "explore"];
+
+function isValidTab(val: string | null): val is TabValue {
+  return val !== null && VALID_TABS.includes(val as TabValue);
+}
 
 function loadFavorites(): Set<string> {
   if (typeof window === "undefined") return new Set();
@@ -319,59 +367,53 @@ function saveFavorites(favs: Set<string>) {
 
 /* ─── Components ─── */
 
-function CadenceIcon({ cadence }: { cadence: AgentDef["cadence"] }) {
-  const cls =
-    cadence === "Daily"
-      ? styles.cadenceIconDaily
-      : cadence === "Weekly"
-        ? styles.cadenceIconWeekly
-        : cadence === "Monthly"
-          ? styles.cadenceIconMonthly
-          : styles.cadenceIconSelf;
-
-  switch (cadence) {
-    case "Daily":
-      return (
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className={cls}>
-          <circle cx="8" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.4" />
-          <path d="M8 1.5V3M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-        </svg>
-      );
-    case "Weekly":
-      return (
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className={cls}>
-          <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
-          <path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-        </svg>
-      );
-    case "Monthly":
-      return (
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className={cls}>
-          <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
-          <path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-          <text x="8" y="12" textAnchor="middle" fill="currentColor" fontSize="6" fontWeight="700">31</text>
-        </svg>
-      );
-    case "Self-paced":
-      return (
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className={cls}>
-          <path d="M1.5 6.5L8 3l6.5 3.5L8 10 1.5 6.5z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
-          <path d="M4 8v3.5c0 0 1.5 1.5 4 1.5s4-1.5 4-1.5V8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M14.5 6.5V11" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-        </svg>
-      );
-  }
+function BookmarkIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 2.5h8a1 1 0 011 1v11L8 11.5 3 14.5v-11a1 1 0 011-1z" />
+    </svg>
+  );
 }
 
-function StarIcon({ filled }: { filled: boolean }) {
-  return filled ? (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="#e6a817">
-      <path d="M8 1.5l1.85 3.75 4.15.6-3 2.93.71 4.12L8 10.88l-3.71 1.95.71-4.12-3-2.93 4.15-.6L8 1.5z" />
+function LockIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3.5" y="7" width="9" height="7" rx="1" />
+      <path d="M5.5 7V5a2.5 2.5 0 015 0v2" />
     </svg>
-  ) : (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2">
-      <path d="M8 1.5l1.85 3.75 4.15.6-3 2.93.71 4.12L8 10.88l-3.71 1.95.71-4.12-3-2.93 4.15-.6L8 1.5z" />
-    </svg>
+  );
+}
+
+/** Access badge: outlined "Free" / "Trial" pill, or lock icon for pro */
+function AccessBadge({ access }: { access?: AgentDef["access"] }) {
+  if (access === "free") {
+    return <span className={styles.badgeFree}>Free</span>;
+  }
+  if (access === "trial") {
+    return <span className={styles.badgeTrial}>Trial</span>;
+  }
+  if (access === "pro") {
+    return (
+      <span className={styles.badgeLock}>
+        <LockIcon />
+      </span>
+    );
+  }
+  return null;
+}
+
+/** Compound meta pill: outlined cadence pill (no dot) + access badge */
+function MetaPill({ cadence, artifact, access }: { cadence: AgentDef["cadence"]; artifact: string; access?: AgentDef["access"] }) {
+  const short = shortArtifact(artifact);
+  const isSelfPaced = cadence === "Self-paced";
+
+  return (
+    <span className={styles.metaPillWrap}>
+      <span className={styles.metaPill}>
+        {isSelfPaced ? short : `${cadence} ${short}`}
+      </span>
+      <AccessBadge access={access} />
+    </span>
   );
 }
 
@@ -386,26 +428,26 @@ function AgentRow({
 }) {
   return (
     <div className={styles.agentRow}>
-      <button
-        className={`${styles.starBtn} ${isFavorited ? styles.starBtnActive : ""}`}
-        onClick={() => onToggleFavorite(agent.href)}
-        aria-label={isFavorited ? "Remove from feed" : "Add to feed"}
-      >
-        <StarIcon filled={isFavorited} />
-      </button>
       <a href={agent.href} className={styles.agentRowLink}>
         <div className={styles.agentRowMain}>
           <div className={styles.agentRowName}>{agent.name}</div>
           <div className={styles.agentRowDesc}>{agent.desc}</div>
         </div>
         <div className={styles.agentRowMeta}>
-          <span className={styles.cadenceBadge}>
-            <CadenceIcon cadence={agent.cadence} />
-            {agent.cadence}
-          </span>
-          <span className={styles.artifactLabel}>{agent.artifact}</span>
+          <MetaPill cadence={agent.cadence} artifact={agent.artifact} access={agent.access} />
         </div>
-        <div className={styles.agentRowArrow}>
+        <button
+          className={`${styles.bookmarkBtn} ${isFavorited ? styles.bookmarkBtnActive : ""}`}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onToggleFavorite(agent.href);
+          }}
+          aria-label={isFavorited ? "Remove from feed" : "Add to feed"}
+        >
+          <BookmarkIcon />
+        </button>
+        <div className={styles.agentRowArrow} aria-hidden="true">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -423,22 +465,39 @@ interface FilterChip {
 }
 
 const FILTER_CHIPS: FilterChip[] = [
-  { label: "Crypto", query: "crypto" },
-  { label: "Volatility", query: "volatility" },
-  { label: "S&P", query: "s&p" },
   { label: "ETF", query: "etf" },
-  { label: "Research", query: "research" },
+  { label: "Apple", query: "apple" },
+  { label: "NVIDIA", query: "nvidia" },
+  { label: "Google", query: "google alphabet" },
+  { label: "Crypto", query: "crypto" },
   { label: "Macro", query: "macro" },
-  { label: "AI & Tech", query: "ai" },
-  { label: "AAPL", query: "aapl" },
-  { label: "Interactive", query: "interactive" },
 ];
 
 /* ─── Dashboard ─── */
 
 export default function Dashboard() {
   const { user, tier } = useAuth();
-  const [tab, setTab] = useState<"feed" | "updates" | "explore">("feed");
+
+  const [tab, setTabRaw] = useState<TabValue>(() => {
+    if (typeof window === "undefined") return "feed";
+    const params = new URLSearchParams(window.location.search);
+    const urlTab = params.get("tab");
+    if (isValidTab(urlTab)) return urlTab;
+    try {
+      const stored = sessionStorage.getItem(TAB_KEY);
+      if (isValidTab(stored)) return stored;
+    } catch {}
+    return "feed";
+  });
+
+  const setTab = useCallback((t: TabValue) => {
+    setTabRaw(t);
+    try { sessionStorage.setItem(TAB_KEY, t); } catch {}
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", t);
+    window.history.replaceState({}, "", url.toString());
+  }, []);
+
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [hydrated, setHydrated] = useState(false);
   const [query, setQuery] = useState("");
@@ -448,23 +507,20 @@ export default function Dashboard() {
   useEffect(() => {
     const loaded = loadFavorites();
     setFavorites(loaded);
-    if (loaded.size === 0) setTab("explore");
+    if (loaded.size === 0) {
+      const hasPersistedTab =
+        new URLSearchParams(window.location.search).has("tab") ||
+        !!sessionStorage.getItem(TAB_KEY);
+      if (!hasPersistedTab) setTab("explore");
+    }
     setHydrated(true);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Fetch notification count on mount
   useEffect(() => {
     fetchNotificationCount()
       .then((res) => setNotifCount(res.count || 0))
       .catch(() => setNotifCount(0));
   }, []);
-
-  // If user has no favorites but has notifications, default to updates tab
-  useEffect(() => {
-    if (hydrated && favorites.size === 0 && notifCount > 0) {
-      setTab("updates");
-    }
-  }, [hydrated, notifCount, favorites.size]);
 
   const toggleFavorite = useCallback((href: string) => {
     setFavorites((prev) => {
@@ -479,15 +535,12 @@ export default function Dashboard() {
   const firstName = user?.first_name || user?.email?.split("@")[0] || "there";
 
   const q = query.toLowerCase().trim();
+  const qTerms = q.split(/\s+/).filter(Boolean);
   const filtered = q
-    ? agents.filter(
-        (a) =>
-          a.name.toLowerCase().includes(q) ||
-          a.desc.toLowerCase().includes(q) ||
-          a.category.toLowerCase().includes(q) ||
-          a.cadence.toLowerCase().includes(q) ||
-          a.artifact.toLowerCase().includes(q)
-      )
+    ? agents.filter((a) => {
+        const haystack = `${a.name} ${a.desc} ${a.category} ${a.cadence} ${a.artifact}`.toLowerCase();
+        return qTerms.some((term) => haystack.includes(term));
+      })
     : agents;
   const grouped = groupByCategory(filtered);
 
@@ -521,18 +574,14 @@ export default function Dashboard() {
             onClick={() => setTab("updates")}
             aria-label="Updates"
           >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <path
-                d="M7.5 15.5a1.5 1.5 0 003 0M9 2a5 5 0 00-5 5c0 2.5-.5 4-1.5 5h13C14.5 11 14 9.5 14 7a5 5 0 00-5-5z"
-                stroke="currentColor"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <Bell size={18} strokeWidth={1.8} />
             {notifCount > 0 && <span className={styles.bellDot} />}
           </button>
-          {tier === "pro" && <span className={styles.proBadge}>Pro</span>}
+          {tier === "pro" ? (
+            <span className={styles.proBadge}>Pro</span>
+          ) : (
+            <a href="/pricing" className={styles.upgradeLink}>Upgrade</a>
+          )}
           <a href="/settings" className={styles.avatarLink}>
             {user?.picture_url ? (
               <img src={user.picture_url} alt={initials} className={styles.avatar} referrerPolicy="no-referrer" />
@@ -553,14 +602,15 @@ export default function Dashboard() {
         <div className={styles.tabBar}>
           <button className={`${styles.tab} ${tab === "feed" ? styles.tabActive : ""}`} onClick={() => setTab("feed")}>
             My Feed
-            {favorites.size > 0 && <span className={styles.tabCount}>{favorites.size}</span>}
+            {favorites.size > 0 && <span className={styles.tabCountOutlined}>{favorites.size}</span>}
           </button>
           <button className={`${styles.tab} ${tab === "updates" ? styles.tabActive : ""}`} onClick={() => setTab("updates")}>
             Updates
-            {notifCount > 0 && <span className={styles.tabCount}>{notifCount}</span>}
+            {notifCount > 0 && <span className={styles.tabCountOutlined}>{notifCount}</span>}
           </button>
           <button className={`${styles.tab} ${tab === "explore" ? styles.tabActive : ""}`} onClick={() => setTab("explore")}>
             Explore
+            <span className={styles.tabCountOutlined}>{agents.length}</span>
           </button>
         </div>
 
@@ -574,7 +624,7 @@ export default function Dashboard() {
               <input
                 type="text"
                 className={styles.searchInput}
-                placeholder="Search agents, topics, or categories…"
+                placeholder="Search agents, topics, or categories..."
                 value={query}
                 onChange={(e) => handleQueryChange(e.target.value)}
               />
@@ -611,13 +661,13 @@ export default function Dashboard() {
             {feedAgents.length === 0 ? (
               <div className={styles.emptyState}>
                 <div className={styles.emptyIcon}>
-                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                    <path d="M20 5l4.63 9.38L35 16l-7.5 7.32L29.25 35 20 29.69 10.75 35l1.75-11.68L5 16l10.37-1.62L20 5z" stroke="#c5c5ce" strokeWidth="2" fill="none" />
+                  <svg width="36" height="36" viewBox="0 0 16 16" fill="none" stroke="#c5c5ce" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 2.5h8a1 1 0 011 1v11L8 11.5 3 14.5v-11a1 1 0 011-1z" />
                   </svg>
                 </div>
                 <h3 className={styles.emptyTitle}>Your feed is empty</h3>
                 <p className={styles.emptyDesc}>
-                  Star agents in Explore to add them to your personal feed for quick daily access.
+                  Bookmark agents in Explore to add them to your personal feed for quick daily access.
                 </p>
                 <button className={styles.emptyAction} onClick={() => setTab("explore")}>
                   Browse Explore

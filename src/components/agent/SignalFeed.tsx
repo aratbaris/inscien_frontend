@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { fetchAgentBrief } from "@/lib/api";
 import type { BriefResponse, BriefItem, AvailableDate } from "@/lib/types";
 import { AgentHeader, StatusBadge, LoadingState, ErrorState, EmptyState } from "@/components/agent";
+import { AccessGate } from "@/components/AccessGate";
 import { useAuth } from "@/lib/auth";
+import { getSignalFeedAccess } from "@/lib/agent-access";
 import styles from "./signal-feed.module.css";
 
 // ─── Config ───
@@ -20,16 +22,11 @@ interface SignalFeedProps {
   description: string;
   /** Empty state hint shown when no signals exist */
   emptyHint?: string;
-  /** Number of historical dates to fetch for authenticated users */
-  historyDepth?: number;
   /** Cadence label shown in header (default: "Daily") */
   cadence?: string;
   /** Group items by monitor_name within each date (for weekly cross brief) */
   groupByMonitor?: boolean;
 }
-
-const ANON_DAYS = 10; // number of recent dates to check for anonymous users
-const DEFAULT_HISTORY_DEPTH = 60; // dates to fetch for logged-in users (covers sparse monitors)
 
 /** Display order for monitor sections in weekly view */
 const MONITOR_ORDER: Record<string, number> = {
@@ -147,21 +144,6 @@ function MonitorSectionHeader({ name, count }: { name: string; count: number }) 
   );
 }
 
-function AuthGate({ onLogin }: { onLogin: () => void }) {
-  return (
-    <div className={styles.gate}>
-      <div className={styles.gateDivider} />
-      <p className={styles.gateMessage}>Sign in to see the full history</p>
-      <button className={styles.gateButton} onClick={onLogin}>
-        Sign in
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </button>
-    </div>
-  );
-}
-
 // ─── Main Component ───
 
 export default function SignalFeed({
@@ -170,7 +152,6 @@ export default function SignalFeed({
   title,
   description,
   emptyHint = "No signals yet. This monitor surfaces items only when material events occur.",
-  historyDepth = DEFAULT_HISTORY_DEPTH,
   cadence = "Daily",
   groupByMonitor = false,
 }: SignalFeedProps) {
@@ -181,14 +162,26 @@ export default function SignalFeed({
   const [error, setError] = useState<string | null>(null);
   const [retryKey, setRetryKey] = useState(0);
   const auth = useAuth();
-  const { canAccess, login } = auth;
+  const { canAccess, login, tier } = auth;
 
   // Auth may still be resolving
   const authReady = "loading" in auth ? !(auth as any).loading : "user" in auth ? (auth as any).user !== undefined : true;
   const isAuthenticated = authReady && canAccess("auth");
 
+  // Resolve access from centralized config
+  const feedAccess = useMemo(
+    () => getSignalFeedAccess(agentKey, authReady ? tier : "anon"),
+    [agentKey, tier, authReady]
+  );
+
   useEffect(() => {
     if (!authReady) return;
+
+    // Pro-only monitors: don't fetch if auth user has 0 days
+    if (feedAccess.days === 0) {
+      setLoading(false);
+      return;
+    }
 
     let cancelled = false;
 
@@ -200,8 +193,7 @@ export default function SignalFeed({
         const latest = await fetchAgentBrief(agentKey, "latest");
 
         const allDates = latest.available_dates.map((d: AvailableDate) => d.key);
-        const depth = isAuthenticated ? historyDepth : ANON_DAYS;
-        const datesToFetch = allDates.slice(0, depth);
+        const datesToFetch = allDates.slice(0, feedAccess.days);
 
         if (datesToFetch.length === 0) {
           datesToFetch.push(latest.day_key);
@@ -257,7 +249,10 @@ export default function SignalFeed({
     loadFeed();
 
     return () => { cancelled = true; };
-  }, [agentKey, authReady, isAuthenticated, historyDepth, retryKey]);
+  }, [agentKey, authReady, feedAccess.days, retryKey]);
+
+  // Pro-only monitor: auth users who have 0 days see AccessGate
+  const isProBlocked = authReady && isAuthenticated && feedAccess.days === 0 && feedAccess.gateType === "pro";
 
   return (
     <div className={styles.page}>
@@ -271,101 +266,119 @@ export default function SignalFeed({
         ]}
       />
 
-
-
-      {/* Main content */}
-      {(!authReady || loading) && (
-        <div className={styles.timeline}>
-          <LoadingState message={!authReady ? "Preparing feed…" : "Loading feed…"} />
-        </div>
+      {/* Pro-only gate for authenticated free users on gated monitors */}
+      {isProBlocked && (
+        <AccessGate requires="pro" featureLabel="this monitor">
+          <div />
+        </AccessGate>
       )}
 
-      {authReady && error && (
-        <div className={styles.timeline}>
-          <ErrorState message={error} onRetry={() => setRetryKey((k) => k + 1)} />
-        </div>
-      )}
-
-      {authReady && !loading && !error && dateGroups.length === 0 && (
-        <div className={styles.timeline}>
-          <div className={styles.emptyTimeline}>
-            <div className={styles.emptyTitle}>No items</div>
-            <div className={styles.emptyHint}>{emptyHint}</div>
-          </div>
-          {!isAuthenticated && (
-            <AuthGate onLogin={() => login(window.location.pathname)} />
-          )}
-        </div>
-      )}
-
-      {authReady && !loading && !error && dateGroups.length > 0 && (
-        <div className={styles.timeline}>
-          {/* Anchor: show latest date as quiet node if it has no items */}
-          {anchorDate && dateGroups[0].dateKey !== anchorDate && (
-            <>
-              <AnchorDate dateKey={anchorDate} />
-              <GapSpacer />
-            </>
+      {/* Main content — only render if not pro-blocked */}
+      {!isProBlocked && (
+        <>
+          {(!authReady || loading) && (
+            <div className={styles.timeline}>
+              <LoadingState message={!authReady ? "Preparing feed…" : "Loading feed…"} />
+            </div>
           )}
 
-          {dateGroups.map((group, groupIdx) => {
-            const prevGroup = groupIdx > 0 ? dateGroups[groupIdx - 1] : null;
-            const showGap = prevGroup && daysBetween(prevGroup.dateKey, group.dateKey) > 1;
+          {authReady && error && (
+            <div className={styles.timeline}>
+              <ErrorState message={error} onRetry={() => setRetryKey((k) => k + 1)} />
+            </div>
+          )}
 
-            return (
-              <div key={group.dateKey}>
-                {showGap && <GapSpacer />}
-
-                <div className={styles.dateGroup}>
-                  <div className={styles.dateHeader}>
-                    <div className={styles.dateDot} />
-                    <span className={styles.dateLabel}>
-                      {formatDateLabel(group.dateKey)}
-                    </span>
-                    <span className={styles.dateCount}>
-                      {group.items.length} item{group.items.length !== 1 ? "s" : ""}
-                    </span>
-                  </div>
-
-                  <div className={styles.dateItems}>
-                    {groupByMonitor ? (
-                      groupItemsByMonitor(group.items).map((section) => (
-                        <div key={section.monitorName} className={styles.monitorGroup}>
-                          <MonitorSectionHeader
-                            name={section.monitorName}
-                            count={section.items.length}
-                          />
-                          {section.items.map((item, idx) => (
-                            <ItemCard key={`${item.title}-${idx}`} item={item} />
-                          ))}
-                        </div>
-                      ))
-                    ) : (
-                      group.items.map((item, idx) => (
-                        <ItemCard key={`${item.title}-${idx}`} item={item} />
-                      ))
-                    )}
-                  </div>
-                </div>
+          {authReady && !loading && !error && dateGroups.length === 0 && (
+            <div className={styles.timeline}>
+              <div className={styles.emptyTimeline}>
+                <div className={styles.emptyTitle}>No items</div>
+                <div className={styles.emptyHint}>{emptyHint}</div>
               </div>
-            );
-          })}
-
-          {/* Auth gate for anonymous users */}
-          {!isAuthenticated && (
-            <AuthGate onLogin={() => login(window.location.pathname)} />
+              {feedAccess.gateType === "auth" && (
+                <AccessGate requires="auth" featureLabel="the full history">
+                  <div />
+                </AccessGate>
+              )}
+            </div>
           )}
-        </div>
-      )}
 
-      {/* Footer */}
-      {authReady && !loading && !error && dateGroups.length > 0 && (
-        <div className={styles.footer}>
-          <span>
-            {totalCount} item{totalCount !== 1 ? "s" : ""} across {dateGroups.length} {cadence === "Weekly" ? "week" : "day"}{dateGroups.length !== 1 ? "s" : ""}
-          </span>
-          <span>Times shown in UTC</span>
-        </div>
+          {authReady && !loading && !error && dateGroups.length > 0 && (
+            <div className={styles.timeline}>
+              {/* Anchor: show latest date as quiet node if it has no items */}
+              {anchorDate && dateGroups[0].dateKey !== anchorDate && (
+                <>
+                  <AnchorDate dateKey={anchorDate} />
+                  <GapSpacer />
+                </>
+              )}
+
+              {dateGroups.map((group, groupIdx) => {
+                const prevGroup = groupIdx > 0 ? dateGroups[groupIdx - 1] : null;
+                const showGap = prevGroup && daysBetween(prevGroup.dateKey, group.dateKey) > 1;
+
+                return (
+                  <div key={group.dateKey}>
+                    {showGap && <GapSpacer />}
+
+                    <div className={styles.dateGroup}>
+                      <div className={styles.dateHeader}>
+                        <div className={styles.dateDot} />
+                        <span className={styles.dateLabel}>
+                          {formatDateLabel(group.dateKey)}
+                        </span>
+                        <span className={styles.dateCount}>
+                          {group.items.length} item{group.items.length !== 1 ? "s" : ""}
+                        </span>
+                      </div>
+
+                      <div className={styles.dateItems}>
+                        {groupByMonitor ? (
+                          groupItemsByMonitor(group.items).map((section) => (
+                            <div key={section.monitorName} className={styles.monitorGroup}>
+                              <MonitorSectionHeader
+                                name={section.monitorName}
+                                count={section.items.length}
+                              />
+                              {section.items.map((item, idx) => (
+                                <ItemCard key={`${item.title}-${idx}`} item={item} />
+                              ))}
+                            </div>
+                          ))
+                        ) : (
+                          group.items.map((item, idx) => (
+                            <ItemCard key={`${item.title}-${idx}`} item={item} />
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Bottom gate: consistent AccessGate card */}
+              {feedAccess.gateType === "auth" && (
+                <AccessGate requires="auth" featureLabel="the full history">
+                  <div />
+                </AccessGate>
+              )}
+              {feedAccess.gateType === "pro" && feedAccess.days > 0 && (
+                <AccessGate requires="pro" featureLabel="the full history">
+                  <div />
+                </AccessGate>
+              )}
+            </div>
+          )}
+
+          {/* Footer */}
+          {authReady && !loading && !error && dateGroups.length > 0 && (
+            <div className={styles.footer}>
+              <span>
+                {totalCount} item{totalCount !== 1 ? "s" : ""} across {dateGroups.length} {cadence === "Weekly" ? "week" : "day"}{dateGroups.length !== 1 ? "s" : ""}
+              </span>
+              <span>Times shown in UTC</span>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

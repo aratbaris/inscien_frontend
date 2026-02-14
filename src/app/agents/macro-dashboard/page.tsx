@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import styles from "./page.module.css";
 import { AgentHeader, StatusBadge, LoadingState, ErrorState } from "@/components/agent";
 import { AccessGate } from "@/components/AccessGate";
+import { useAuth } from "@/lib/auth";
+import { getAnalysisSections } from "@/lib/agent-access";
 import {
   LineChart,
   Line,
@@ -224,8 +226,7 @@ export default function MacroDashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState("");
   const observerRef = useRef<IntersectionObserver | null>(null);
-
-  const FREE_SECTIONS = 1;
+  const { tier } = useAuth();
 
   const loadReport = useCallback(async () => {
     setLoading(true);
@@ -258,6 +259,12 @@ export default function MacroDashboardPage() {
     return () => observerRef.current?.disconnect();
   }, [report]);
 
+  // Resolve access from centralized config
+  const accessInfo = useMemo(() => {
+    if (!report) return null;
+    return getAnalysisSections("macro-dashboard", tier, report.sections.length);
+  }, [tier, report]);
+
   return (
     <div className={styles.page}>
       <AgentHeader
@@ -286,14 +293,20 @@ export default function MacroDashboardPage() {
       <main className={styles.content}>
         {loading && <LoadingState message="Loading macro analysis…" />}
         {error && <ErrorState message={error} onRetry={loadReport} />}
-        {!loading && !error && report && (
+        {!loading && !error && report && accessInfo && (
           <div className={styles.sections}>
-            {report.sections.slice(0, FREE_SECTIONS).map((section) => (
+            {/* Visible sections (free preview) */}
+            {report.sections.slice(0, accessInfo.visibleCount).map((section) => (
               <SectionRenderer key={section.id} section={section} />
             ))}
-            {report.sections.length > FREE_SECTIONS && (
-              <AccessGate requires="auth" featureLabel="the full dashboard">
-                {report.sections.slice(FREE_SECTIONS).map((section) => (
+
+            {/* Gated sections (if any remain) */}
+            {accessInfo.gateType !== "none" && accessInfo.visibleCount < report.sections.length && (
+              <AccessGate
+                requires={accessInfo.gateType}
+                featureLabel="the full dashboard"
+              >
+                {report.sections.slice(accessInfo.visibleCount).map((section) => (
                   <SectionRenderer key={section.id} section={section} />
                 ))}
               </AccessGate>

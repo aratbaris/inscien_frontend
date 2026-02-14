@@ -7,7 +7,7 @@ export default function GoogleWeeklyPage() {
     <TopicMapAgent
       topicId="google"
       label="Google"
-      title="Google Weekly Topic Map"
+      title="Google Weekly Brief"
       description="Weekly analysis of product launches, AI initiatives, cloud strategy, and ecosystem developments from Google."
     />
   );

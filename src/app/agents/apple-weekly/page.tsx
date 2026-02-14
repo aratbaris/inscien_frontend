@@ -7,7 +7,7 @@ export default function AppleWeeklyPage() {
     <TopicMapAgent
       topicId="apple"
       label="Apple"
-      title="Apple Weekly Topic Map"
+      title="Apple Weekly Brief"
       description="Weekly analysis of product launches, services expansion, and platform developments from Apple."
     />
   );

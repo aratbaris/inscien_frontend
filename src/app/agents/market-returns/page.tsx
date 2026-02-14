@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import styles from "./page.module.css";
 import { AgentHeader, StatusBadge, LoadingState, ErrorState } from "@/components/agent";
 import { AccessGate } from "@/components/AccessGate";
+import { useAuth } from "@/lib/auth";
+import { getAnalysisSections } from "@/lib/agent-access";
 import {
   LineChart,
   Line,
@@ -195,7 +197,6 @@ function SimpleBarChart({ data, xKey, yKey, ySuffix, xSuffix, colorKey, title }:
 
   const formatXLabel = (v: string | number) => {
     const s = String(v);
-    // If it looks like a year (4 digits), show as-is
     if (/^\d{4}$/.test(s)) return s;
     return `${s}${xSuffix || ""}`;
   };
@@ -303,12 +304,10 @@ function AreaChartWithBands({ block }: { block: Block }) {
     const s = data.filter((_, i) => i % step === 0 || i === data.length - 1);
     const t = getYearTicks(s, "date");
 
-    // Map bands to sampled date space — find nearest sampled date for each band boundary
     const sampledDates = s.map((d) => String(d.date));
     const refs: { x1: string; x2: string; regime: string }[] = [];
     if (block.bands) {
       for (const band of block.bands) {
-        // Find nearest sampled dates for band start/end
         const startIdx = sampledDates.findIndex((d) => d >= band.start);
         const endIdx = sampledDates.findLastIndex((d) => d <= band.end);
         if (startIdx >= 0 && endIdx >= 0 && endIdx >= startIdx) {
@@ -404,8 +403,7 @@ export default function MarketReturnsPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<string>("");
   const observerRef = useRef<IntersectionObserver | null>(null);
-
-  const FREE_SECTIONS = 1;
+  const { tier } = useAuth();
 
   const loadReport = useCallback(async () => {
     setLoading(true);
@@ -437,6 +435,12 @@ export default function MarketReturnsPage() {
     }
     return () => observerRef.current?.disconnect();
   }, [report]);
+
+  // Resolve access from centralized config
+  const accessInfo = useMemo(() => {
+    if (!report) return null;
+    return getAnalysisSections("market-returns", tier, report.sections.length);
+  }, [tier, report]);
 
   const dataRangeLabel = report?.data_range
     ? `${report.data_range.monthly_start.substring(0, 4)}–${report.data_range.monthly_end.substring(0, 4)}`
@@ -471,14 +475,20 @@ export default function MarketReturnsPage() {
       <main className={styles.content}>
         {loading && <LoadingState message="Computing analysis…" />}
         {error && <ErrorState message={error} onRetry={loadReport} />}
-        {!loading && !error && report && (
+        {!loading && !error && report && accessInfo && (
           <div className={styles.sections}>
-            {report.sections.slice(0, FREE_SECTIONS).map((section) => (
+            {/* Visible sections (free preview) */}
+            {report.sections.slice(0, accessInfo.visibleCount).map((section) => (
               <SectionRenderer key={section.id} section={section} />
             ))}
-            {report.sections.length > FREE_SECTIONS && (
-              <AccessGate requires="auth" featureLabel="the full analysis">
-                {report.sections.slice(FREE_SECTIONS).map((section) => (
+
+            {/* Gated sections (if any remain) */}
+            {accessInfo.gateType !== "none" && accessInfo.visibleCount < report.sections.length && (
+              <AccessGate
+                requires={accessInfo.gateType}
+                featureLabel="the full analysis"
+              >
+                {report.sections.slice(accessInfo.visibleCount).map((section) => (
                   <SectionRenderer key={section.id} section={section} />
                 ))}
               </AccessGate>
