@@ -30,7 +30,7 @@ function CallbackHandler() {
         window.location.href = next;
       }, 100);
     } else {
-      // No tokens — redirect to login
+      // No tokens - redirect to login
       window.location.href = "/login?error=auth_failed";
     }
   }, [setTokens, searchParams]);

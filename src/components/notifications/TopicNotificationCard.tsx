@@ -40,7 +40,7 @@ function getTopicLabel(notification: TopicNotification): string {
 function buildShareText(notification: TopicNotification): string {
   const label = getTopicLabel(notification);
   const lines: string[] = [];
-  lines.push(`Monitoring Weekly Highlights — ${label}`);
+  lines.push(`Monitoring Weekly Highlights - ${label}`);
   lines.push("");
 
   for (const item of notification.items.slice(0, 3)) {
@@ -88,7 +88,7 @@ export default function TopicNotificationCard({
 
   return (
     <div className={styles.card}>
-      {/* Header — always visible */}
+      {/* Header - always visible */}
       <button
         className={styles.cardHeader}
         onClick={() => setExpanded((v) => !v)}

@@ -492,13 +492,13 @@
   color: var(--border-hover, #c5c5ce);
 }
 
-/* Bookmark's own hover — outlined border */
+/* Bookmark's own hover - outlined border */
 .bookmarkBtn:hover {
   color: var(--text-2, #4a4a56) !important;
   border-color: var(--border, #dddde3);
 }
 
-/* Active / bookmarked — visible outline, muted */
+/* Active / bookmarked - visible outline, muted */
 .bookmarkBtnActive {
   color: var(--text-3, #8a8a98);
 }

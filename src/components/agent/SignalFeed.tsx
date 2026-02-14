@@ -273,7 +273,7 @@ export default function SignalFeed({
         </AccessGate>
       )}
 
-      {/* Main content — only render if not pro-blocked */}
+      {/* Main content - only render if not pro-blocked */}
       {!isProBlocked && (
         <>
           {(!authReady || loading) && (

@@ -75,7 +75,7 @@ function formatWeekRange(start: string, end: string): string {
     const m = parseInt(parts[1], 10) - 1;
     return `${months[m]} ${parseInt(parts[2], 10)}`;
   };
-  return `${fmt(start)} – ${fmt(end)}`;
+  return `${fmt(start)} - ${fmt(end)}`;
 }
 
 function formatEvidenceDate(ts: string): string {
@@ -329,7 +329,7 @@ export default function SemisSupplyChainPage() {
       />
 
       <div className={styles.controlsBar}>
-        {/* No company selector — single-topic page */}
+        {/* No company selector - single-topic page */}
         <div />
         <div className={styles.viewToggle}>
           <button

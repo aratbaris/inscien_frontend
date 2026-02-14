@@ -18,7 +18,7 @@ const TOPIC_LABELS: Record<string, string> = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { weekEnd, topicId } = await params;
   const label = TOPIC_LABELS[topicId] || topicId;
-  const title = `${label} — Weekly Highlights · Week ending ${weekEnd}`;
+  const title = `${label} - Weekly Highlights · Week ending ${weekEnd}`;
   const description = `Significant ${label.toLowerCase()} developments for the week ending ${weekEnd}, curated by FinanceLab monitoring agents.`;
   const ogImageUrl = `${SITE_URL}/api/og/weekly/${weekEnd}/${topicId}`;
   const pageUrl = `${SITE_URL}/share/weekly/${weekEnd}/${topicId}`;

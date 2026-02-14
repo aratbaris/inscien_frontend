@@ -443,7 +443,7 @@ export default function MarketReturnsPage() {
   }, [tier, report]);
 
   const dataRangeLabel = report?.data_range
-    ? `${report.data_range.monthly_start.substring(0, 4)}–${report.data_range.monthly_end.substring(0, 4)}`
+    ? `${report.data_range.monthly_start.substring(0, 4)}-${report.data_range.monthly_end.substring(0, 4)}`
     : undefined;
 
   return (

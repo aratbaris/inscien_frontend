@@ -113,7 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    // Access expired — try refresh
+    // Access expired - try refresh
     if (refresh) {
       const newAccess = await refreshAccessToken(refresh);
       if (newAccess) {
@@ -127,7 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    // Both failed — clear
+    // Both failed - clear
     logout();
     setIsLoading(false);
   }, [logout]);

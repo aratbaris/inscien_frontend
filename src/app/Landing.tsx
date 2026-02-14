@@ -141,7 +141,7 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* Hero — full viewport */}
+      {/* Hero - full viewport */}
       <section className={styles.hero}>
         <div className={styles.heroInner}>
           <h1 className={styles.heroH1}>

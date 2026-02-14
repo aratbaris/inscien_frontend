@@ -131,7 +131,7 @@ function CardGrid({ cards }: { cards: CardItem[] }) {
 }
 
 function TextBlock({ content }: { content: string }) {
-  // Simple markdown: **bold**, *italic*, and — as em dash
+  // Simple markdown: **bold**, *italic*, and - as em dash
   const html = content
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
@@ -205,7 +205,7 @@ function MultiLineChart({ series, title, ySuffix, bands }: { series: SeriesData[
           {bands.map((band, i) => (
             <span key={i} className={styles.bandLegendItem}>
               <span className={styles.bandLegendSwatch} style={{ backgroundColor: band.color, opacity: 0.4 }} />
-              {band.label} ({band.y_max >= 100 ? `${band.y_min}%+` : `${band.y_min}–${band.y_max}%`})
+              {band.label} ({band.y_max >= 100 ? `${band.y_min}%+` : `${band.y_min}-${band.y_max}%`})
             </span>
           ))}
         </div>
@@ -321,7 +321,7 @@ export default function VolatilityAnalysisAgent({
   }, [report]);
 
   const dataRangeLabel = report?.data_range
-    ? `${report.data_range.start.substring(0, 4)}–${report.data_range.end.substring(0, 4)}`
+    ? `${report.data_range.start.substring(0, 4)}-${report.data_range.end.substring(0, 4)}`
     : null;
 
   // Resolve access: how many sections to show and what gate to use
@@ -339,7 +339,7 @@ export default function VolatilityAnalysisAgent({
         meta={[
           { label: "Ticker", value: ticker },
           ...(dataRangeLabel ? [{ label: "Data range", value: dataRangeLabel }] : []),
-          { label: "Sections", value: String(report?.sections?.length || "–") },
+          { label: "Sections", value: String(report?.sections?.length || "-") },
           { label: "Status", value: <StatusBadge status="live" /> },
         ]}
       />

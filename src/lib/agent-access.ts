@@ -5,13 +5,13 @@
  * logic lives in one place and the components stay generic.
  *
  * Tier hierarchy:  anon (0) < auth (1) < pro (2)
- *   – Defined in lib/auth.ts via TIER_RANK.
+ *   - Defined in lib/auth.ts via TIER_RANK.
  *
  * Access levels per agent:
- *   pageAccess   – minimum tier to open the page at all
- *   freePreview  – what anonymous visitors see (teaser)
- *   authPreview  – what signed-in free users see
- *   pro          – full content (all sections / full history / full timeline)
+ *   pageAccess   - minimum tier to open the page at all
+ *   freePreview  - what anonymous visitors see (teaser)
+ *   authPreview  - what signed-in free users see
+ *   pro          - full content (all sections / full history / full timeline)
  */
 
 import type { AccessLevel } from "@/lib/auth";
@@ -330,10 +330,10 @@ export function getSignalFeedAccess(
 // ─── Dashboard Notifications ───
 // Updates tab: always visible (free engagement hook)
 // Clicking through to a pro-only agent page → hits the pro gate there
-// No special config needed — the gate lives on the destination page
+// No special config needed - the gate lives on the destination page
 
 // ─── Free Content (no gating) ───
 // - Deep Research Reviews (Audio)
 // - Paper Briefs
 // - Quantitative Concepts (Interactive lessons)
-// These have no access config — components render fully for all tiers.
+// These have no access config - components render fully for all tiers.

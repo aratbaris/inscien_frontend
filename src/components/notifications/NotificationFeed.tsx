@@ -213,7 +213,7 @@ export default function NotificationFeed({
       }
     }
 
-    // Techmap highlights — date is the week_end value
+    // Techmap highlights - date is the week_end value
     if (techmapData?.highlights) {
       for (const hl of techmapData.highlights) {
         items.push({
@@ -453,7 +453,7 @@ export default function NotificationFeed({
       );
     }
 
-    // Monitor item — minimal expanded view with source link
+    // Monitor item - minimal expanded view with source link
     if (item.type === "monitor-item" && item.monitorItem) {
       return (
         <div className={styles.disclosure}>
