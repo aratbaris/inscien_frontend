@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
-import { fetchNotifications, fetchAnalysisEvents, fetchTechmapHighlights } from "@/lib/api";
+import { fetchAnalysisEvents, fetchTechmapHighlights } from "@/lib/api";
 import type {
-  NotificationsResponse, NotificationWeek, TopicNotification,
   AnalysisEvent, AnalysisEventsResponse,
   TechmapHighlight, TechmapHighlightsResponse,
 } from "@/lib/types";
@@ -13,14 +12,6 @@ import styles from "./NotificationFeed.module.css";
 
 const READ_KEY = "financelab_read_notifications";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://financelab.ai";
-
-const TOPIC_LABELS: Record<string, string> = {
-  cyber: "Cyber Risk",
-  macro: "Macro",
-  oil: "Oil",
-  regulatory: "Crypto Regulatory",
-  crypto: "Crypto ETF",
-};
 
 // ─── Read state helpers ───
 
@@ -43,57 +34,67 @@ function saveReadIds(ids: Set<string>) {
 
 interface FeedItem {
   id: string;
-  type: "analysis" | "techmap" | "monitoring";
+  type: "analysis" | "techmap" | "monitor-item";
   title: string;
   subtitle: string;
-  date: string; // ISO date string for sorting/grouping
+  date: string; // YYYY-MM-DD for grouping
   agentPath: string;
-  // Type-specific data
+  agentLabel: string; // e.g. "Oil Market Monitor", "Apple Weekly Brief"
+  // Type-specific data for expanded view
   analysisEvent?: AnalysisEvent;
   techmapHighlight?: TechmapHighlight;
-  monitoringNotification?: TopicNotification;
+  monitorItem?: { source: string; url: string };
 }
 
 // ─── Formatters ───
 
-function topicLabel(n: TopicNotification): string {
-  return TOPIC_LABELS[n.topic_id] || n.topic_name;
-}
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-function fmtDate(ts: string): string {
-  if (!ts) return "";
-  const d = ts.substring(0, 10);
-  if (d.length !== 10) return d;
-  const mo = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function fmtDateShort(d: string): string {
+  if (!d || d.length < 10) return d || "";
   const [, m, day] = d.split("-").map(Number);
-  return `${mo[m - 1]} ${day}`;
+  return `${MONTHS[m - 1]} ${day}`;
 }
 
 function fmtSource(source: string): string {
   return source.toUpperCase().replace(/^WWW\./, "");
 }
 
-function getDateGroup(dateStr: string): string {
-  if (!dateStr) return "Earlier";
+function fmtDayLabel(dateStr: string): string {
+  if (!dateStr) return "Unknown";
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
+  const d = new Date(dateStr + "T00:00:00");
+
+  if (d.getTime() === today.getTime()) return "Today";
+  if (d.getTime() === yesterday.getTime()) return "Yesterday";
+
+  const dayNames = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   const weekAgo = new Date(today);
   weekAgo.setDate(weekAgo.getDate() - 7);
 
-  const d = new Date(dateStr.substring(0, 10) + "T00:00:00");
-  if (d >= today) return "Today";
-  if (d >= yesterday) return "Yesterday";
-  if (d >= weekAgo) return "This week";
-  return "Earlier";
+  // Within last 7 days: show day name + date
+  if (d > weekAgo) {
+    return `${dayNames[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}`;
+  }
+
+  // Older: show full date
+  return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 }
 
-const GROUP_ORDER: Record<string, number> = {
-  "Today": 0,
-  "Yesterday": 1,
-  "This week": 2,
-  "Earlier": 3,
+// ─── Monitor topic labels + agent paths ───
+// The daily monitor items come from weekly notifications API.
+// Each notification has topic_id, agent_path, and items[].
+// We flatten items into individual FeedItems.
+
+const TOPIC_LABELS: Record<string, string> = {
+  cyber: "Cyber Risk Monitor",
+  macro: "G10 Macro Releases",
+  oil: "Oil Market Monitor",
+  regulatory: "Crypto Regulatory Shifts",
+  crypto: "Crypto ETF Access",
 };
 
 // ─── Share helpers ───
@@ -102,20 +103,22 @@ function shareUrl(item: FeedItem): string {
   return `${SITE_URL}${item.agentPath}`;
 }
 
-function shareText(item: FeedItem): string {
-  return `${item.title}\n\n${item.subtitle}\n\n${shareUrl(item)}`;
-}
-
 // ─── Component ───
 
 interface NotificationFeedProps {
   onCountChange?: (count: number) => void;
+  favorites?: Set<string>;
+  onGoToExplore?: () => void;
 }
 
-export default function NotificationFeed({ onCountChange }: NotificationFeedProps) {
-  const [data, setData] = useState<NotificationsResponse | null>(null);
+export default function NotificationFeed({
+  onCountChange,
+  favorites,
+  onGoToExplore,
+}: NotificationFeedProps) {
   const [analysisData, setAnalysisData] = useState<AnalysisEventsResponse | null>(null);
   const [techmapData, setTechmapData] = useState<TechmapHighlightsResponse | null>(null);
+  const [monitorItems, setMonitorItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -137,16 +140,49 @@ export default function NotificationFeed({ onCountChange }: NotificationFeedProp
       setLoading(true);
       setError(null);
       try {
-        const [weeklyRes, analysisRes, techmapRes] = await Promise.all([
-          fetchNotifications("latest"),
-          fetchAnalysisEvents("recent", undefined, 7),
-          fetchTechmapHighlights(1),
+        // Fetch analysis events (14 days) and techmap highlights (2 weeks)
+        const [analysisRes, techmapRes] = await Promise.all([
+          fetchAnalysisEvents("recent", undefined, 14),
+          fetchTechmapHighlights(2),
         ]);
-        if (!cancelled) {
-          setData(weeklyRes);
-          setAnalysisData(analysisRes);
-          setTechmapData(techmapRes);
+
+        if (cancelled) return;
+        setAnalysisData(analysisRes);
+        setTechmapData(techmapRes);
+
+        // Fetch daily monitor data from the weekly notifications endpoint
+        // We import fetchNotifications dynamically to flatten items
+        const { fetchNotifications } = await import("@/lib/api");
+        const weeklyRes = await fetchNotifications("latest");
+
+        if (cancelled) return;
+
+        // Flatten: each monitoring notification item becomes its own FeedItem
+        const flatItems: FeedItem[] = [];
+        if (weeklyRes?.notifications) {
+          for (const notif of weeklyRes.notifications) {
+            const label = TOPIC_LABELS[notif.topic_id] || notif.topic_name;
+            for (const item of notif.items || []) {
+              const itemDate = item.timestamp
+                ? item.timestamp.substring(0, 10)
+                : notif.week_end || "";
+              flatItems.push({
+                id: `monitor-${notif.topic_id}-${item.title.substring(0, 40)}-${itemDate}`,
+                type: "monitor-item",
+                title: item.title,
+                subtitle: label,
+                date: itemDate,
+                agentPath: notif.agent_path,
+                agentLabel: label,
+                monitorItem: {
+                  source: item.source,
+                  url: item.url,
+                },
+              });
+            }
+          }
         }
+        setMonitorItems(flatItems);
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load");
       } finally {
@@ -157,8 +193,8 @@ export default function NotificationFeed({ onCountChange }: NotificationFeedProp
     return () => { cancelled = true; };
   }, []);
 
-  // Build unified feed
-  const feedItems: FeedItem[] = useMemo(() => {
+  // Build unified feed (all items, unfiltered)
+  const allFeedItems: FeedItem[] = useMemo(() => {
     const items: FeedItem[] = [];
 
     // Analysis events
@@ -171,64 +207,60 @@ export default function NotificationFeed({ onCountChange }: NotificationFeedProp
           subtitle: evt.detail,
           date: evt.date,
           agentPath: evt.agent_path,
+          agentLabel: `${evt.ticker} Analysis`,
           analysisEvent: evt,
         });
       }
     }
 
-    // Techmap highlights
+    // Techmap highlights — date is the week_end value
     if (techmapData?.highlights) {
       for (const hl of techmapData.highlights) {
         items.push({
-          id: `techmap-${hl.topic_id}`,
+          id: `techmap-${hl.topic_id}-${hl.week_end || ""}`,
           type: "techmap",
           title: `${hl.company}: ${hl.headline}`,
           subtitle: hl.takeaways.slice(0, 2).join(". "),
           date: hl.week_end || hl.week_start || "",
           agentPath: hl.agent_path,
+          agentLabel: `${hl.company} Weekly Brief`,
           techmapHighlight: hl,
         });
       }
     }
 
-    // Monitoring notifications
-    if (data?.notifications) {
-      for (const notif of data.notifications) {
-        items.push({
-          id: notif.notification_id,
-          type: "monitoring",
-          title: topicLabel(notif),
-          subtitle: notif.items.slice(0, 2).map((i) => i.title).join(". "),
-          date: notif.week_end || "",
-          agentPath: notif.agent_path,
-          monitoringNotification: notif,
-        });
-      }
-    }
+    // Daily monitor items (already flattened)
+    items.push(...monitorItems);
 
-    // Sort by date descending
-    items.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+    // Sort by date descending, then by title for same-date stability
+    items.sort((a, b) => {
+      const dc = (b.date || "").localeCompare(a.date || "");
+      if (dc !== 0) return dc;
+      return a.title.localeCompare(b.title);
+    });
+
     return items;
-  }, [analysisData, techmapData, data]);
+  }, [analysisData, techmapData, monitorItems]);
 
-  // Group by time
-  const groupedFeed: Map<string, FeedItem[]> = useMemo(() => {
+  // Filter by bookmarks
+  const feedItems: FeedItem[] = useMemo(() => {
+    if (!favorites || favorites.size === 0) return [];
+    return allFeedItems.filter((item) => favorites.has(item.agentPath));
+  }, [allFeedItems, favorites]);
+
+  // Group by individual date (YYYY-MM-DD)
+  const groupedFeed: [string, FeedItem[]][] = useMemo(() => {
     const map = new Map<string, FeedItem[]>();
     for (const item of feedItems) {
-      const group = getDateGroup(item.date);
-      if (!map.has(group)) map.set(group, []);
-      map.get(group)!.push(item);
+      const dateKey = item.date.substring(0, 10) || "unknown";
+      if (!map.has(dateKey)) map.set(dateKey, []);
+      map.get(dateKey)!.push(item);
     }
-    // Sort groups
-    const sorted = new Map(
-      [...map.entries()].sort(
-        (a, b) => (GROUP_ORDER[a[0]] ?? 9) - (GROUP_ORDER[b[0]] ?? 9)
-      )
-    );
-    return sorted;
+    // Sort date keys descending (newest first)
+    return [...map.entries()].sort((a, b) => b[0].localeCompare(a[0]));
   }, [feedItems]);
 
-  // Unread count
+  // Unread count (filtered)
   const unreadCount = useMemo(() => {
     return feedItems.filter((item) => !readIds.has(item.id)).length;
   }, [feedItems, readIds]);
@@ -311,7 +343,7 @@ export default function NotificationFeed({ onCountChange }: NotificationFeedProp
   }, []);
 
   const handleShareX = useCallback((item: FeedItem) => {
-    const text = encodeURIComponent(shareText(item));
+    const text = encodeURIComponent(`${item.title}\n\n${shareUrl(item)}`);
     window.open(`https://x.com/intent/tweet?text=${text}`, "_blank");
     setShareOpenId(null);
   }, []);
@@ -325,7 +357,7 @@ export default function NotificationFeed({ onCountChange }: NotificationFeedProp
     setShareOpenId(null);
   }, []);
 
-  // ─── Share popover renderer ───
+  // ─── Share popover ───
 
   const renderSharePopover = (item: FeedItem) => {
     if (shareOpenId !== item.id) return null;
@@ -349,16 +381,16 @@ export default function NotificationFeed({ onCountChange }: NotificationFeedProp
 
   // ─── Type badge ───
 
-  function typeBadge(type: FeedItem["type"]) {
+  function typeBadge(item: FeedItem) {
     const labels: Record<string, string> = {
       analysis: "Analysis",
       techmap: "Brief",
-      monitoring: "Monitor",
+      "monitor-item": "Monitor",
     };
-    return <span className={styles.typeBadge}>{labels[type]}</span>;
+    return <span className={styles.typeBadge}>{labels[item.type]}</span>;
   }
 
-  // ─── Expanded content by type ───
+  // ─── Expanded content ───
 
   function renderExpanded(item: FeedItem) {
     if (item.type === "analysis" && item.analysisEvent) {
@@ -376,13 +408,8 @@ export default function NotificationFeed({ onCountChange }: NotificationFeedProp
               </svg>
             </a>
             <div className={styles.shareWrap}>
-              <button
-                className={styles.shareTrigger}
-                onClick={(e) => openShare(item.id, e.currentTarget)}
-              >
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                  <path d="M4 8V13a1 1 0 001 1h6a1 1 0 001-1V8M11 4L8 1M8 1L5 4M8 1v9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+              <button className={styles.shareTrigger} onClick={(e) => openShare(item.id, e.currentTarget)}>
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 8V13a1 1 0 001 1h6a1 1 0 001-1V8M11 4L8 1M8 1L5 4M8 1v9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 <span>Share</span>
               </button>
               {renderSharePopover(item)}
@@ -398,16 +425,10 @@ export default function NotificationFeed({ onCountChange }: NotificationFeedProp
         <div className={styles.disclosure}>
           <div className={styles.disclosureInner}>
             {hl.evidence.map((ev, i) => (
-              <a
-                key={`${ev.title}-${i}`}
-                href={ev.url || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.item}
-              >
+              <a key={`${ev.title}-${i}`} href={ev.url || "#"} target="_blank" rel="noopener noreferrer" className={styles.item}>
                 <div className={styles.itemMeta}>
                   <span className={styles.itemSource}>{fmtSource(ev.source)}</span>
-                  <span className={styles.itemDate}>{fmtDate(ev.timestamp)}</span>
+                  <span className={styles.itemDate}>{fmtDateShort(ev.timestamp)}</span>
                 </div>
                 <span className={styles.itemTitle}>{ev.title}</span>
               </a>
@@ -421,13 +442,8 @@ export default function NotificationFeed({ onCountChange }: NotificationFeedProp
               </svg>
             </a>
             <div className={styles.shareWrap}>
-              <button
-                className={styles.shareTrigger}
-                onClick={(e) => openShare(item.id, e.currentTarget)}
-              >
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                  <path d="M4 8V13a1 1 0 001 1h6a1 1 0 001-1V8M11 4L8 1M8 1L5 4M8 1v9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+              <button className={styles.shareTrigger} onClick={(e) => openShare(item.id, e.currentTarget)}>
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 8V13a1 1 0 001 1h6a1 1 0 001-1V8M11 4L8 1M8 1L5 4M8 1v9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 <span>Share</span>
               </button>
               {renderSharePopover(item)}
@@ -437,45 +453,26 @@ export default function NotificationFeed({ onCountChange }: NotificationFeedProp
       );
     }
 
-    if (item.type === "monitoring" && item.monitoringNotification) {
-      const notif = item.monitoringNotification;
+    // Monitor item — minimal expanded view with source link
+    if (item.type === "monitor-item" && item.monitorItem) {
       return (
         <div className={styles.disclosure}>
-          <div className={styles.disclosureInner}>
-            {notif.items.map((ni, i) => (
-              <a
-                key={`${ni.title}-${i}`}
-                href={ni.url || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.item}
-              >
-                <div className={styles.itemMeta}>
-                  <span className={styles.itemSource}>{fmtSource(ni.source)}</span>
-                  <span className={styles.itemDate}>{fmtDate(ni.timestamp)}</span>
-                </div>
-                <span className={styles.itemTitle}>{ni.title}</span>
-              </a>
-            ))}
-          </div>
-          <div className={styles.disclosureFooter}>
-            <a href={notif.agent_path} className={styles.monitorBtn}>
-              <span>View monitor</span>
+          <div className={styles.disclosureFooter} style={{ marginTop: 0 }}>
+            <a href={item.monitorItem.url || "#"} target="_blank" rel="noopener noreferrer" className={styles.monitorBtn}>
+              <span>{fmtSource(item.monitorItem.source)}</span>
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                 <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </a>
-            <div className={styles.shareWrap}>
-              <button
-                className={styles.shareTrigger}
-                onClick={(e) => openShare(item.id, e.currentTarget)}
-              >
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                  <path d="M4 8V13a1 1 0 001 1h6a1 1 0 001-1V8M11 4L8 1M8 1L5 4M8 1v9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span>Share</span>
-              </button>
-              {renderSharePopover(item)}
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <a href={item.agentPath} className={styles.agentLink}>{item.agentLabel}</a>
+              <div className={styles.shareWrap}>
+                <button className={styles.shareTrigger} onClick={(e) => openShare(item.id, e.currentTarget)}>
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 8V13a1 1 0 001 1h6a1 1 0 001-1V8M11 4L8 1M8 1L5 4M8 1v9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <span>Share</span>
+                </button>
+                {renderSharePopover(item)}
+              </div>
             </div>
           </div>
         </div>
@@ -506,11 +503,40 @@ export default function NotificationFeed({ onCountChange }: NotificationFeedProp
     );
   }
 
+  // No bookmarks
+  if (!favorites || favorites.size === 0) {
+    return (
+      <div className={styles.wrap}>
+        <div className={styles.emptyState}>
+          <div className={styles.emptyIcon}>
+            <svg width="32" height="32" viewBox="0 0 16 16" fill="none" stroke="#c5c5ce" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 2.5V8L11 10" />
+              <circle cx="8" cy="8" r="6" />
+            </svg>
+          </div>
+          <h3 className={styles.emptyTitle}>No updates to show</h3>
+          <p className={styles.emptyDesc}>
+            Bookmark agents in Explore to receive their updates here. Analysis alerts, weekly briefs, and daily monitors will appear as they publish.
+          </p>
+          {onGoToExplore && (
+            <button className={styles.emptyAction} onClick={onGoToExplore}>
+              Browse Explore
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Bookmarks but no data
   if (feedItems.length === 0) {
     return (
       <div className={styles.wrap}>
         <div className={styles.center}>
-          <span className={styles.muted}>No updates yet.</span>
+          <span className={styles.muted}>No recent updates from your bookmarked agents.</span>
         </div>
       </div>
     );
@@ -531,17 +557,20 @@ export default function NotificationFeed({ onCountChange }: NotificationFeedProp
         </div>
       )}
 
-      {/* Time-grouped feed */}
-      {Array.from(groupedFeed.entries()).map(([group, items]) => {
+      {/* Per-day grouped feed */}
+      {groupedFeed.map(([dateKey, items]) => {
         const sectionUnread = items.filter((i) => !readIds.has(i.id));
         const hasUnread = sectionUnread.length > 0;
+        const dayLabel = fmtDayLabel(dateKey);
 
         return (
-          <div key={group} className={styles.timeGroup}>
+          <div key={dateKey} className={styles.timeGroup}>
             <div className={styles.timeGroupHeader}>
               <div className={styles.timeGroupLeft}>
-                <span className={styles.timeGroupLabel}>{group}</span>
-                {hasUnread && <span className={styles.timeGroupDot} />}
+                <span className={styles.timeGroupLabel}>{dayLabel}</span>
+                {hasUnread && (
+                  <span className={styles.timeGroupCount}>{sectionUnread.length}</span>
+                )}
               </div>
               {hasUnread ? (
                 <button
@@ -576,21 +605,21 @@ export default function NotificationFeed({ onCountChange }: NotificationFeedProp
                         <span className={styles.dotCol}>
                           {!isRead && <span className={styles.unreadDot} />}
                         </span>
-                        <span className={`${styles.rowLabel} ${isRead ? styles.rowLabelRead : ""}`}>
-                          {item.type === "analysis" && item.analysisEvent && (
-                            <span className={styles.eventTicker}>{item.analysisEvent.ticker}</span>
-                          )}
-                          {item.type === "analysis" && item.analysisEvent
-                            ? item.analysisEvent.headline.replace(`${item.analysisEvent.ticker} `, "")
-                            : item.title
-                          }
-                        </span>
+                        <div className={styles.rowContent}>
+                          <span className={`${styles.rowLabel} ${isRead ? styles.rowLabelRead : ""}`}>
+                            {item.type === "analysis" && item.analysisEvent && (
+                              <span className={styles.eventTicker}>{item.analysisEvent.ticker}</span>
+                            )}
+                            {item.type === "analysis" && item.analysisEvent
+                              ? item.analysisEvent.headline.replace(`${item.analysisEvent.ticker} `, "")
+                              : item.title
+                            }
+                          </span>
+                          <span className={styles.rowAgent}>{item.agentLabel}</span>
+                        </div>
                       </div>
                       <span className={styles.rowRight}>
-                        {typeBadge(item.type)}
-                        {item.type === "monitoring" && item.monitoringNotification && (
-                          <span className={styles.count}>{item.monitoringNotification.item_count}</span>
-                        )}
+                        {typeBadge(item)}
                         <svg
                           width="16" height="16" viewBox="0 0 16 16" fill="none"
                           className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ""}`}

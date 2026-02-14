@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Bell } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { fetchNotificationCount } from "@/lib/api";
 import { NotificationFeed } from "@/components/notifications";
 import styles from "./dashboard.module.css";
 
@@ -516,11 +515,8 @@ export default function Dashboard() {
     setHydrated(true);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    fetchNotificationCount()
-      .then((res) => setNotifCount(res.count || 0))
-      .catch(() => setNotifCount(0));
-  }, []);
+  // Notification count is now managed by NotificationFeed via onCountChange
+  // which accounts for bookmark filtering and read state
 
   const toggleFavorite = useCallback((href: string) => {
     setFavorites((prev) => {
@@ -694,11 +690,14 @@ export default function Dashboard() {
           </>
         )}
 
-        {tab === "updates" && (
+        {/* Always mounted for count reporting; hidden when not active */}
+        <div style={tab !== "updates" ? { display: "none" } : undefined}>
           <NotificationFeed
             onCountChange={(count) => setNotifCount(count)}
+            favorites={favorites}
+            onGoToExplore={() => setTab("explore")}
           />
-        )}
+        </div>
 
         {tab === "explore" && (
           <>
